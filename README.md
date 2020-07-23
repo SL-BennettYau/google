@@ -13,13 +13,13 @@ https://github.com/neukenrepo/google/raw/master/googler.user.js
 
 shortcuts available:
 
-[text] e -> [text] etymology
-[text] a -> [text] area
-[text] f -> [text] flag
-[text] p -> [text] population
+[text] e -> [text] etymology\n
+[text] a -> [text] area\n
+[text] f -> [text] flag\n
+[text] p -> [text] population\n
 
-[text] hm -> [text] how many
-[text] bd-> [text] birthday
-[text] rd-> [text] release
-[text] ig-> [text] instagram followers
-[text] tw -> [text] tw followers
+[text] hm -> [text] how many\n
+[text] bd-> [text] birthday\n
+[text] rd-> [text] release\n
+[text] ig-> [text] instagram followers\n
+[text] tw -> [text] tw followers\n
