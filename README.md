@@ -19,7 +19,7 @@ shortcuts available:
 [text] p -> [text] population
 
 [text] hm -> [text] how many  
-[text] bd-> [text] birthday  
-[text] rd-> [text] release  
-[text] ig-> [text] instagram followers  
+[text] bd -> [text] birthday  
+[text] rd -> [text] release date 
+[text] ig -> [text] instagram followers  
 [text] tw -> [text] tw followers  
