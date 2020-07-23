@@ -65,12 +65,4 @@ $().ready(()=>{
 
         }
     })
-
-    /*console.log($('#sb_form'));
-    $("#sb_form").on("submit", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        console.log('hi');
-    })*/
 });
