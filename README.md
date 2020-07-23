@@ -20,6 +20,6 @@ shortcuts available:
 
 [text] hm -> [text] how many  
 [text] bd -> [text] birthday  
-[text] rd -> [text] release date 
+[text] rd -> [text] release date  
 [text] ig -> [text] instagram followers  
 [text] tw -> [text] tw followers  
