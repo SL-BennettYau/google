@@ -53,7 +53,7 @@ $().ready(()=>{
                 search = search.replace(/\bp\b$/gi, "population");
 
                 search = search.replace(/\bbd\b$/gi, "birthday");
-                search = search.replace(/\brd\b$/gi, "release day");
+                search = search.replace(/\brd\b$/gi, "release date");
                 search = search.replace(/\bigd\b$/gi, "instagram followers");
                 search = search.replace(/\btw\b$/gi, "twitter followers");
 
