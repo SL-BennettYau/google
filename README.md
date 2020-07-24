@@ -1,14 +1,11 @@
 # google
 
-hi
+hi this is for chrome people
 
-1) install TamperMonkey for Chrome -
-![New tab](//chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) 
-
+1) Install TamperMonkey extension for Chrome  
 https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
 
-2) Then install this script -
-
+2) Install this script  
 https://github.com/neukenrepo/google/raw/master/googler.user.js
 
 
