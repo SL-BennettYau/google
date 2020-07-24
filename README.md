@@ -20,4 +20,4 @@ shortcuts available:
 [text] bd -> [text] birthday  
 [text] rd -> [text] release date  
 [text] ig -> [text] instagram followers  
-[text] tw -> [text] tw followers  
+[text] tw -> [text] twitter followers  
