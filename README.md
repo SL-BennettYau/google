@@ -11,6 +11,8 @@ https://github.com/neukenrepo/google/raw/master/googler.user.js
 
 shortcuts available:
 
+[text] i -> [image searches] [text]  
+
 [text] e -> [text] etymology  
 [text] a -> [text] area  
 [text] f -> [text] flag  
