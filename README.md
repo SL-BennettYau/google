@@ -3,6 +3,7 @@
 hi
 
 1) install TamperMonkey for Chrome -
+![New tab](//example.com/) 
 
 https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
 
