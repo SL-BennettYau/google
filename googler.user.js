@@ -62,7 +62,6 @@ $().ready(()=>{
             } else {
                 $("#searchform").find('form').submit();
             }
-
         }
     })
 });
