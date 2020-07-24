@@ -1,4 +1,4 @@
-# google
+# google shorties
 
 hi this is for chrome people
 
