@@ -14,6 +14,7 @@
 /* eslint-disable */
 $().ready(()=>{
     'use strict';
+    alert(1)
     var urlParams = new URLSearchParams(window.location.search);
     var q = urlParams.get('q')
     var instance = new Mark(document.querySelector("*"));
