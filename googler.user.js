@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -14,7 +14,6 @@
 /* eslint-disable */
 $().ready(()=>{
     'use strict';
-    alert(1)
     var urlParams = new URLSearchParams(window.location.search);
     var q = urlParams.get('q')
     var instance = new Mark(document.querySelector("*"));
