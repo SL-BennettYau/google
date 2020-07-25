@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -35,34 +35,53 @@ $().ready(()=>{
             }
         });
     }
+    let triggers = {
+        "a": "area",
+        "d": "definition",
+        "e": "etymology",
+        "f": "flag",
+        "i": "image",
+        "p": "population",
+        "bd": "birthday",
+        "fs": "founders",
+        "fw": "founded when",
+        "hm": "how many",
+        "ig": "instagram followers",
+        "rd": "release date",
+        "tw": "twitter followers"
+    }
+
+    let exp = []
+    for(let key in triggers){
+        if (triggers.hasOwnProperty(key)) {
+            exp.push(key)
+        }
+    }
+    let regexp = new RegExp("\\b" + `(${exp.join("|")})` + "\\b", "gi");
+
     var parent = $("#searchform").find('form') || $("#sf")
     $(parent).on("keydown", (e) => {
         if(e.keyCode == 13) {
             //console.log(e.keyCode)
             let search = $(e.target).val()
-            let triggers = new RegExp("\\b" + "(i|e|a|hm|f|p|bd|rd|ig|tw)" + "\\b", "gi");
-            if(search.match(triggers)) {
+
+            if(search.match(regexp)) {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
-                if(search.match(/\bi\b$/gi)) {
-                    search = search.replace(/\bi\b$/gi, "").trim();
-                    window.location.href = `https://www.google.com/search?q=${search}&tbm=isch`;
-                }
-                else {
-                    search = search.replace(/\be\b$/gi, "etymology");
-                    search = search.replace(/\ba\b$/gi, "area");
-                    search = search.replace(/\bhm\b$/gi, "how many");
-                    search = search.replace(/\bf\b$/gi, "flag");
-                    search = search.replace(/\bp\b$/gi, "population");
 
-                    search = search.replace(/\bbd\b$/gi, "birthday");
-                    search = search.replace(/\brd\b$/gi, "release date");
-                    search = search.replace(/\bigd\b$/gi, "instagram followers");
-                    search = search.replace(/\btw\b$/gi, "twitter followers");
-
-                    $(e.target).val(search)
-                    $("#searchform").find('form').submit();
+                for(let key in triggers){
+                    if (triggers.hasOwnProperty(key)) {
+                        console.log(key)
+                        if(key == "i" && search.match(/\bi\b$/gi)) {
+                            search = search.replace(/\bi\b$/gi, "").trim();
+                            window.location.href = `https://www.google.com/search?q=${search}&tbm=isch`;
+                        } else {
+                            search = search.replace(new RegExp(`\\b` + key + `\\b$`, `gi`), triggers[key]);
+                            $(e.target).val(search)
+                            $("#searchform").find('form').submit();
+                        }
+                    }
                 }
             } else {
                 $("#searchform").find('form').submit();
