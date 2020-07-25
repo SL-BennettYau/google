@@ -9,7 +9,7 @@ https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldm
 https://github.com/neukenrepo/google/raw/master/googler.user.js
 
 
-shortcuts available:
+shortcuts available:  
 [text] i => [image search]  
 
 [text] a =>	[text] area  
