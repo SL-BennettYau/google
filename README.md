@@ -11,15 +11,16 @@ https://github.com/neukenrepo/google/raw/master/googler.user.js
 
 shortcuts available:
 
-[text] i -> [image search on text]  
-
-[text] e -> [text] etymology  
-[text] a -> [text] area  
-[text] f -> [text] flag  
-[text] p -> [text] population
-
-[text] hm -> [text] how many  
-[text] bd -> [text] birthday  
-[text] rd -> [text] release date  
-[text] ig -> [text] instagram followers  
-[text] tw -> [text] twitter followers  
+[text] a =>	[text] area  
+[text] d => [text] definition  
+[text] e => [text] etymology  
+[text] f => [text] flag  
+[text] i => [image search]
+[text] p => [text] population  
+[text] bd => [text] birthday  
+[text] s => [text] founders  
+[text] fw => [text] founded when  
+[text] hm => [text] how many  
+[text] ig => [text] instagram followers  
+[text] rd => [text] release date  
+[text] tw => [text] twitter followers  
