@@ -10,6 +10,7 @@ https://github.com/neukenrepo/google/raw/master/googler.user.js
 
 
 shortcuts available:  
+
 [text] i => [image search]  
 
 [text] a =>	[text] area  
