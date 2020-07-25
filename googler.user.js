@@ -63,7 +63,6 @@ $().ready(()=>{
     var parent = searchform.length > 0 ? searchform : $("#sf")
     $(parent).on("keydown", (e) => {
         if(e.keyCode == 13) {
-            //console.log(e.keyCode)
             let search = $(e.target).val()
 
             if(search.match(regexp)) {
@@ -81,7 +80,6 @@ $().ready(()=>{
                     }
                 }
                 if(search.match(/\bi\b$/gi)) {
-                    console.log('img')
                     search = search.replace(/\bi\b$/gi, "").trim();
                     window.location.href = `https://www.google.com/search?q=${search}&tbm=isch`;
 
