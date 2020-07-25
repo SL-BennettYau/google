@@ -15,7 +15,7 @@ shortcuts available:
 [text] d => [text] definition  
 [text] e => [text] etymology  
 [text] f => [text] flag  
-[text] i => [image search]
+[text] i => [image search]  
 [text] p => [text] population  
 [text] bd => [text] birthday  
 [text] s => [text] founders  
