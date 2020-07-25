@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -59,7 +59,8 @@ $().ready(()=>{
     }
     let regexp = new RegExp("\\b" + `(${exp.join("|")})` + "\\b", "gi");
 
-    var parent = $("#searchform").find('form') || $("#sf")
+    var searchform = $("#searchform").find('form');
+    var parent = searchform.length > 0 ? searchform : $("#sf")
     $(parent).on("keydown", (e) => {
         if(e.keyCode == 13) {
             //console.log(e.keyCode)
@@ -70,21 +71,30 @@ $().ready(()=>{
                 e.stopPropagation();
                 e.stopImmediatePropagation();
 
-                for(let key in triggers){
+                for(let key in triggers) {
                     if (triggers.hasOwnProperty(key)) {
-                        console.log(key)
                         if(key == "i" && search.match(/\bi\b$/gi)) {
-                            search = search.replace(/\bi\b$/gi, "").trim();
-                            window.location.href = `https://www.google.com/search?q=${search}&tbm=isch`;
+                            break;
                         } else {
                             search = search.replace(new RegExp(`\\b` + key + `\\b$`, `gi`), triggers[key]);
-                            $(e.target).val(search)
-                            $("#searchform").find('form').submit();
                         }
                     }
                 }
+                if(search.match(/\bi\b$/gi)) {
+                    console.log('img')
+                    search = search.replace(/\bi\b$/gi, "").trim();
+                    window.location.href = `https://www.google.com/search?q=${search}&tbm=isch`;
+
+                } else {
+                    $(e.target).val(search)
+                    if($("#sf").length > 0) {
+                        window.location.href = `https://www.google.com/search?q=${search}`;
+                    } else {
+                        searchform.submit();
+                    }
+                }
             } else {
-                $("#searchform").find('form').submit();
+                searchform.submit();
             }
         }
     })
