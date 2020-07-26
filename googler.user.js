@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.8
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -28,7 +28,6 @@ $().ready(()=>{
 </style>`);
 
     var options = {
-        "className": "hi1",
         "accuracy": "partially",
         "acrossElements": true,
         "separateWordSearch": false,
@@ -108,8 +107,7 @@ $().ready(()=>{
             q.map(w => {
                 if(w.length >= 3) {
                     instance.mark(w, {
-                        ...options,
-                        "className": "hi3",
+                        ...options
                     });
                 }
             });
