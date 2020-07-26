@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      0.9
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
