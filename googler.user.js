@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      0.9
+// @version      1.0
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -59,25 +59,35 @@ $().ready(()=>{
     let regexp = new RegExp("\\b" + `(${exp.join("|")})` + "\\b", "gi");
     var searchform = $("#searchform").find('form');
     var parent = searchform.length > 0 ? searchform : $("#sf")
-    let ctn, solid, mix;
+    let ctn, off, solid, mix;
     $(parent).css({"position": "relative"});
     ctn = document.createElement("div");
     $(parent).append(ctn);
     $(ctn).css({"position": "absolute", "right": "0", "top": "0", "width": "auto"});
 
+    off = document.createElement("input");
+    off.type = "radio";
+    off.name = 'hilite';
+    off.value = 'off';
+    off.onclick = () => {
+        sessionStorage.setItem("hilite", "off");
+        searchform.submit();
+    }
+    $(ctn).append("<label for='radio' style='right: -30px; position: absolute;'>off</label>");
+    $(ctn).append(off);
+    $(off).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "0"});
+
     solid = document.createElement("input");
     solid.type = "radio";
     solid.name = 'hilite';
     solid.value = 'solid';
-
     solid.onclick = () => {
         sessionStorage.setItem("hilite", "solid");
         searchform.submit();
     }
-
-    $(ctn).append("<label for='radio' style='right: -30px; position: absolute;'>solid</label>");
+    $(ctn).append("<label for='radio' style='top: 20px; right: -30px; position: absolute;'>solid</label>");
     $(ctn).append(solid);
-    $(solid).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "0"});
+    $(solid).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "20px"});
 
     mix = document.createElement("input");
     mix.type = "radio";
@@ -87,19 +97,20 @@ $().ready(()=>{
         sessionStorage.setItem("hilite", "mix");
         searchform.submit();
     }
+    $(ctn).append("<label for='radio' style='top: 40px; right: -30px; position: absolute;'>mix</label>");
+    $(ctn).append(mix);
+    $(mix).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "40px"});
+
     var hi = sessionStorage.getItem("hilite");
     if(!hi || hi == "solid") {
         solid.checked = true;
-    } else {
+    } else if(hi == "mix") {
         mix.checked = true;
+    } else {
+        off.checked = true;
     }
 
-
-    $(ctn).append("<label for='radio' style='top: 20px; right: -25px; position: absolute;'>mix</label>");
-    $(ctn).append(mix);
-    $(mix).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "20px"});
-
-    if(q) {
+    if(q && (solid.checked || mix.checked)) {
         if(solid.checked) {
             instance.mark(q, options);
             q = q.split(" ");
