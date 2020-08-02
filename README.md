@@ -14,9 +14,11 @@ shortcuts available:
 [text] i => [image search]  
 
 [text] a =>	[text] area  
+[text] c =>	[text] coordinates  
 [text] d => [text] definition  
 [text] e => [text] etymology  
 [text] f => [text] flag  
+[text] l => [text] lyrics  
 [text] p => [text] population  
 
 [text] bd => [text] birthday  
