@@ -11,13 +11,12 @@ https://github.com/neukenrepo/google/raw/master/googler.user.js
 
 shortcuts available:  
 
-[text] i => [image search]  
-
 [text] a =>	[text] area  
 [text] c =>	[text] coordinates  
 [text] d => [text] definition  
 [text] e => [text] etymology  
 [text] f => [text] flag  
+[text] i => [image search]  
 [text] l => [text] lyrics  
 [text] p => [text] population  
 
