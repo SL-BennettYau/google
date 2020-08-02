@@ -1,19 +1,38 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
 // @match        https://www.bing.com/*
-// @grant        none
+// @grant        GM_addStyle
 // @require http://code.jquery.com/jquery-3.4.1.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js
 // ==/UserScript==
 
 /* eslint-disable */
+GM_addStyle(`
+.Oh5wg .PZPZlf div {
+  margin-bottom: 12px !important;
+  max-height: initial;
+}
+.Oh5wg div.OULBYb {
+  display: none;
+}
+.Oh5wg div.u7wWjf {
+  display: block;
+}
+.xpdxpnd {
+  max-height: initial;
+}
+`);
 $().ready(()=>{
     'use strict';
+    var x = document.getElementsByTagName("g-text-expander");
+    if(x && x[0] && x[0].children[0] && x[0].children[0].innerText == "More") {
+        x[0].children[0].click();
+    }
     var urlParams = new URLSearchParams(window.location.search);
     var q = urlParams.get('q')
     var instance = new Mark(document.querySelector("*"));
@@ -36,10 +55,12 @@ $().ready(()=>{
 
     let triggers = {
         "a": "area",
+        "c": "coordinates",
         "d": "definition",
         "e": "etymology",
         "f": "flag",
         "i": "image",
+        "l": "lyrics",
         "p": "population",
         "bd": "birthday",
         "fs": "founders",
