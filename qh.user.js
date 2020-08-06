@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -247,10 +247,11 @@ $().ready(function() {
             waitbody=null;
             createinputs();
             var observer = new MutationObserver(function() {
+                console.log('mutation')
                 var lastmsg = messageList.find("div[id^=messages-]").last();
                 //console.log(lastmsg[0])
                 var user = messageList.find("span[class*=username-]").last().text()
-                //console.log(user)
+                console.log(user)
                 if(user == "GrayBot") {
                     var embedded = lastmsg.find("div[class*=embedWrapper-]").last();
                     //console.log(embedded)
@@ -260,16 +261,11 @@ $().ready(function() {
                     //console.log(values[0].innerText)
                     q = values[0].innerText;
                     //console.log(q[0].innerText)
-                    if(!ans1) {
-                        q = null;
-                        lastans1 = null;
-                        lastans2 = null;
-                        lastans3 = null;
-                    }
-
+                    console.log('q', q)
                     if(q && (q != lastq || values[1].innerText != lastans1 || values[2].innerText != lastans2 || values[3].innerText != lastans3)) {
+                        console.log("inside");
                         if((op1.checked && !ans1) || (op2.checked && !ans2) || (op3.checked && !ans3)) {
-                            //console.log('openwindows')
+                            console.log('openwindows')
                             openwindows(true)
                         }
                         qencoded = encodeURIComponent(q.trim());
