@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.5
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -18,8 +18,7 @@ $().ready(function() {
     var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
     var deviceHeight = screen.height - 100;
     var deviceWidth = (screen.width - 630) / 3;
-    let w = deviceWidth
-    console.log(w)
+    let w = deviceWidth;
     var openwindows = (override) => {
         if(override) {
             if(ans1) {
@@ -69,21 +68,24 @@ $().ready(function() {
             waitbody=null;
             var observer = new MutationObserver(function() {
                 var lastmsg = messageList.find("div[id^=messages-]").last();
-                console.log(lastmsg[0])
+                //console.log(lastmsg[0])
                 var user = messageList.find("span[class*=username-]").last().text()
                 console.log(user)
-                var embedded = messageList.find("div[class*=embedWrapper-]").last();
-                var values = embedded.find("div[class*=embedFieldValue-]");
-                //console.log(values)
-                q = values[0].innerText;
-                //console.log(q[0].innerText)
+                if(user == "GrayBot") {
+                    var embedded = lastmsg.find("div[class*=embedWrapper-]").last();
+                    //console.log(embedded)
+                    var values = embedded.find("div[class*=embedFieldValue-]");
+                    //console.log(values)
+                    //console.log(values[0])
+                    //console.log(values[0].innerText)
+                    q = values[0].innerText;
+                    //console.log(q[0].innerText)
 
-                if(q && (q != lastq || values[1].innerText != lastans1 || values[2].innerText != lastans2 || values[3].innerText != lastans3)) {
-                    if(!ans1) {
-                        console.log('openwindows')
-                        openwindows(true)
-                    }
-                    if(user == "GrayBot") {
+                    if(q && (q != lastq || values[1].innerText != lastans1 || values[2].innerText != lastans2 || values[3].innerText != lastans3)) {
+                        if(!ans1) {
+                            //console.log('openwindows')
+                            openwindows(true)
+                        }
                         qencoded = encodeURIComponent(q.trim());
 
                         if (ans1 && values[1].innerText) {
