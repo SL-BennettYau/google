@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -287,7 +287,7 @@ $().ready(function() {
                         }
                         if (ans3 && op3.checked && values[3].innerText) {
                             let answer = encodeURIComponent(values[3].innerText.trim());
-                            ans3.location.href = `${enginemain}${answer} ${qencoded}&brg2=${answer}`;
+                            ans3.location.href = `${enginemain}${answer} ${qencoded}&brg3=${answer}`;
                         }
                         lastq = q;
                         lastans1 = values[1].innerText;
