@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -30,6 +30,7 @@ margin-left: 15px;
 width: 100px;
 display: inline-block;
 }
+
 input[name=op1]:after{
 content: 'option 1';
 }
@@ -45,7 +46,7 @@ content: 'left';
 input[value=right]:after{
 content: 'right';
 }
-input[value=right], input[name=op3] {
+input[value=right], input[name=op3]{
 margin-bottom: 20px;
 }
 .bezel {
@@ -78,6 +79,7 @@ justify-content: center;
 `);
 $().ready(function() {
     'use strict';
+    console.log('dom rdy');
     var questionClass = ".vote-question", answerClass=".answer-body";
     var q, ans, qencoded;
     var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, s1, s2, s3;
@@ -114,6 +116,7 @@ $().ready(function() {
             container.append(right);
 
             container.append("Role");
+
             op1 = document.createElement("input");
             op1.type = "checkbox";
             op1.name = 'op1';
@@ -229,6 +232,10 @@ $().ready(function() {
                 ans3.close();
                 ans3 = null;
             }
+            lastq = null;
+            lastans1 = null;
+            lastans2 = null;
+            lastans3 = null;
         } catch(e){}
     }
 
@@ -300,6 +307,7 @@ $().ready(function() {
                         if(ans1 || ans2 || ans3){
                             closewindows()
                         } else {
+                            createinputs();
                             openwindows(true);
                         }
                     }
