@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.5
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -60,13 +60,14 @@ border-radius: 5px;
 .monitor{
 background-color: white;
 height: 100%;
-width:  100%;
+
 margin: 0 auto;
 border:1px solid grey;
 border-radius: 5px;
 display:flex;
 align-items: center;
 justify-content: flex-start;
+padding: 0 5px;
 }
 .s1, .s2, .s3{
 color: black;
@@ -255,11 +256,11 @@ $().ready(function() {
             createinputs();
             var observer = new MutationObserver(function() {
                 console.log('mutation')
-                var lastmsg = messageList.find("div[id^=messages-]").last();
-                //console.log(lastmsg[0])
                 var user = messageList.find("span[class*=username-]").last().text()
                 console.log(user)
                 if(user == "GrayBot") {
+                    var lastmsg = messageList.find("div[id^=messages-]").last();
+                    console.log(lastmsg[0])
                     var embedded = lastmsg.find("div[class*=embedWrapper-]").last();
                     //console.log(embedded)
                     var values = embedded.find("div[class*=embedFieldValue-]");
@@ -296,16 +297,24 @@ $().ready(function() {
                     }
                 }
             });
-            observer.observe(messageList[0], {characterData: true, subtree: true, childList: true, attributes: false});
+            observer.observe(messageList[0], {characterData: false, subtree: false, childList: true, attributes: false});
 
             document.onkeydown = function(evt) {
                 evt = evt || window.event;
                 // keybinds
+                //console.log(evt.keyCode)
                 try{
+                    //F8 windows force null
+                    if(evt.keyCode == 119) {
+                        lastq = null;
+                        lastans1 = null;
+                        lastans2 = null;
+                        lastans3 = null;
+                    }
                     //F9 windows
                     if(evt.keyCode == 120) {
                         if(ans1 || ans2 || ans3){
-                            closewindows()
+                            closewindows();
                         } else {
                             createinputs();
                             openwindows(true);
