@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -277,18 +277,19 @@ $().ready(function() {
                             openwindows(true)
                         }
                         qencoded = encodeURIComponent(q.trim());
+                        let allanswers = `&brg1=${encodeURIComponent(values[1].innerText.trim())}&brg2=${encodeURIComponent(values[2].innerText.trim())}&brg3=${encodeURIComponent(values[3].innerText.trim())}`
 
                         if (ans1 && op1.checked && values[1].innerText) {
                             let answer = encodeURIComponent(values[1].innerText.trim());
-                            ans1.location.href = `${enginemain}${answer} ${qencoded}&brg1=${answer}`;
+                            ans1.location.href = `${enginemain}${answer} ${qencoded}${allanswers}`;
                         }
                         if (ans2 && op2.checked && values[2].innerText) {
                             let answer = encodeURIComponent(values[2].innerText.trim());
-                            ans2.location.href = `${enginemain}${answer} ${qencoded}&brg2=${answer}`;
+                            ans2.location.href = `${enginemain}${answer} ${qencoded}${allanswers}`;
                         }
                         if (ans3 && op3.checked && values[3].innerText) {
                             let answer = encodeURIComponent(values[3].innerText.trim());
-                            ans3.location.href = `${enginemain}${answer} ${qencoded}&brg3=${answer}`;
+                            ans3.location.href = `${enginemain}${answer} ${qencoded}${allanswers}`;
                         }
                         lastq = q;
                         lastans1 = values[1].innerText;
