@@ -8,7 +8,7 @@ https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldm
 2) Install this script  
 https://github.com/neukenrepo/google/raw/master/googler.user.js
 
-3) Install this script  
+3) Install this script - IF YOU USE DISCORD DESKTOP APP - KEEP A BACKGROUND DISCORD WEBAPP OPEN IN THE CHANNEL WHERE QH IS RUNNING FOR THIS TO WORK PROPERLY  
 https://github.com/neukenrepo/google/raw/master/qh.user.js
 
 shortcuts available:  
