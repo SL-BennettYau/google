@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      2.3
+// @version      2.4
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -33,7 +33,7 @@ font-size:12px;
 .inputscontainer .searchtype:hover,
 .inputscontainer .layout:hover,
 .inputscontainer .role:hover,
-.inputscontainer input:hover:after {
+.inputscontainer input:hover:after{
 color: var(--interactive-hover);
 }
 .inputscontainer input:after {
@@ -41,7 +41,7 @@ color: var(--channels-default);
 }
 
 .inputscontainer svg.hover path{
-fill: var(--channels-default);
+fill: var(--interactive-hover);
 }
 
 input[name=op1], input[name=op2], input[name=op3], input[name=layout], input[name=searchtype]{
@@ -105,12 +105,13 @@ cursor: pointer;
 .layout, .role{
 margin-top: 20px;
 }
+
 .bezel {
 height: 75px;
-width:  80%;
+width:  90%;
 margin: 20px auto 0 auto;
-padding: 10px 10px 20px 10px;
-border:4px solid var(--channels-default);
+padding: 5px 5px 15px 5px;
+border:3px solid var(--channels-default);
 border-radius: 5px;
 }
 .monitor{
@@ -135,6 +136,7 @@ align-items: center;
 justify-content: center;
 font-size:25px;
 font-weight:600px;
+cursor: pointer;
 }
 .monitor div[class^=childWrapper-] {
 height: 75%;
@@ -359,18 +361,33 @@ $().ready(function() {
             s1.className="s1";
             s1.innerText = "1";
             s1.style.width = "25%";
+            s1.onclick = (e) => {
+                op2.checked = false;
+                op3.checked = false;
+                updatemonitor();
+            };
             monitor.append(s1);
 
             s2 = document.createElement("div");
             s2.className="s2";
             s2.innerText = "2";
             s2.style.width = "25%";
+            s2.onclick = (e) => {
+                op1.checked = false;
+                op3.checked = false;
+                updatemonitor();
+            };
             monitor.append(s2);
 
             s3 = document.createElement("div");
             s3.className="s3";
             s3.innerText = "3";
             s3.style.width = "25%";
+            s3.onclick = (e) => {
+                op1.checked = false;
+                op2.checked = false;
+                updatemonitor();
+            };
             monitor.append(s3);
 
             updatemonitor();
