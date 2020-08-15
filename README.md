@@ -8,6 +8,8 @@ https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldm
 2) Install this script  
 https://github.com/neukenrepo/google/raw/master/googler.user.js
 
+3) Install this script  
+https://github.com/neukenrepo/google/raw/master/qh.user.js
 
 shortcuts available:  
 
