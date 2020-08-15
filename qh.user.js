@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      2.2
+// @version      2.3
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -20,7 +20,7 @@ left: 0;
 right: 0;
 height: auto;
 background-color: var(--background-secondary);
-padding: 5px;
+padding: 5px 5px 2px 5px;
 color: var(--channels-default);
 font-weight: 600;
 }
@@ -48,7 +48,8 @@ input[name=op1], input[name=op2], input[name=op3], input[name=layout], input[nam
 display: block;
 color: white;
 cursor:pointer;
-line-height:15px;
+height:16px;
+line-height:16px;
 }
 
 input[name=op1]:after, input[name=op2]:after, input[name=op3]:after, input[name=layout]:after, input[name=searchtype]:after{
@@ -56,6 +57,8 @@ padding-left: 18px;
 width: auto;
 white-space: nowrap;
 display: inline-block;
+font-size: 16px;
+font-weight: 500;
 }
 
 input[value=full]:after{
