@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      2.0
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -35,6 +35,18 @@ $().ready(()=>{
     }
     var urlParams = new URLSearchParams(window.location.search);
     var q = urlParams.get('q')
+    var prepend1 = urlParams.get('prepend1');
+    var prepend2 = urlParams.get('prepend2');
+    var prepend3 = urlParams.get('prepend3');
+    if(prepend1) {
+        $('#tsf').find("input").val(prepend1 + " ")
+    }
+    if(prepend2) {
+        $('#tsf').find("input").val(prepend2 + " ")
+    }
+    if(prepend3) {
+        $('#tsf').find("input").val(prepend3 + " ")
+    }
     var instance = new Mark(document.querySelector("*"));
     $('head').append(`<style type="text/css">
 .hi1 { background-color: rgba(255,0,0,0.25)}
