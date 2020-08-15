@@ -82,9 +82,6 @@ content: '{question} + {manual input}';
 input[value=manualfork]:after{
 content: '{option} + {manual input}';
 }
-input[value=manualfork]:before{
-}
-
 
 input[value=left]:after{
 content: 'left';
