@@ -8,7 +8,7 @@ https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldm
 2) Install this script  
 https://github.com/neukenrepo/google/raw/master/googler.user.js
 
-3) Install this script - IF YOU USE DISCORD DESKTOP APP - KEEP A BACKGROUND DISCORD WEBAPP OPEN IN THE CHANNEL WHERE QH IS RUNNING FOR THIS TO WORK PROPERLY  
+3) Install this script - NOTE - IF you prefer the discord desktop app, keep a chrome tab open to the discord webapp in the channel where __ is running.  
 https://github.com/neukenrepo/google/raw/master/qh.user.js
 
 shortcuts available:  
