@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.7
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -80,7 +80,6 @@ justify-content: center;
 `);
 $().ready(function() {
     'use strict';
-    console.log('dom rdy');
     var questionClass = ".vote-question", answerClass=".answer-body";
     var q, ans, qencoded;
     var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, s1, s2, s3;
@@ -255,12 +254,12 @@ $().ready(function() {
             waitbody=null;
             createinputs();
             var observer = new MutationObserver(function() {
-                console.log('mutation')
+                //console.log('mutation')
                 var user = messageList.find("span[class*=username-]").last().text()
-                console.log(user)
+                //console.log(user)
                 if(user == "GrayBot") {
                     var lastmsg = messageList.find("div[id^=messages-]").last();
-                    console.log(lastmsg[0])
+                    //console.log(lastmsg[0])
                     var embedded = lastmsg.find("div[class*=embedWrapper-]").last();
                     //console.log(embedded)
                     var values = embedded.find("div[class*=embedFieldValue-]");
@@ -269,11 +268,11 @@ $().ready(function() {
                     //console.log(values[0].innerText)
                     q = values[0].innerText;
                     //console.log(q[0].innerText)
-                    console.log('q', q)
+                    //console.log('q', q)
                     if(q && (q != lastq || values[1].innerText != lastans1 || values[2].innerText != lastans2 || values[3].innerText != lastans3)) {
-                        console.log("inside");
+                        //console.log("inside");
                         if((op1.checked && !ans1) || (op2.checked && !ans2) || (op3.checked && !ans3)) {
-                            console.log('openwindows')
+                            //console.log('openwindows')
                             openwindows(true)
                         }
                         qencoded = encodeURIComponent(q.trim());
