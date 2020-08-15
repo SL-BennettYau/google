@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.2
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -19,23 +19,29 @@ top: 0;
 left: 0;
 right: 0;
 height: auto;
-background-color: #2f3136;
+background-color: var(--background-secondary);
 padding: 5px;
 color: var(--channels-default);
 font-weight: 600;
 }
-.inputscontainer * {
+.inputscontainer *, .inputscontainer *:after {
 font-weight: 600;
 font-size:12px;
 }
+
+.inputscontainer .sub:hover,
 .inputscontainer .searchtype:hover,
 .inputscontainer .layout:hover,
 .inputscontainer .role:hover,
 .inputscontainer input:hover:after {
-color: white;
+color: var(--interactive-hover);
 }
 .inputscontainer input:after {
 color: var(--channels-default);
+}
+
+.inputscontainer svg.hover path{
+fill: var(--channels-default);
 }
 
 input[name=op1], input[name=op2], input[name=op3], input[name=layout], input[name=searchtype]{
@@ -105,7 +111,7 @@ border:4px solid var(--channels-default);
 border-radius: 5px;
 }
 .monitor{
-background-color: white;
+background-color: var(--interactive-hover);
 height: 100%;
 
 margin: 0 auto;
@@ -118,6 +124,7 @@ padding: 0 5px;
 }
 .s1, .s2, .s3{
 color: var(--channels-default);
+background-color: var(--background-primary);
 height: 75%;
 border:1px solid #202225;
 display:flex;
@@ -131,7 +138,7 @@ height: 75%;
 border:1px solid #202225;
 }
 .section{
-margin-left: 10px;
+margin-left: 11px;
 font-size: 12px;
 text-transform: uppercase;
 line-height: 16px;
@@ -172,9 +179,9 @@ $().ready(function() {
                     $(".searchtype").find("svg").css('transform','rotate(0deg)');
                 }
             }).on("mouseover", (e) => {
-                $(".searchtype").find("path").attr("fill","#fff");
+                $(".searchtype").find("svg").addClass("hover");
             }).on("mouseleave", (e) => {
-                $(".searchtype").find("path").attr("fill","#8e9297");
+                $(".searchtype").find("svg").removeClass("hover");
             });
 
             $(container).append("<div class='section sub'>[ automatic ]</div>");
@@ -259,9 +266,9 @@ $().ready(function() {
                     $(".bezel").show();
                 }
             }).on("mouseover", (e) => {
-                $(".layout").find("path").attr("fill","#fff");
+                $(".layout").find("svg").addClass("hover");
             }).on("mouseleave", (e) => {
-                $(".layout").find("path").attr("fill","#8e9297");
+                $(".layout").find("svg").removeClass("hover");
             });
             left = document.createElement("input");
             left.type = "radio";
@@ -299,9 +306,9 @@ $().ready(function() {
                     $(".bezel").show();
                 }
             }).on("mouseover", (e) => {
-                $(".role").find("path").attr("fill","#fff");
+                $(".role").find("svg").addClass("hover");
             }).on("mouseleave", (e) => {
-                $(".role").find("path").attr("fill","#8e9297");
+                $(".role").find("svg").removeClass("hover");
             });
             op1 = document.createElement("input");
             op1.type = "checkbox";
