@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         qh
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @description  try to take over the world!
 // @author       You
 // @match        https://discord.com/*
@@ -28,7 +28,10 @@ font-weight: 600;
 font-weight: 600;
 font-size:12px;
 }
-.inputscontainer .section:hover, .inputscontainer input:hover:after {
+.inputscontainer .searchtype:hover,
+.inputscontainer .layout:hover,
+.inputscontainer .role:hover,
+.inputscontainer input:hover:after {
 color: white;
 }
 .inputscontainer input:after {
@@ -87,13 +90,16 @@ content: 'option 3';
 input[value=justq] {
 margin-bottom: 10px;
 }
-input[value=manualq], input[value=right], input[name=op3]{
-margin-bottom: 20px;
+.searchtype, .layout, .role{
+cursor: pointer;
+}
+.layout, .role{
+margin-top: 20px;
 }
 .bezel {
 height: 75px;
 width:  80%;
-margin: 0 auto;
+margin: 20px auto 0 auto;
 padding: 10px 10px 20px 10px;
 border:4px solid var(--channels-default);
 border-radius: 5px;
@@ -157,7 +163,19 @@ $().ready(function() {
             container.className="inputscontainer";
             $(container).insertBefore(channels);
 
-            $(container).append('<div style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Search Type</div></div>')
+            $(container).append('<div class="searchtype" style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Search Type</div></div>')
+            $(".searchtype").on("click", () => {
+                $("input[name=searchtype], .sub").toggle();
+                if($("input[name=searchtype]").css("display") == "none") {
+                    $(".searchtype").find("svg").css('transform','rotate(-90deg)');
+                } else {
+                    $(".searchtype").find("svg").css('transform','rotate(0deg)');
+                }
+            }).on("mouseover", (e) => {
+                $(".searchtype").find("path").attr("fill","#fff");
+            }).on("mouseleave", (e) => {
+                $(".searchtype").find("path").attr("fill","#8e9297");
+            });
 
             $(container).append("<div class='section sub'>[ automatic ]</div>");
             full = document.createElement("input");
@@ -227,8 +245,24 @@ $().ready(function() {
             };
             container.append(manualq);
 
-            $(container).append('<div style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Layout</div></div>')
-
+            $(container).append('<div class="layout" style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Layout</div></div>')
+            $(".layout").on("click", () => {
+                $("input[name=layout]").toggle();
+                if($("input[name=layout]").css("display") == "none") {
+                    $(".layout").find("svg").css('transform','rotate(-90deg)');
+                } else {
+                    $(".layout").find("svg").css('transform','rotate(0deg)');
+                }
+                if($("input[name=layout]").css("display") == "none" && $("input[type=checkbox]").css("display") == "none") {
+                    $(".bezel").hide();
+                } else {
+                    $(".bezel").show();
+                }
+            }).on("mouseover", (e) => {
+                $(".layout").find("path").attr("fill","#fff");
+            }).on("mouseleave", (e) => {
+                $(".layout").find("path").attr("fill","#8e9297");
+            });
             left = document.createElement("input");
             left.type = "radio";
             left.name = 'layout';
@@ -251,8 +285,24 @@ $().ready(function() {
             };
             container.append(right);
 
-            $(container).append('<div style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Role</div></div>')
-
+            $(container).append('<div class="role" style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Role</div></div>')
+            $(".role").on("click", () => {
+                $("input[type=checkbox]").toggle();
+                if($("input[type=checkbox]").css("display") == "none") {
+                    $(".role").find("svg").css('transform','rotate(-90deg)');
+                } else {
+                    $(".role").find("svg").css('transform','rotate(0deg)');
+                }
+                if($("input[name=layout]").css("display") == "none" && $("input[type=checkbox]").css("display") == "none") {
+                    $(".bezel").hide();
+                } else {
+                    $(".bezel").show();
+                }
+            }).on("mouseover", (e) => {
+                $(".role").find("path").attr("fill","#fff");
+            }).on("mouseleave", (e) => {
+                $(".role").find("path").attr("fill","#8e9297");
+            });
             op1 = document.createElement("input");
             op1.type = "checkbox";
             op1.name = 'op1';
