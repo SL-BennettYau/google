@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      2.6
+// @version      2.7
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -78,6 +78,7 @@ $().ready(()=>{
 
     let triggers = {
         "a": "area",
+        "b": "bordering",
         "c": "coordinates",
         "d": "definition",
         "e": "etymology",
