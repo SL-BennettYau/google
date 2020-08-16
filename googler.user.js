@@ -224,7 +224,6 @@ $().ready(()=>{
         width: 210,
         dragStop: function( event, ui ) {
             localStorage.setItem("dialogposition", JSON.stringify(ui.position))
-            console.log(ui.position)
         },
         position: { my: "left top", at: "right top", of: window },
         open: function( event, ui) {
