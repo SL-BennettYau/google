@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      3.2
+// @version      3.4
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -10,6 +10,8 @@
 // @require https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js
 // @require https://code.jquery.com/ui/1.12.1/jquery-ui.js
 // @exclude    https://www.google.com/sorry*
+// @exclude    https://www.google.com/recaptcha*
+
 // @resource   IMPORTED_CSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css
 // @grant      GM_getResourceText
 // @grant      GM_addStyle
@@ -47,8 +49,16 @@ font-weight:600;
 position: fixed;
 }
 
+#dialog {
+font-size:12px;
+}
+
 .no-close .ui-dialog-titlebar-close {
   background-color:#ccc;
+}
+
+.no-close .ui-button-icon-only {
+text-indent:0;
 }
 
 input[value=off], input[value=on] {
@@ -56,25 +66,26 @@ display:block;
 position:relative;
 left: -5px;
 line-height:12px;
+white-space: nowrap !important;
 }
 
 input[value=off]:after{
 content: 'highlight off';
-white-space: nowrap;
+white-space: nowrap !important;
 margin-left: 15px;
 font-weight: 600;
 font-family: "Consolas", Arial, sans-serif;
-font-size:13px;
+font-size:12px;
 color: #333333;
 }
 
 input[value=on]:after{
 content: 'highlight on';
-white-space: nowrap;
+white-space: nowrap !important;
 margin-left: 15px;
 font-weight: 600;
 font-family: "Consolas", Arial, sans-serif;
-font-size:13px;
+font-size:12px;
 color: #333333;
 }
 `);
@@ -202,8 +213,9 @@ $().ready(()=>{
     $("#dialog").dialog({
         autoOpen: dialogclosed ? false : (tbm && tbm.match(/isch/gi) ? false : true),
         dialogClass: "no-close",
-        title: "shorties",
-        width: 200,
+        title: `shorties ${GM_info.script.version}`,
+        closeText: "x",
+        width: 210,
         dragStop: function( event, ui ) {
             localStorage.setItem("dialogposition", JSON.stringify(ui.position))
         },
@@ -223,9 +235,13 @@ $().ready(()=>{
     var dialogposition = localStorage.getItem("dialogposition")
     if(dialogposition) {
         dialogposition=JSON.parse(dialogposition);
+        var w = parseInt($('.ui-dialog').css("width"));
+        var h = parseInt($('.ui-dialog').css("height"));
+        var tw = w + dialogposition.left;
+        var th = h + dialogposition.top;
         $('.ui-dialog').css({
-            top: `${dialogposition.top}px`,
-            left: `${dialogposition.left}px`
+            top: `${th > window.innerHeight ? window.innerHeight - h - 20 : dialogposition.top}px`,
+            left: `${tw > window.innerWidth ? window.innerWidth - w - 20 : dialogposition.left}px`
         });
     } else {
         $('.ui-dialog').css({
