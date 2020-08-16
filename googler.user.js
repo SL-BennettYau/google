@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      3.5
+// @version      3.6
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -50,7 +50,10 @@ position: fixed;
 }
 
 #dialog {
+min-height: unset !important;
 font-size:12px;
+padding:0 5px;
+line-height: 15px;
 }
 
 .no-close .ui-dialog-titlebar-close {
@@ -221,8 +224,9 @@ $().ready(()=>{
         width: 210,
         dragStop: function( event, ui ) {
             localStorage.setItem("dialogposition", JSON.stringify(ui.position))
+            console.log(ui.position)
         },
-        position: { at: "right top", of: window },
+        position: { my: "left top", at: "right top", of: window },
         open: function( event, ui) {
             var cl = $(".ui-dialog").find(".ui-dialog-titlebar-close");
             var col = $(cl).clone();
@@ -230,17 +234,19 @@ $().ready(()=>{
             col.css({"right":"30px"})
             col.html("-");
             col.on("click", ()=>{
-                $("#dialog").toggle();
-                if($("#dialog").css("display") == "none") {
+                if(!$("#dialog").hasClass("collapsed")) {
                     col.html("+");
                     sessionStorage.setItem("dialogmin", "true");
+                    $("#dialog").addClass("collapsed").animate({"height":"0"}, {duration: 150});
                 } else {
                     col.html("-");
                     sessionStorage.setItem("dialogmin", "false");
+                    $("#dialog").removeClass("collapsed").css({"height":"auto"});
                 }
             });
             if(sessionStorage.getItem("dialogmin") == "true") {
-                col.click();
+                col.html("+");
+                $("#dialog").addClass("collapsed").animate({"height":"0"}, {duration: 0});
             }
 
             $('input[name=q]').focus();
@@ -254,22 +260,24 @@ $().ready(()=>{
         }
     });
 
-    var dialogposition = localStorage.getItem("dialogposition")
-    if(dialogposition) {
-        dialogposition=JSON.parse(dialogposition);
-        var w = parseInt($('.ui-dialog').css("width"));
-        var h = parseInt($('.ui-dialog').css("height"));
-        var tw = w + dialogposition.left;
-        var th = h + dialogposition.top;
-        $('.ui-dialog').css({
-            top: `${th > window.innerHeight ? window.innerHeight - h - 20 : dialogposition.top}px`,
-            left: `${tw > window.innerWidth ? window.innerWidth - w - 20 : dialogposition.left}px`
+    setTimeout(()=>{
+        var dialogposition = localStorage.getItem("dialogposition")
+        if(dialogposition) {
+            dialogposition=JSON.parse(dialogposition);
+            var w = parseInt($('.ui-dialog').css("width"));
+            var h = parseInt($('.ui-dialog').css("height"));
+            var tw = w + dialogposition.left;
+            var th = h + dialogposition.top;
+            $('.ui-dialog').css({
+                top: `${th > window.innerHeight ? window.innerHeight - h - 20 : dialogposition.top}px`,
+                left: `${tw > window.innerWidth ? window.innerWidth - w - 20 : dialogposition.left}px`
         });
     } else {
         $('.ui-dialog').css({
             left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
         })
     }
+    }, 100);
 
 
 
