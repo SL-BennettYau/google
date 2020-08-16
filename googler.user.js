@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      2.6
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -84,6 +84,7 @@ $().ready(()=>{
         "f": "flag",
         "i": "image",
         "l": "lyrics",
+        "m": "map",
         "p": "population",
         "bd": "birthday",
         "fs": "founders",
