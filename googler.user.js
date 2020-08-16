@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      3.4
+// @version      3.5
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -55,6 +55,9 @@ font-size:12px;
 
 .no-close .ui-dialog-titlebar-close {
   background-color:#ccc;
+  font-family: "Consolas", Arial, sans-serif;
+  font-weight: 600;
+line-height:0px;
 }
 
 .no-close .ui-button-icon-only {
@@ -221,6 +224,25 @@ $().ready(()=>{
         },
         position: { at: "right top", of: window },
         open: function( event, ui) {
+            var cl = $(".ui-dialog").find(".ui-dialog-titlebar-close");
+            var col = $(cl).clone();
+            col.insertBefore(cl)
+            col.css({"right":"30px"})
+            col.html("-");
+            col.on("click", ()=>{
+                $("#dialog").toggle();
+                if($("#dialog").css("display") == "none") {
+                    col.html("+");
+                    sessionStorage.setItem("dialogmin", "true");
+                } else {
+                    col.html("-");
+                    sessionStorage.setItem("dialogmin", "false");
+                }
+            });
+            if(sessionStorage.getItem("dialogmin") == "true") {
+                col.click();
+            }
+
             $('input[name=q]').focus();
             var tmpStr = $('input[name=q]').val();
             $('input[name=q]').val('');
