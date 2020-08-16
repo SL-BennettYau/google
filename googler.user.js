@@ -1,17 +1,22 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      2.7
+// @version      3.0
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
 // @match        https://www.bing.com/*
-// @grant        GM_addStyle
 // @require http://code.jquery.com/jquery-3.4.1.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js
+// @require https://code.jquery.com/ui/1.12.1/jquery-ui.js
+// @resource   IMPORTED_CSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css
+// @grant      GM_getResourceText
+// @grant      GM_addStyle
 // ==/UserScript==
 
 /* eslint-disable */
+const my_css = GM_getResourceText("IMPORTED_CSS");
+GM_addStyle(my_css);
 GM_addStyle(`
 .Oh5wg .PZPZlf div {
   margin-bottom: 12px !important;
@@ -33,6 +38,38 @@ GM_addStyle(`
 .hi5 { background-color: rgba(0,0,255,0.25)}
 .hi6 { background-color: rgba(75,0,130,0.25)}
 .hi7 { background-color: rgba(238,130,238,0.25)}
+.ui-dialog{
+font-family: "Consolas", Arial, sans-serif;
+z-index: 9999;
+font-weight:600;
+}
+.no-close .ui-dialog-titlebar-close {
+  background-color:#ccc;
+}
+input[value=off], input[value=on] {
+display:block;
+position:relative;
+left: -5px;
+line-height:12px;
+}
+input[value=off]:after{
+content: 'highlight off';
+white-space: nowrap;
+margin-left: 15px;
+font-weight: 600;
+font-family: "Consolas", Arial, sans-serif;
+font-size:14px;
+}
+input[value=on]:after{
+content: 'highlight on';
+white-space: nowrap;
+margin-left: 15px;
+font-weight: 600;
+font-family: "Consolas", Arial, sans-serif;
+font-size:14px;
+}
+
+
 `);
 $().ready(()=>{
     'use strict';
@@ -51,22 +88,24 @@ $().ready(()=>{
     var height = urlParams.get('height');
     var left = urlParams.get('left');
     var offset = urlParams.get('offset');
+    var tbm = urlParams.get('tbm');
+
     var imgoffset = left == "true" ? 0 : Number(w) + Number(offset);
     /*if(prepend1 || prepend2 || prepend3 ){
         if(fork) {
             forkw = window.open(`https://www.google.com/search?q=${prepend1||prepend2||prepend3}&tbm=isch`, `forkw`, `width=${w},height=${height},left=${imgoffset}`);
         }
     }*/
-
     if(prepend1) {
-        $('#tsf').find("input").val(prepend1 + " ")
+        $('input[name=q]').val(prepend1 + " ");
     }
     if(prepend2) {
-        $('#tsf').find("input").val(prepend2 + " ")
+        $('input[name=q]').val(prepend2 + " ");
     }
     if(prepend3) {
-        $('#tsf').find("input").val(prepend3 + " ")
+        $('input[name=q]').val(prepend3 + " ");
     }
+
 
     var instance = new Mark(document.querySelector("*"));
     var options = {
@@ -96,6 +135,7 @@ $().ready(()=>{
         "tw": "twitter followers"
     }
 
+
     let exp = []
     for(let key in triggers){
         if (triggers.hasOwnProperty(key)) {
@@ -104,51 +144,91 @@ $().ready(()=>{
     }
     let regexp = new RegExp("\\b" + `(${exp.join("|")})` + "\\b", "gi");
     var searchform = $("#searchform").find('form');
-    var parent = searchform.length > 0 ? searchform : $("#sf")
     let ctn, off, solid, mix;
-    $(parent).css({"position": "relative"});
+
+    $("body").append(`<div id="dialog" title="Dialog Title">
+        a: area<br/>
+        b: bordering<br/>
+        c: coordinates<br/>
+        d: definition<br/>
+        e: etymology<br/>
+        f: flag<br/>
+        i: image<br/>
+        l: lyrics<br/>
+        m: map<br/>
+        p: population<br/><br/>
+        bd: birthday<br/>
+        fs: founders<br/>
+        fw: founded when<br/>
+        hm: how many<br/>
+        ig: instagram followers<br/>
+        rd: release date<br/>
+        tw: twitter followers<br/><br/>
+</div>`);
     ctn = document.createElement("div");
-    $(parent).append(ctn);
-    $(ctn).css({"position": "absolute", "right": "0", "top": "0", "width": "auto"});
+    $("#dialog").append(ctn);
+    $(ctn).css({"position": "relative", "width": "auto"});
 
     off = document.createElement("input");
     off.type = "radio";
     off.name = 'hilite';
     off.value = 'off';
     off.onclick = () => {
-        sessionStorage.setItem("hilite", "off");
+        localStorage.setItem("hilite", "off");
         searchform.submit();
     }
-    $(ctn).append("<label for='radio' style='right: -70px; position: absolute;white-space: nowrap;'>highlight off</label>");
     $(ctn).append(off);
-    $(off).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "0"});
 
     solid = document.createElement("input");
     solid.type = "radio";
     solid.name = 'hilite';
-    solid.value = 'solid';
+    solid.value = 'on';
     solid.onclick = () => {
-        sessionStorage.setItem("hilite", "solid");
+        localStorage.setItem("hilite", "on");
         searchform.submit();
     }
-    $(ctn).append("<label for='radio' style='top: 20px; right: -70px; position: absolute;white-space: nowrap;'>highlight on</label>");
     $(ctn).append(solid);
-    $(solid).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "20px"});
 
-    /*mix = document.createElement("input");
-    mix.type = "radio";
-    mix.name = 'hilite';
-    mix.value = 'mix';
-    mix.onclick = () => {
-        sessionStorage.setItem("hilite", "mix");
-        searchform.submit();
+    var dragposition;
+    var dialogclosed = sessionStorage.getItem("dialogclosed");
+    $("#dialog").dialog({
+        autoOpen: dialogclosed ? false : (tbm && tbm.match(/isch/gi) ? false : true),
+        dialogClass: "no-close",
+        title: "shorties",
+        width: 200,
+        dragStop: function( event, ui ) {
+            localStorage.setItem("dialogposition", JSON.stringify(ui.position))
+        },
+        position: { at: "right bottom", of: window },
+        open: function( event, ui) {
+            $('input[name=q]').focus();
+            var tmpStr = $('input[name=q]').val();
+            $('input[name=q]').val('');
+            $('input[name=q]').val(tmpStr);
+            return false;
+        },
+        close: function() {
+            sessionStorage.setItem("dialogclosed", "true");
+        }
+    });
+
+    var dialogposition = localStorage.getItem("dialogposition")
+    if(dialogposition) {
+        dialogposition=JSON.parse(dialogposition);
+        $('.ui-dialog').css({
+            top: `${dialogposition.top}px`,
+            left: `${dialogposition.left}px`
+        });
+    } else {
+        $('.ui-dialog').css({
+            left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
+        })
     }
-    $(ctn).append("<label for='radio' style='top: 40px; right: -30px; position: absolute;'>mix</label>");
-    $(ctn).append(mix);
-    $(mix).css({"border":"1px solid red", "position": "absolute", "right": "0", "top": "40px"});*/
 
-    var hi = sessionStorage.getItem("hilite");
-    if(!hi || hi == "solid") {
+
+
+    var hi = localStorage.getItem("hilite");
+    if(!hi || hi == "on") {
         solid.checked = true;
     } else {
         off.checked = true;
