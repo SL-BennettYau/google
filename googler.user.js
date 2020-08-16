@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      3.1
+// @version      3.2
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -9,6 +9,7 @@
 // @require http://code.jquery.com/jquery-3.4.1.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js
 // @require https://code.jquery.com/ui/1.12.1/jquery-ui.js
+// @exclude    https://www.google.com/sorry*
 // @resource   IMPORTED_CSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css
 // @grant      GM_getResourceText
 // @grant      GM_addStyle
@@ -206,7 +207,7 @@ $().ready(()=>{
         dragStop: function( event, ui ) {
             localStorage.setItem("dialogposition", JSON.stringify(ui.position))
         },
-        position: { at: "right bottom", of: window },
+        position: { at: "right top", of: window },
         open: function( event, ui) {
             $('input[name=q]').focus();
             var tmpStr = $('input[name=q]').val();
