@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -38,38 +38,44 @@ GM_addStyle(`
 .hi5 { background-color: rgba(0,0,255,0.25)}
 .hi6 { background-color: rgba(75,0,130,0.25)}
 .hi7 { background-color: rgba(238,130,238,0.25)}
+
 .ui-dialog{
 font-family: "Consolas", Arial, sans-serif;
 z-index: 9999;
 font-weight:600;
+position: fixed;
 }
+
 .no-close .ui-dialog-titlebar-close {
   background-color:#ccc;
 }
+
 input[value=off], input[value=on] {
 display:block;
 position:relative;
 left: -5px;
 line-height:12px;
 }
+
 input[value=off]:after{
 content: 'highlight off';
 white-space: nowrap;
 margin-left: 15px;
 font-weight: 600;
 font-family: "Consolas", Arial, sans-serif;
-font-size:14px;
+font-size:13px;
+color: #333333;
 }
+
 input[value=on]:after{
 content: 'highlight on';
 white-space: nowrap;
 margin-left: 15px;
 font-weight: 600;
 font-family: "Consolas", Arial, sans-serif;
-font-size:14px;
+font-size:13px;
+color: #333333;
 }
-
-
 `);
 $().ready(()=>{
     'use strict';
@@ -112,7 +118,8 @@ $().ready(()=>{
         "accuracy": "partially",
         "acrossElements": true,
         "separateWordSearch": false,
-        "ignorePunctuation": "?:;.,-–—‒_(){}[]!'\"+=".split("")
+        "ignorePunctuation": "?:;.,-–—‒_(){}[]!'\"+=".split(""),
+        "exclude": [".ui-dialog, #dialog"]
     }
 
     let triggers = {
