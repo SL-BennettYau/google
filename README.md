@@ -20,6 +20,7 @@ shortcuts available:
 [text] f -> [text] flag  
 [text] i -> [image search]  
 [text] l -> [text] lyrics  
+[text] m -> [text] map  
 [text] p -> [text] population  
 
 [text] bd -> [text] birthday  
