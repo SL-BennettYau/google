@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      3.6
+// @version      3.7
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -232,6 +232,7 @@ $().ready(()=>{
             col.insertBefore(cl)
             col.css({"right":"30px"})
             col.html("-");
+            $("#dialog").attr("data-height",$("#dialog").css("height"));
             col.on("click", ()=>{
                 if(!$("#dialog").hasClass("collapsed")) {
                     col.html("+");
@@ -240,7 +241,7 @@ $().ready(()=>{
                 } else {
                     col.html("-");
                     sessionStorage.setItem("dialogmin", "false");
-                    $("#dialog").removeClass("collapsed").css({"height":"auto"});
+                    $("#dialog").removeClass("collapsed").animate({"height":$("#dialog").attr("data-height")}, {duration: 150});
                 }
             });
             if(sessionStorage.getItem("dialogmin") == "true") {
@@ -259,7 +260,7 @@ $().ready(()=>{
         }
     });
 
-    setTimeout(()=>{
+
         var dialogposition = localStorage.getItem("dialogposition")
         if(dialogposition) {
             dialogposition=JSON.parse(dialogposition);
@@ -276,7 +277,7 @@ $().ready(()=>{
             left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
         })
     }
-    }, 100);
+
 
 
 
