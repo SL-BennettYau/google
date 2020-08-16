@@ -14,6 +14,7 @@ https://github.com/neukenrepo/google/raw/master/qh.user.js
 shortcuts available:  
 
 [text] a ->	[text] area  
+[text] b ->	[text] bordering  
 [text] c ->	[text] coordinates  
 [text] d -> [text] definition  
 [text] e -> [text] etymology  
