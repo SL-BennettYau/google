@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      3.8
+// @version      4.0
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -308,7 +308,7 @@ top:2px;
                         $(".layout").find("svg").css('transform','rotate(0deg)');
                         document.cookie = `collapseLAY=false${cookieappend}`;
                     }
-                    if($("input[name=layout]").css("display") == "none" && $("input[type=checkbox]").css("display") == "none") {
+                    if($("input[name=layout]").css("display") == "none" && $("input[name=role]").css("display") == "none") {
                         $(".bezel").hide();
                     } else {
                         $(".bezel").show();
@@ -342,15 +342,15 @@ top:2px;
 
                 $(container).append('<div class="role" style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Role</div></div>')
                 $(".role").on("click", () => {
-                    $("input[type=checkbox]").toggle();
-                    if($("input[type=checkbox]").css("display") == "none") {
+                    $("input[name=role]").toggle();
+                    if($("input[name=role]").css("display") == "none") {
                         $(".role").find("svg").css('transform','rotate(-90deg)');
                         document.cookie = `collapseROLE=true${cookieappend}`;
                     } else {
                         $(".role").find("svg").css('transform','rotate(0deg)');
                         document.cookie = `collapseROLE=false${cookieappend}`;
                     }
-                    if($("input[name=layout]").css("display") == "none" && $("input[type=checkbox]").css("display") == "none") {
+                    if($("input[name=layout]").css("display") == "none" && $("input[name=role]").css("display") == "none") {
                         $(".bezel").hide();
                     } else {
                         $(".bezel").show();
@@ -740,23 +740,29 @@ top:2px;
 .hi7 { background-color: rgba(238,130,238,0.25)}
 
 .ui-dialog{
+min-width: 170px;
 font-family: "Consolas", Arial, sans-serif;
 z-index: 9999;
 font-weight:600;
 position: fixed;
+overflow:hidden;
+font-size: 13px;
 }
 
 #dialog {
 min-height: unset !important;
+max-height: 100%;
+height: auto;
 font-size:12px;
 padding:0 5px;
 line-height: 15px;
+overflow: hidden;
 }
 
 .no-close .ui-dialog-titlebar-close {
-  background-color:#ccc;
-  font-family: "Consolas", Arial, sans-serif;
-  font-weight: 600;
+background-color:#ccc;
+font-family: "Consolas", Arial, sans-serif;
+font-weight: 600;
 line-height:0px;
 }
 
@@ -790,6 +796,9 @@ font-weight: 600;
 font-family: "Consolas", Arial, sans-serif;
 font-size:12px;
 color: #333333;
+}
+input[name=hilite]{
+cursor:pointer;
 }
 `);
 
@@ -861,6 +870,10 @@ color: #333333;
         }
         let regexp = new RegExp("\\b" + `(${exp.join("|")})` + "\\b", "gi");
         var searchform = $("#searchform").find('form');
+        if(searchform.length == 0){
+            searchform = $("#b_header").find('form')
+        }
+
         let ctn, off, solid, mix;
 
         $("body").append(`<div id="dialog" title="Dialog Title">
@@ -891,8 +904,9 @@ color: #333333;
         off.name = 'hilite';
         off.value = 'off';
         off.onclick = () => {
+            instance.unmark();
             localStorage.setItem("hilite", "off");
-            searchform.submit();
+            //searchform.submit();
         }
         $(ctn).append(off);
 
@@ -901,44 +915,74 @@ color: #333333;
         solid.name = 'hilite';
         solid.value = 'on';
         solid.onclick = () => {
+            marking();
             localStorage.setItem("hilite", "on");
-            searchform.submit();
+            //searchform.submit();
         }
         $(ctn).append(solid);
 
         var dragposition;
         var dialogclosed = sessionStorage.getItem("dialogclosed");
+        var dialogsize = sessionStorage.getItem("dialogsize");
+        if(dialogsize) {
+            dialogsize = JSON.parse(dialogsize);
+            console.log(dialogsize)
+        }
         $("#dialog").dialog({
             autoOpen: dialogclosed ? false : (tbm && tbm.match(/isch/gi) ? false : true),
             dialogClass: "no-close",
             title: `shorties ${GM_info.script.version}`,
             closeText: "x",
-            width: 210,
+            minHeight: 30,
+            minWidth: 170,
+            width: 170,
+            resizable : false,
+            //height: dialogsize && dialogsize.height || 'auto',
             dragStop: function( event, ui ) {
                 localStorage.setItem("dialogposition", JSON.stringify(ui.position))
+            },
+            resize: function(event, ui) {
+                $("#dialog").css("height","auto");
+                if(ui.size.height <= 30) {
+                    $(".colbtn").html("+");
+                    sessionStorage.setItem("dialogmin", "true");
+                    $(".ui-dialog").addClass("collapsed");
+                } else {
+                    $(".colbtn").html("-");
+                    sessionStorage.setItem("dialogmin", "false");
+                    $(".ui-dialog").removeClass("collapsed");
+                }
+            },
+            resizeStop: function( event, ui ) {
+                $("#dialog").css("height","auto");
+                if(ui.size.height > 30) {
+                    $(".ui-dialog").attr("data-height",ui.size.height);
+                    sessionStorage.setItem("dialogsize", JSON.stringify(ui.size))
+                }
             },
             position: { my: "left top", at: "right top", of: window },
             open: function( event, ui) {
                 var cl = $(".ui-dialog").find(".ui-dialog-titlebar-close");
                 var col = $(cl).clone();
+                $(col).addClass('colbtn')
                 col.insertBefore(cl)
                 col.css({"right":"30px"})
                 col.html("-");
-                $("#dialog").attr("data-height",$("#dialog").css("height"));
+                $(".ui-dialog").attr("data-height",$(".ui-dialog").css("height"));
                 col.on("click", ()=>{
-                    if(!$("#dialog").hasClass("collapsed")) {
+                    if(!$(".ui-dialog").hasClass("collapsed")) {
                         col.html("+");
                         sessionStorage.setItem("dialogmin", "true");
-                        $("#dialog").addClass("collapsed").animate({"height":"0"}, {duration: 150});
+                        $(".ui-dialog").addClass("collapsed").animate({"height":"30px"}, {duration: 150});
                     } else {
                         col.html("-");
                         sessionStorage.setItem("dialogmin", "false");
-                        $("#dialog").removeClass("collapsed").animate({"height":$("#dialog").attr("data-height")}, {duration: 150});
+                        $(".ui-dialog").removeClass("collapsed").animate({"height":$(".ui-dialog").attr("data-height")}, {duration: 150});
                     }
                 });
                 if(sessionStorage.getItem("dialogmin") == "true") {
                     col.html("+");
-                    $("#dialog").addClass("collapsed").animate({"height":"0"}, {duration: 0});
+                    $(".ui-dialog").addClass("collapsed").animate({"height":"30px"}, {duration: 0});
                 }
 
                 $('input[name=q]').focus();
@@ -962,7 +1006,9 @@ color: #333333;
             var th = h + dialogposition.top;
             $('.ui-dialog').css({
                 top: `${th > window.innerHeight ? window.innerHeight - h - 20 : dialogposition.top}px`,
-                left: `${tw > window.innerWidth ? window.innerWidth - w - 20 : dialogposition.left}px`
+                left: `${tw > window.innerWidth ? window.innerWidth - w - 20 : dialogposition.left}px`,
+                height: `${dialogsize && dialogsize.height}px`,
+                width: `${dialogsize && dialogsize.width}px`
             });
         } else {
             $('.ui-dialog').css({
@@ -977,30 +1023,23 @@ color: #333333;
             off.checked = true;
         }
 
-        if(q && solid.checked) {
-            if(solid.checked) {
-                instance.mark(q, options);
-                q = q.split(" ");
+        var marking = () => {
+            q = urlParams.get('q')
+            instance.mark(q, options);
+            console.log(q)
+            q = q.split(" ");
 
-                q.map(w => {
-                    if(w.length >= 3) {
-                        instance.mark(w, {
-                            ...options
-                        });
-                    }
-                });
-            } else {
-                q = q.split(" ");
-                q = q.filter(w => w.length > 0);
-                q.map((w,i) => {
-                    if(w.length >= 3) {
-                        instance.mark(w, {
-                            ...options,
-                            "className": `hi${i+1}`,
-                        });
-                    }
-                });
-            }
+            q.map(w => {
+                if(w.length >= 3) {
+                    instance.mark(w, {
+                        ...options
+                    });
+                }
+            });
+        }
+
+        if(q && solid.checked) {
+            marking();
         }
 
         var openImgW = (search) => {
@@ -1052,12 +1091,5 @@ color: #333333;
                 }
             }
         })
-
-        window.onbeforeunload = function(){
-            if(forkw) {
-                //forkw.close();
-                //forkw = null;
-            }
-        };
     }
 });
