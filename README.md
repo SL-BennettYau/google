@@ -5,10 +5,10 @@ hi this is for chrome people
 1) Install TamperMonkey extension for Chrome  
 https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
 
-2) Install this script  
+2) Install this script  NOTE - IF you prefer the discord desktop app, keep a chrome tab open to the discord webapp in the channel where __ is running.  
 https://github.com/neukenrepo/google/raw/master/googler.user.js
 
-3) Install this script - NOTE - IF you prefer the discord desktop app, keep a chrome tab open to the discord webapp in the channel where __ is running.  
+3) delete this script if previously installed in tampermonkey
 https://github.com/neukenrepo/google/raw/master/qh.user.js
 
 shortcuts available:  
