@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.0
+// @version      4.1
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -46,6 +46,7 @@ font-size:12px;
 .inputscontainer .searchtype:hover,
 .inputscontainer .layout:hover,
 .inputscontainer .role:hover,
+.inputscontainer .ozy:hover,
 .inputscontainer input:hover:after{
 color: var(--interactive-hover);
 }
@@ -57,15 +58,16 @@ color: var(--channels-default);
 fill: var(--interactive-hover);
 }
 
-input[name=role], input[name=layout], input[name=searchtype]{
+input[name=role], input[name=layout], input[name=searchtype], input[name=ozy] {
 display: block;
 color: white;
 cursor:pointer;
 height:16px;
 line-height:16px;
+margin-left:10px;
 }
 
-input[name=role]:after, input[name=layout]:after, input[name=searchtype]:after{
+input[name=ozy]:after, input[name=role]:after, input[name=layout]:after, input[name=searchtype]:after{
 padding-left: 18px;
 width: auto;
 white-space: nowrap;
@@ -112,20 +114,24 @@ input[value=op3]:after{
 content: 'option 3';
 }
 
+input[value=ozy]:after{
+content: 'prepend ozy.com';
+}
+
+.searchtype, .layout, .role, .ozy{
+cursor: pointer;
+}
 input[value=justq], input[value=manualq] {
 margin-bottom: 10px;
 }
-.searchtype, .layout, .role{
-cursor: pointer;
-}
-.layout, .role{
-margin-top: 20px;
+.layout, .role, .ozy{
+margin-top: 10px;
 }
 
 .bezel {
 height: 75px;
-width:  90%;
-margin: 20px auto 0 auto;
+width:  85%;
+margin: 10px auto 0 auto;
 padding: 5px 5px 15px 5px;
 border:3px solid var(--channels-default);
 border-radius: 5px;
@@ -133,7 +139,6 @@ border-radius: 5px;
 .monitor{
 background-color: var(--interactive-hover);
 height: 100%;
-
 margin: 0 auto;
 border:1px solid var(--channels-default);
 border-radius: 5px;
@@ -142,7 +147,15 @@ align-items: center;
 justify-content: flex-start;
 padding: 0 5px;
 }
+.sozy {
+position:absolute;
+top:0;
+left:50%;
+transform:translate(-50%, 0);
+font-weight: 600;
+}
 .s1, .s2, .s3, .simg{
+position: relative;
 color: var(--channels-default);
 background-color: var(--background-primary);
 height: 75%;
@@ -178,11 +191,13 @@ top:2px;
 `);
         var questionClass = ".vote-question", answerClass=".answer-body";
         var q, ans, qencoded;
-        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw;
+        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, ozy, toggleallimg = "all";
         var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
         var deviceHeight = screen.height - 100;
         var w, offset;
         var cookieappend = `;path=/;max-age=31556952`;
+        var arrow = `<svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg>`;
+        var pound = `<svg width="12" height="12" viewBox="0 0 24 24" class="icon-1_QxNX"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M5.88657 21C5.57547 21 5.3399 20.7189 5.39427 20.4126L6.00001 17H2.59511C2.28449 17 2.04905 16.7198 2.10259 16.4138L2.27759 15.4138C2.31946 15.1746 2.52722 15 2.77011 15H6.35001L7.41001 9H4.00511C3.69449 9 3.45905 8.71977 3.51259 8.41381L3.68759 7.41381C3.72946 7.17456 3.93722 7 4.18011 7H7.76001L8.39677 3.41262C8.43914 3.17391 8.64664 3 8.88907 3H9.87344C10.1845 3 10.4201 3.28107 10.3657 3.58738L9.76001 7H15.76L16.3968 3.41262C16.4391 3.17391 16.6466 3 16.8891 3H17.8734C18.1845 3 18.4201 3.28107 18.3657 3.58738L17.76 7H21.1649C21.4755 7 21.711 7.28023 21.6574 7.58619L21.4824 8.58619C21.4406 8.82544 21.2328 9 20.9899 9H17.41L16.35 15H19.7549C20.0655 15 20.301 15.2802 20.2474 15.5862L20.0724 16.5862C20.0306 16.8254 19.8228 17 19.5799 17H16L15.3632 20.5874C15.3209 20.8261 15.1134 21 14.8709 21H13.8866C13.5755 21 13.3399 20.7189 13.3943 20.4126L14 17H8.00001L7.36325 20.5874C7.32088 20.8261 7.11337 21 6.87094 21H5.88657ZM9.41045 9L8.35045 15H14.3504L15.4104 9H9.41045Z"></path></svg>`;
 
         var createinputs = () =>  {
             var channels=$("div[aria-label=Channels]");
@@ -194,7 +209,7 @@ top:2px;
                 container.className="inputscontainer";
                 $(container).insertBefore(channels);
 
-                $(container).append('<div class="searchtype" title='+GM_info.script.version+' style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Search Type '+GM_info.script.version+'</div></div>')
+                $(container).append(`<div class="searchtype" style="position:relative">${arrow}<div class="section">Search Type ${GM_info.script.version}</div></div>`);
                 $(".searchtype").on("click", () => {
                     $("input[name=searchtype], .sub").toggle();
                     if($("input[name=searchtype]").css("display") == "none") {
@@ -210,7 +225,7 @@ top:2px;
                     $(".searchtype").find("svg").removeClass("hover");
                 });
 
-                $(container).append("<div class='section sub'>[ automatic ]</div>");
+                $(container).append(`<div class='section sub'># automatic</div>`);
                 full = document.createElement("input");
                 full.type = "radio";
                 full.name = 'searchtype';
@@ -259,7 +274,7 @@ top:2px;
                 };
                 container.append(justq);
 
-                $(container).append("<div class='section sub'>[ manual ] works best with 1 role</div>");
+                $(container).append("<div class='section sub'># manual works best with 1 role</div>");
                 manual = document.createElement("input");
                 manual.type = "radio";
                 manual.name = 'searchtype';
@@ -284,7 +299,7 @@ top:2px;
                 };
                 container.append(manualq);
 
-                $(container).append("<div class='section sub'>[ manual forks all + img ]</div>");
+                $(container).append("<div class='section sub'># manual forks all + img</div>");
                 manualfork = document.createElement("input");
                 manualfork.type = "radio";
                 manualfork.name = 'searchtype';
@@ -298,7 +313,7 @@ top:2px;
                 container.append(manualfork);
 
 
-                $(container).append('<div class="layout" style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Layout</div></div>')
+                $(container).append(`<div class="layout" style="position:relative">${arrow}<div class="section">Layout</div></div>`);
                 $(".layout").on("click", () => {
                     $("input[name=layout]").toggle();
                     if($("input[name=layout]").css("display") == "none") {
@@ -340,7 +355,7 @@ top:2px;
                 };
                 container.append(right);
 
-                $(container).append('<div class="role" style="position:relative"><svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg><div class="section">Role</div></div>')
+                $(container).append(`<div class="role" style="position:relative">${arrow}<div class="section">Role</div></div>`);
                 $(".role").on("click", () => {
                     $("input[name=role]").toggle();
                     if($("input[name=role]").css("display") == "none") {
@@ -438,7 +453,31 @@ top:2px;
                 };
                 monitor.append(s3);
 
-                updatemonitor();
+                $(container).append(`<div class="ozy" style="position:relative">${arrow}<div class="section">Ozy</div></div>`);
+                $(".ozy").on("click", () => {
+                    $("input[name=ozy]").toggle();
+                    if($("input[name=ozy]").css("display") == "none") {
+                        $(".ozy").find("svg").css('transform','rotate(-90deg)');
+                        document.cookie = `collapseOZY=true${cookieappend}`;
+                    } else {
+                        $(".ozy").find("svg").css('transform','rotate(0deg)');
+                        document.cookie = `collapseOZY=false${cookieappend}`;
+                    }
+                }).on("mouseover", (e) => {
+                    $(".ozy").find("svg").addClass("hover");
+                }).on("mouseleave", (e) => {
+                    $(".ozy").find("svg").removeClass("hover");
+                });
+                ozy = document.createElement("input");
+                ozy.type = "checkbox";
+                ozy.name = 'ozy';
+                ozy.value = 'ozy';
+                ozy.checked = cookies && cookies.match(/ozy=true/gi) ? true : false;
+                ozy.onclick = (e) => {
+                    document.cookie = `ozy=${ozy.checked}${cookieappend}`;
+                    updatemonitor();
+                };
+                container.append(ozy);
 
                 if(cookies.match(/collapseST=true/gi)) {
                     $(".searchtype").click();
@@ -449,6 +488,10 @@ top:2px;
                 if(cookies.match(/collapseROLE=true/gi)) {
                     $(".role").click();
                 }
+                if(cookies.match(/collapseOZY=true/gi)) {
+                    $(".ozy").click();
+                }
+                updatemonitor();
             }
         }
         var updatemonitor = () => {
@@ -496,9 +539,9 @@ top:2px;
             var sw = 100 / (count + 1);
             monitor.style.justifyContent = left.checked ? "flex-start" : "flex-end";
             s1.style.width = `${sw}%`
-        s2.style.width = `${sw}%`
-        s3.style.width = `${sw}%`
-        s1.style.display = op1.checked ? "flex" : "none"
+            s2.style.width = `${sw}%`
+            s3.style.width = `${sw}%`
+            s1.style.display = op1.checked ? "flex" : "none"
             s2.style.display = op2.checked ? "flex" : "none"
             s3.style.display = op3.checked ? "flex" : "none"
 
@@ -521,6 +564,13 @@ top:2px;
                 } else {
                     monitor.append(simg);
                 }
+            }
+            $('.sozy').remove();
+            if(ozy.checked) {
+                $(".simg").prepend("<div class='sozy'>ozy.com</div>")
+                $(".s1").prepend("<div class='sozy'>ozy.com</div>")
+                $(".s2").prepend("<div class='sozy'>ozy.com</div>")
+                $(".s3").prepend("<div class='sozy'>ozy.com</div>")
             }
         }
 
@@ -553,15 +603,12 @@ top:2px;
                 if(forkw) {
                     forkw.close();
                 }
-                /*if(manualfork.checked) {
-                forkw = window.open(`https://www.google.com/?&hl=en`, `forkw`, `width=${w},height=${deviceHeight},left=${0}`);
-            }*/
                 if(op1.checked)
-                    ans1 = window.open('https://www.google.com/?&hl=en', 'ans1', "width="+w+", height="+deviceHeight+", left="+offset);
+                    ans1 = window.open('https://www.google.com/webhp?&hl=en', 'ans1', "width="+w+", height="+deviceHeight+", left="+offset);
                 if(op2.checked)
-                    ans2 = window.open('https://www.google.com/?&hl=en', 'ans2', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(op1.checked ? 1 : 0))))
+                    ans2 = window.open('https://www.google.com/webhp?&hl=en', 'ans2', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(op1.checked ? 1 : 0))))
                 if(op3.checked)
-                    ans3 = window.open('https://www.google.com/?&hl=en', 'ans3', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(Number(op1.checked ? 1 : 0) + Number(op2.checked ? 1 : 0)))))
+                    ans3 = window.open('https://www.google.com/webhp?&hl=en', 'ans3', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(Number(op1.checked ? 1 : 0) + Number(op2.checked ? 1 : 0)))))
             }
 
         }
@@ -583,10 +630,6 @@ top:2px;
                     forkw.close();
                     forkw = null;
                 }
-                //lastq = null;
-                //lastans1 = null;
-                //lastans2 = null;
-                //lastans3 = null;
             } catch(e){}
         }
 
@@ -614,22 +657,16 @@ top:2px;
                         let bingmain = `https://www.bing.com/search?q=`;
                         let enginemain = googlemain;
                         if(manual.checked || manualq.checked || manualfork.checked) {
-                            enginemain = "https://www.google.com/?&hl=en&"
+                            enginemain = "https://www.google.com/webhp?&hl=en&"
                         }
                         var lastmsg = messageList.find("div[id^=chat-messages-]").last();
                         //console.log(lastmsg[0])
                         var embedded = lastmsg.find("div[class*=embedWrapper-]").last();
                         //console.log(embedded)
                         var values = embedded.find("div[class*=embedFieldValue-]");
-                        //console.log(values)
-                        //console.log(values[0])
-                        //console.log(values[0].innerText)
+
                         q = values[0].innerText;
-                        //console.log(q[0].innerText)
-                        //console.log(q != lastq)
-                        //console.log(values[1].innerText != lastans1)
-                        //console.log(values[2].innerText != lastans2)
-                        //console.log(values[3].innerText != lastans3)
+
 
                         if(q && (q != lastq || values[1].innerText != lastans1 || values[2].innerText != lastans2 || values[3].innerText != lastans3)) {
                             //console.log("inside");
@@ -642,43 +679,44 @@ top:2px;
                             }
                             let allanswers = `&brg1=${encodeURIComponent(values[1].innerText.trim())}&brg2=${encodeURIComponent(values[2].innerText.trim())}&brg3=${encodeURIComponent(values[3].innerText.trim())}`
 
-                        let fork = manualfork.checked ? `&fork=true&width=${w}&height=${deviceHeight}&offset=${offset}&left=${left.checked}` : ``;
-
+                            let fork = manualfork.checked ? `&fork=true&width=${w}&height=${deviceHeight}&offset=${offset}&left=${left.checked}` : ``;
+                            let ozyprefix = ozy.checked ? 'ozy.com ' : '';
+                            let tbm = (toggleallimg == "img") ? '&tbm=isch' : '';
                             var launch = (target, answer, i) => {
                                 if(manual.checked) {
-                                    target.location.href = `${enginemain}prepend${i}=${answer}${allanswers}`;
+                                    target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}`;
                                 } else if(manualq.checked) {
-                                    target.location.href = `${enginemain}prepend${i}=${qencoded}${allanswers}`;
+                                    target.location.href = `${enginemain}prepend${i}=${ozyprefix}${qencoded}${allanswers}`;
                                 } else if(manualfork.checked) {
-                                    //forkw.location.href = `https://www.google.com/search?q=${answer}&tbm=isch`;
-                                    //setTimeout(() => {
-                                    target.location.href = `${enginemain}prepend${i}=${answer}${allanswers}${fork}`;
-                                    //},100);
+                                    target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}${fork}`;
                                 } else if(fullrev.checked) {
-                                    target.location.href = `${enginemain}${qencoded} ${answer}${allanswers}`;
+                                    target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}${tbm}`;
                                 } else if(justq.checked) {
-                                    target.location.href = `${enginemain}${qencoded}${allanswers}`;
+                                    target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}${tbm}`;
                                 } else {
-                                    target.location.href = `${enginemain}${answer} ${qencoded}${allanswers}`;
+                                    target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}${tbm}`;
                                 }
                             }
 
                             if (ans1 && op1.checked && values[1].innerText) {
                                 let answer = encodeURIComponent(values[1].innerText.trim());
-                                launch(ans1, answer, 1)
+                                launch(ans1, answer, 1);
                             }
                             if (ans2 && op2.checked && values[2].innerText) {
                                 let answer = encodeURIComponent(values[2].innerText.trim());
-                                launch(ans2, answer, 2)
+                                launch(ans2, answer, 2);
                             }
                             if (ans3 && op3.checked && values[3].innerText) {
                                 let answer = encodeURIComponent(values[3].innerText.trim());
-                                launch(ans3, answer, 3)
+                                launch(ans3, answer, 3);
                             }
                             lastq = q;
                             lastans1 = values[1].innerText;
                             lastans2 = values[2].innerText;
                             lastans3 = values[3].innerText;
+                            if(ozy.checked && (op1.checked || op2.checked || op3.checked)) {
+                                ozy.click();
+                            }
                         }
                     }
                 });
@@ -687,7 +725,7 @@ top:2px;
                 document.onkeydown = function(evt) {
                     evt = evt || window.event;
                     // keybinds
-                    //console.log(evt.keyCode)
+                    console.log(evt.keyCode)
                     try{
                         //F8 windows force null
                         if(evt.keyCode == 119) {
@@ -704,6 +742,12 @@ top:2px;
                                 createinputs();
                                 openwindows(true);
                             }
+                        }
+                        //RIGHCTRL flip image
+                        if(evt.keyCode == 17) {
+                            lastq=null;
+                            toggleallimg = (toggleallimg == "all") ? "img" : "all";
+                            updatemonitor();
                         }
                     } catch(e) {
                         console.log(e)
