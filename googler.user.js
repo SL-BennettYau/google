@@ -21,8 +21,7 @@
 
 /* eslint-disable */
 $().ready(()=>{
-    'use strict';
-    if(location.hostname.match(/discord.com/gi)) {
+    'use strict';if(location.hostname.match(/discord.com/gi)) {
         GM_addStyle(`
 .inputscontainer{
 display: block;
@@ -725,10 +724,10 @@ top:2px;
                     }
                     if(user != "GrayBot") {
                         try{
-                            var lastmsg = messageList.find("div[class*=messageContent-]").last();
-                            var chattext = (lastmsg.text() || "").toLowerCase().trim();
+                            var lastmsgNot = messageList.find("div[class*=messageContent-]").last();
+                            var chattext = (lastmsgNot.text() || "").toLowerCase().trim();
                             if(chattext == "n1" || chattext == "n2" || chattext == "n3") {
-                                //console.log(lastmsg.text())
+                                //console.log(lastmsgNot.text())
                                 if(full.checked || fullrev.checked || justans.checked || justq.checked) {
                                     if(chattext == "n1" && ans1 && op1.checked && urlNotCheck[1]) {
                                         ans1.location.href = `${urlNotCheck[1]}&notthis=y`;
@@ -783,7 +782,8 @@ top:2px;
                 };
             }
         },500);
-    } else {
+    }
+     else {
 
         //////////////////////////////////////////
         // GOOGLER
