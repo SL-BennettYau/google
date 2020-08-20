@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.7
+// @version      4.8
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -38,11 +38,14 @@ padding: 5px 5px 2px 5px;
 color: var(--channels-default);
 font-weight: 600;
 }
+.innercontainer {
+padding-left:10px;
+}
 .inputscontainer *, .inputscontainer *:after {
 font-weight: 600;
 font-size:12px;
 }
-
+.inputscontainer .collapseall:hover,
 .inputscontainer .sub:hover,
 .inputscontainer .searchtype:hover,
 .inputscontainer .layout:hover,
@@ -119,8 +122,11 @@ input[value=ozy]:after{
 content: 'prepend ozy.com';
 }
 
-.searchtype, .layout, .role, .ozy{
+.collapseall, .searchtype, .layout, .role, .ozy{
 cursor: pointer;
+}
+.searchtype {
+margin-top: 10px;
 }
 input[value=justq], input[value=manualq] {
 margin-bottom: 10px;
@@ -130,14 +136,15 @@ margin-top: 10px;
 }
 
 .bezel {
-height: 75px;
+height: 50px;
 width:  85%;
 margin: 10px auto 0 auto;
-padding: 5px 5px 15px 5px;
+padding: 5px 5px 5px 5px;
 border:3px solid var(--channels-default);
 border-radius: 5px;
 }
 .monitor{
+box-sizing:border-box;
 background-color: var(--interactive-hover);
 height: 100%;
 margin: 0 auto;
@@ -149,6 +156,7 @@ justify-content: flex-start;
 padding: 0 5px;
 }
 .sozy {
+font-size:10px;
 position:absolute;
 top:0;
 left:50%;
@@ -164,7 +172,7 @@ border:1px solid #202225;
 display:flex;
 align-items: center;
 justify-content: center;
-font-size:35px;
+font-size:20px;
 font-weight:600px;
 cursor: pointer;
 }
@@ -193,7 +201,7 @@ top:2px;
         var questionClass = ".vote-question", answerClass=".answer-body";
         var q, ans, qencoded;
         var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, ozy;
-        var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
+        var collapseall, lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
         var urlNotCheck = {}, urlNot = {};
         var deviceHeight = screen.height - 100;
         var w, offset;
@@ -211,7 +219,28 @@ top:2px;
                 container.className="inputscontainer";
                 $(container).insertBefore(channels);
 
-                $(container).append(`<div class="searchtype" style="position:relative">${arrow}<div class="section">Search Type ${GM_info.script.version}</div></div>`);
+                $(container).append(`<div class="collapseall" style="position:relative">${arrow}<div class="section">googler ${GM_info.script.version}</div></div>`);
+                $(".collapseall").on("click", () => {
+                    $(".innercontainer").toggle();
+                    if($(".innercontainer").css("display") == "none") {
+                        $(".collapseall").find("svg").css('transform','rotate(-90deg)');
+                        document.cookie = `collapseall=true${cookieappend}`;
+                    } else {
+                        $(".collapseall").find("svg").css('transform','rotate(0deg)');
+                        document.cookie = `collapseall=false${cookieappend}`;
+                    }
+                }).on("mouseover", (e) => {
+                    $(".collapseall").find("svg").addClass("hover");
+                }).on("mouseleave", (e) => {
+                    $(".collapseall").find("svg").removeClass("hover");
+                });
+
+                var innercontainer = document.createElement("div");
+                innercontainer.className="innercontainer";
+                $(container).append(innercontainer);
+                container = innercontainer;
+
+                $(container).append(`<div class="searchtype" style="position:relative">${arrow}<div class="section">Search Type</div></div>`);
                 $(".searchtype").on("click", () => {
                     $("input[name=searchtype], .sub").toggle();
                     if($("input[name=searchtype]").css("display") == "none") {
@@ -492,6 +521,9 @@ top:2px;
                 }
                 if(cookies.match(/collapseOZY=true/gi)) {
                     $(".ozy").click();
+                }
+                if(cookies.match(/collapseall=true/gi)) {
+                    $(".collapseall").click();
                 }
                 updatemonitor();
             }
@@ -1126,7 +1158,7 @@ cursor:pointer;
             $('.ui-dialog').css({
                 left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
         })
-         }
+        }
 
         var hi = localStorage.getItem("hilite");
         if(!hi || hi == "on") {
