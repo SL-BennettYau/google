@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.6
+// @version      4.7
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -930,7 +930,7 @@ cursor:pointer;
         var notthis = urlParams.get('notthis');
         if(notthis) {
             $("#searchform").find(".sfbg").css({"background-color":"#ff0000"});
-            $("#hdtbSum, #sf, .jZWadf").css({"background-color":"#ff0000 !important"});
+            $("#hdtbSum, #sf, .jZWadf").css({"background-color":"#ff0000"});
         }
 
         var imgoffset = left == "true" ? 0 : Number(w) + Number(offset);
