@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.5
+// @version      4.6
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -18,8 +18,9 @@
 // @grant      GM_getResourceText
 // @grant      GM_addStyle
 // ==/UserScript==
+/* global $ */
+/* global Mark */
 
-/* eslint-disable */
 $().ready(()=>{
     'use strict';
     if(location.hostname.match(/discord.com/gi)) {
@@ -191,7 +192,7 @@ top:2px;
 `);
         var questionClass = ".vote-question", answerClass=".answer-body";
         var q, ans, qencoded;
-        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, ozy, toggleallimg = "all";
+        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, ozy;
         var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
         var urlNotCheck = {}, urlNot = {};
         var deviceHeight = screen.height - 100;
@@ -200,7 +201,7 @@ top:2px;
         var arrow = `<svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg>`;
         var pound = `<svg width="12" height="12" viewBox="0 0 24 24" class="icon-1_QxNX"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M5.88657 21C5.57547 21 5.3399 20.7189 5.39427 20.4126L6.00001 17H2.59511C2.28449 17 2.04905 16.7198 2.10259 16.4138L2.27759 15.4138C2.31946 15.1746 2.52722 15 2.77011 15H6.35001L7.41001 9H4.00511C3.69449 9 3.45905 8.71977 3.51259 8.41381L3.68759 7.41381C3.72946 7.17456 3.93722 7 4.18011 7H7.76001L8.39677 3.41262C8.43914 3.17391 8.64664 3 8.88907 3H9.87344C10.1845 3 10.4201 3.28107 10.3657 3.58738L9.76001 7H15.76L16.3968 3.41262C16.4391 3.17391 16.6466 3 16.8891 3H17.8734C18.1845 3 18.4201 3.28107 18.3657 3.58738L17.76 7H21.1649C21.4755 7 21.711 7.28023 21.6574 7.58619L21.4824 8.58619C21.4406 8.82544 21.2328 9 20.9899 9H17.41L16.35 15H19.7549C20.0655 15 20.301 15.2802 20.2474 15.5862L20.0724 16.5862C20.0306 16.8254 19.8228 17 19.5799 17H16L15.3632 20.5874C15.3209 20.8261 15.1134 21 14.8709 21H13.8866C13.5755 21 13.3399 20.7189 13.3943 20.4126L14 17H8.00001L7.36325 20.5874C7.32088 20.8261 7.11337 21 6.87094 21H5.88657ZM9.41045 9L8.35045 15H14.3504L15.4104 9H9.41045Z"></path></svg>`;
 
-        var createinputs = () =>  {
+        var createinputs = () => {
             var channels=$("div[aria-label=Channels]");
             if(channels && channels[0] && $(".inputscontainer").length == 0) {
                 var cookies = document.cookie || "";
@@ -604,12 +605,15 @@ top:2px;
                 if(forkw) {
                     forkw.close();
                 }
-                if(op1.checked)
+                if(op1.checked) {
                     ans1 = window.open('https://www.google.com/webhp?&hl=en', 'ans1', "width="+w+", height="+deviceHeight+", left="+offset);
-                if(op2.checked)
+                }
+                if(op2.checked) {
                     ans2 = window.open('https://www.google.com/webhp?&hl=en', 'ans2', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(op1.checked ? 1 : 0))))
-                if(op3.checked)
+                }
+                if(op3.checked) {
                     ans3 = window.open('https://www.google.com/webhp?&hl=en', 'ans3', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(Number(op1.checked ? 1 : 0) + Number(op2.checked ? 1 : 0)))))
+                }
             }
 
         }
@@ -682,7 +686,6 @@ top:2px;
 
                             let fork = manualfork.checked ? `&fork=true&width=${w}&height=${deviceHeight}&offset=${offset}&left=${left.checked}` : ``;
                             let ozyprefix = ozy.checked ? 'ozy.com ' : '';
-                            let tbm = (toggleallimg == "img") ? '&tbm=isch' : '';
                             var launch = (target, answer, i) => {
                                 if(manual.checked) {
                                     target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}`;
@@ -691,16 +694,16 @@ top:2px;
                                 } else if(manualfork.checked) {
                                     target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}${fork}`;
                                 } else if(fullrev.checked) {
-                                    target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}${tbm}`;
-                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}${tbm}`;
+                                    target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
                                     urlNot[i] = true;
                                 } else if(justq.checked) {
-                                    target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}${tbm}`;
-                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}${tbm}`;
+                                    target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
                                     urlNot[i] = true;
                                 } else {
-                                    target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}${tbm}`;
-                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}${tbm}`;
+                                    target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
                                     urlNot[i] = true;
                                 }
                             }
@@ -778,9 +781,6 @@ top:2px;
                         }
                         //RIGHCTRL flip image
                         if(evt.keyCode == 17) {
-                            //lastq=null;
-                            //toggleallimg = (toggleallimg == "all") ? "img" : "all";
-                            //updatemonitor();
                             if(full.checked || fullrev.checked || justans.checked || justq.checked) {
                                 if(ans1 && op1.checked && urlNotCheck[1]) {
                                     if(!urlNotCheck[1].match(/&tbm=isch/gi)) {
@@ -909,17 +909,6 @@ color: #333333;
 input[name=hilite]{
 cursor:pointer;
 }
-.notthis {
-position: fixed;
-top:0;
-bottom:0;
-left:0;
-right:0;
-border-left:10px solid red;
-border-right:10px solid red;
-box-sizing: border-box;
-z-index:999;
-}
 `);
 
         var x = document.getElementsByTagName("g-text-expander");
@@ -927,16 +916,16 @@ z-index:999;
             x[0].children[0].click();
         }
         var urlParams = new URLSearchParams(window.location.search);
-        var q = urlParams.get('q')
+        let q = urlParams.get('q')
         var prepend1 = urlParams.get('prepend1');
         var prepend2 = urlParams.get('prepend2');
         var prepend3 = urlParams.get('prepend3');
         var fork = urlParams.get('fork');
-        var forkw;
-        var w = urlParams.get('width');
+        let forkw;
+        let w = urlParams.get('width');
         var height = urlParams.get('height');
-        var left = urlParams.get('left');
-        var offset = urlParams.get('offset');
+        let left = urlParams.get('left');
+        let offset = urlParams.get('offset');
         var tbm = urlParams.get('tbm');
         var notthis = urlParams.get('notthis');
         if(notthis) {
@@ -992,7 +981,7 @@ z-index:999;
                 exp.push(key)
             }
         }
-        let regexp = new RegExp("\\b" + `(${exp.join("|")})` + "\\b", "gi");
+        let regexp = new RegExp(`\\b(${exp.join("|")})\\b`, "gi");
         var searchform = $("#searchform").find('form');
         if(searchform.length == 0){
             searchform = $("#b_header").find('form')
