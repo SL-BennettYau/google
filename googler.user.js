@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.1
+// @version      4.2
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -193,6 +193,7 @@ top:2px;
         var q, ans, qencoded;
         var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, ozy, toggleallimg = "all";
         var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
+        var urlNotCheck = {};
         var deviceHeight = screen.height - 100;
         var w, offset;
         var cookieappend = `;path=/;max-age=31556952`;
@@ -691,10 +692,13 @@ top:2px;
                                     target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}${fork}`;
                                 } else if(fullrev.checked) {
                                     target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}${tbm}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}${tbm}`;
                                 } else if(justq.checked) {
                                     target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}${tbm}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}${tbm}`;
                                 } else {
                                     target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}${tbm}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}${tbm}`;
                                 }
                             }
 
@@ -719,13 +723,36 @@ top:2px;
                             }
                         }
                     }
+                    if(user != "GrayBot") {
+                        try{
+                            var lastmsg = messageList.find("div[class*=messageContent-]").last();
+                            var chattext = (lastmsg.text() || "").toLowerCase().trim();
+                            if(chattext == "n1" || chattext == "n2" || chattext == "n3") {
+                                //console.log(lastmsg.text())
+                                if(full.checked || fullrev.checked || justans.checked || justq.checked) {
+                                    if(chattext == "n1" && ans1 && op1.checked && urlNotCheck[1]) {
+                                        ans1.location.href = `${urlNotCheck[1]}&notthis=y`;
+                                        urlNotCheck[1] = null;
+                                    }
+                                    if(chattext == "n2" && ans2 && op2.checked && urlNotCheck[2]) {
+                                        ans2.location.href = `${urlNotCheck[2]}&notthis=y`;
+                                        urlNotCheck[2] = null;
+                                    }
+                                    if(chattext == "n3" && ans3 && op3.checked && urlNotCheck[3]) {
+                                        ans3.location.href = `${urlNotCheck[3]}&notthis=y`;
+                                        urlNotCheck[3] = null;
+                                    }
+                                }
+                            }
+                        } catch(e){}
+                    }
                 });
                 observer.observe(messageList[0], {characterData: false, subtree: true, childList: true, attributes: false});
 
                 document.onkeydown = function(evt) {
                     evt = evt || window.event;
                     // keybinds
-                    console.log(evt.keyCode)
+                    //console.log(evt.keyCode)
                     try{
                         //F8 windows force null
                         if(evt.keyCode == 119) {
@@ -757,8 +784,10 @@ top:2px;
             }
         },500);
     } else {
-        // GOOGLER
 
+        //////////////////////////////////////////
+        // GOOGLER
+        //////////////////////////////////////////
         const my_css = GM_getResourceText("IMPORTED_CSS");
         GM_addStyle(my_css);
         GM_addStyle(`
@@ -844,6 +873,17 @@ color: #333333;
 input[name=hilite]{
 cursor:pointer;
 }
+.notthis {
+position: fixed;
+top:0;
+bottom:0;
+left:0;
+right:0;
+border-left:10px solid red;
+border-right:10px solid red;
+box-sizing: border-box;
+z-index:999;
+}
 `);
 
         var x = document.getElementsByTagName("g-text-expander");
@@ -862,6 +902,10 @@ cursor:pointer;
         var left = urlParams.get('left');
         var offset = urlParams.get('offset');
         var tbm = urlParams.get('tbm');
+        var notthis = urlParams.get('notthis');
+        if(notthis) {
+            $("body").append("<div class='notthis'></div>")
+        }
 
         var imgoffset = left == "true" ? 0 : Number(w) + Number(offset);
 
@@ -970,7 +1014,6 @@ cursor:pointer;
         var dialogsize = sessionStorage.getItem("dialogsize");
         if(dialogsize) {
             dialogsize = JSON.parse(dialogsize);
-            console.log(dialogsize)
         }
         $("#dialog").dialog({
             autoOpen: dialogclosed ? false : (tbm && tbm.match(/isch/gi) ? false : true),
@@ -1070,7 +1113,7 @@ cursor:pointer;
         var marking = () => {
             q = urlParams.get('q')
             instance.mark(q, options);
-            console.log(q)
+            //console.log(q)
             q = q.split(" ");
 
             q.map(w => {
@@ -1093,6 +1136,7 @@ cursor:pointer;
         }
 
         $(parent).on("keydown", (e) => {
+            // on enter
             if(e.keyCode == 13) {
                 let search = $(e.target).val()
 
@@ -1132,6 +1176,26 @@ cursor:pointer;
                 } else {
                     openImgW(search);
                     searchform.submit();
+                }
+            }
+
+            //RIGHCTRL flip image
+            if(e.keyCode == 17) {
+                var fliptbm = urlParams.get('tbm');
+                if(window.location.hostname.match(/google.com/gi)) {
+                    if(!fliptbm) {
+                        window.location.href = window.location.href + "&tbm=isch"
+                    }
+                    if(fliptbm) {
+                        window.location.href = window.location.href.replace("&tbm=isch", "");
+                    }
+                } else if(window.location.hostname.match(/bing.com/gi)){
+                    if(window.location.href.match(/bing.com\/search/gi)) {
+                        window.location.href = window.location.href.replace(/bing.com\/search/gi, "bing.com/images/search")
+                    }
+                    if(window.location.href.match(/bing.com\/images\/search/gi)) {
+                        window.location.href = window.location.href.replace(/bing.com\/images\/search/gi, "bing.com/search")
+                    }
                 }
             }
         })
