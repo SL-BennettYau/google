@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.2
+// @version      4.5
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -192,7 +192,7 @@ top:2px;
         var q, ans, qencoded;
         var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, ozy, toggleallimg = "all";
         var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
-        var urlNotCheck = {};
+        var urlNotCheck = {}, urlNot = {};
         var deviceHeight = screen.height - 100;
         var w, offset;
         var cookieappend = `;path=/;max-age=31556952`;
@@ -692,12 +692,15 @@ top:2px;
                                 } else if(fullrev.checked) {
                                     target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}${tbm}`;
                                     urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}${tbm}`;
+                                    urlNot[i] = true;
                                 } else if(justq.checked) {
                                     target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}${tbm}`;
                                     urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}${tbm}`;
+                                    urlNot[i] = true;
                                 } else {
                                     target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}${tbm}`;
                                     urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}${tbm}`;
+                                    urlNot[i] = true;
                                 }
                             }
 
@@ -729,17 +732,20 @@ top:2px;
                             if(chattext == "n1" || chattext == "n2" || chattext == "n3") {
                                 //console.log(lastmsgNot.text())
                                 if(full.checked || fullrev.checked || justans.checked || justq.checked) {
-                                    if(chattext == "n1" && ans1 && op1.checked && urlNotCheck[1]) {
+                                    if(chattext == "n1" && ans1 && op1.checked && urlNot[1]) {
                                         ans1.location.href = `${urlNotCheck[1]}&notthis=y`;
-                                        urlNotCheck[1] = null;
+                                        urlNotCheck[1] = `${urlNotCheck[1]}&notthis=y`;
+                                        urlNot[1] = false;
                                     }
-                                    if(chattext == "n2" && ans2 && op2.checked && urlNotCheck[2]) {
+                                    if(chattext == "n2" && ans2 && op2.checked && urlNot[2]) {
                                         ans2.location.href = `${urlNotCheck[2]}&notthis=y`;
-                                        urlNotCheck[2] = null;
+                                        urlNotCheck[2] = `${urlNotCheck[2]}&notthis=y`;
+                                        urlNot[2] = false;
                                     }
-                                    if(chattext == "n3" && ans3 && op3.checked && urlNotCheck[3]) {
+                                    if(chattext == "n3" && ans3 && op3.checked && urlNot[3]) {
                                         ans3.location.href = `${urlNotCheck[3]}&notthis=y`;
-                                        urlNotCheck[3] = null;
+                                        urlNotCheck[3] = `${urlNotCheck[3]}&notthis=y`;
+                                        urlNot[3] = false;
                                     }
                                 }
                             }
@@ -771,9 +777,38 @@ top:2px;
                         }
                         //RIGHCTRL flip image
                         if(evt.keyCode == 17) {
-                            lastq=null;
-                            toggleallimg = (toggleallimg == "all") ? "img" : "all";
-                            updatemonitor();
+                            //lastq=null;
+                            //toggleallimg = (toggleallimg == "all") ? "img" : "all";
+                            //updatemonitor();
+                            if(full.checked || fullrev.checked || justans.checked || justq.checked) {
+                                if(ans1 && op1.checked && urlNotCheck[1]) {
+                                    if(!urlNotCheck[1].match(/&tbm=isch/gi)) {
+                                        ans1.location.href = `${urlNotCheck[1]}&tbm=isch`;
+                                        urlNotCheck[1] = `${urlNotCheck[1]}&tbm=isch`;
+                                    } else {
+                                        urlNotCheck[1] = urlNotCheck[1].replace(/&tbm=isch/gi, "");
+                                        ans1.location.href = urlNotCheck[1];
+                                    }
+                                }
+                                if(ans2 && op2.checked && urlNotCheck[2]) {
+                                    if(!urlNotCheck[2].match(/&tbm=isch/gi)) {
+                                        ans2.location.href = `${urlNotCheck[2]}&tbm=isch`;
+                                        urlNotCheck[2] = `${urlNotCheck[2]}&tbm=isch`;
+                                    } else {
+                                        urlNotCheck[2] = urlNotCheck[2].replace(/&tbm=isch/gi, "");
+                                        ans2.location.href = urlNotCheck[2];
+                                    }
+                                }
+                                if(ans3 && op3.checked && urlNotCheck[3]) {
+                                    if(!urlNotCheck[3].match(/&tbm=isch/gi)) {
+                                        ans3.location.href = `${urlNotCheck[3]}&tbm=isch`;
+                                        urlNotCheck[3] = `${urlNotCheck[3]}&tbm=isch`;
+                                    } else {
+                                        urlNotCheck[3] = urlNotCheck[3].replace(/&tbm=isch/gi, "");
+                                        ans3.location.href = urlNotCheck[3];
+                                    }
+                                }
+                            }
                         }
                     } catch(e) {
                         console.log(e)
@@ -783,7 +818,7 @@ top:2px;
             }
         },500);
     }
-     else {
+    else {
 
         //////////////////////////////////////////
         // GOOGLER
@@ -904,7 +939,8 @@ z-index:999;
         var tbm = urlParams.get('tbm');
         var notthis = urlParams.get('notthis');
         if(notthis) {
-            $("body").append("<div class='notthis'></div>")
+            $("#searchform").find(".sfbg").css({"background-color":"#ff0000"});
+            $("#hdtbSum, #sf, .jZWadf").css({"background-color":"#ff0000 !important"});
         }
 
         var imgoffset = left == "true" ? 0 : Number(w) + Number(offset);
@@ -918,7 +954,6 @@ z-index:999;
         if(prepend3) {
             $('input[name=q]').val(prepend3 + " ");
         }
-
 
         var instance = new Mark(document.querySelector("*"));
         var options = {
@@ -1097,9 +1132,9 @@ z-index:999;
                 height: `${dialogsize && dialogsize.height}px`,
                 width: `${dialogsize && dialogsize.width}px`
             });
-        } else {
-            $('.ui-dialog').css({
-                left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
+         } else {
+             $('.ui-dialog').css({
+                 left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
         })
         }
 
