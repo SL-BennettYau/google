@@ -21,7 +21,8 @@
 
 /* eslint-disable */
 $().ready(()=>{
-    'use strict';if(location.hostname.match(/discord.com/gi)) {
+    'use strict';
+    if(location.hostname.match(/discord.com/gi)) {
         GM_addStyle(`
 .inputscontainer{
 display: block;
@@ -1132,11 +1133,11 @@ z-index:999;
                 height: `${dialogsize && dialogsize.height}px`,
                 width: `${dialogsize && dialogsize.width}px`
             });
-         } else {
-             $('.ui-dialog').css({
-                 left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
+        } else {
+            $('.ui-dialog').css({
+                left: `${parseInt($('.ui-dialog').css("left")) - 10}px`
         })
-        }
+         }
 
         var hi = localStorage.getItem("hilite");
         if(!hi || hi == "on") {
