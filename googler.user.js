@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.8
+// @version      4.9
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -136,8 +136,8 @@ margin-top: 10px;
 }
 
 .bezel {
-height: 50px;
-width:  85%;
+height: 60px;
+width:  90%;
 margin: 10px auto 0 auto;
 padding: 5px 5px 5px 5px;
 border:3px solid var(--channels-default);
@@ -156,12 +156,14 @@ justify-content: flex-start;
 padding: 0 5px;
 }
 .sozy {
-font-size:10px;
+letter-spacing: 0px;
+font-size:12px;
 position:absolute;
-top:0;
+top:0px;
 left:50%;
 transform:translate(-50%, 0);
-font-weight: 600;
+font-weight: 400;
+color: var(--interactive-hover);
 }
 .s1, .s2, .s3, .simg{
 position: relative;
@@ -213,7 +215,6 @@ top:2px;
             var channels=$("div[aria-label=Channels]");
             if(channels && channels[0] && $(".inputscontainer").length == 0) {
                 var cookies = document.cookie || "";
-
                 channels[0].style.position = "relative";
                 container = document.createElement("div");
                 container.className="inputscontainer";
@@ -226,6 +227,18 @@ top:2px;
                         $(".collapseall").find("svg").css('transform','rotate(-90deg)');
                         document.cookie = `collapseall=true${cookieappend}`;
                     } else {
+                        if(document.cookie.match(/collapseST=true/gi)) {
+                            $(".searchtype").click();
+                        }
+                        if(document.cookie.match(/collapseLAY=true/gi)) {
+                            $(".layout").click();
+                        }
+                        if(document.cookie.match(/collapseROLE=true/gi)) {
+                            $(".role").click();
+                        }
+                        if(document.cookie.match(/collapseOZY=true/gi)) {
+                            $(".ozy").click();
+                        }
                         $(".collapseall").find("svg").css('transform','rotate(0deg)');
                         document.cookie = `collapseall=false${cookieappend}`;
                     }
@@ -343,6 +356,13 @@ top:2px;
                 };
                 container.append(manualfork);
 
+                var checkMonitor = () => {
+                    if($("input[name=layout]").css("display") == "none" && $("input[name=role]").css("display") == "none" && $("input[name=ozy]").css("display") == "none") {
+                        $(".bezel").hide();
+                    } else {
+                        $(".bezel").show();
+                    }
+                }
 
                 $(container).append(`<div class="layout" style="position:relative">${arrow}<div class="section">Layout</div></div>`);
                 $(".layout").on("click", () => {
@@ -354,11 +374,7 @@ top:2px;
                         $(".layout").find("svg").css('transform','rotate(0deg)');
                         document.cookie = `collapseLAY=false${cookieappend}`;
                     }
-                    if($("input[name=layout]").css("display") == "none" && $("input[name=role]").css("display") == "none") {
-                        $(".bezel").hide();
-                    } else {
-                        $(".bezel").show();
-                    }
+                    checkMonitor();
                 }).on("mouseover", (e) => {
                     $(".layout").find("svg").addClass("hover");
                 }).on("mouseleave", (e) => {
@@ -396,11 +412,7 @@ top:2px;
                         $(".role").find("svg").css('transform','rotate(0deg)');
                         document.cookie = `collapseROLE=false${cookieappend}`;
                     }
-                    if($("input[name=layout]").css("display") == "none" && $("input[name=role]").css("display") == "none") {
-                        $(".bezel").hide();
-                    } else {
-                        $(".bezel").show();
-                    }
+                    checkMonitor();
                 }).on("mouseover", (e) => {
                     $(".role").find("svg").addClass("hover");
                 }).on("mouseleave", (e) => {
@@ -438,6 +450,33 @@ top:2px;
                     document.cookie = `op3=${op3.checked}${cookieappend}`;
                 };
                 container.append(op3);
+
+                $(container).append(`<div class="ozy" style="position:relative">${arrow}<div class="section">Ozy</div></div>`);
+                $(".ozy").on("click", () => {
+                    $("input[name=ozy]").toggle();
+                    if($("input[name=ozy]").css("display") == "none") {
+                        $(".ozy").find("svg").css('transform','rotate(-90deg)');
+                        document.cookie = `collapseOZY=true${cookieappend}`;
+                    } else {
+                        $(".ozy").find("svg").css('transform','rotate(0deg)');
+                        document.cookie = `collapseOZY=false${cookieappend}`;
+                    }
+                    checkMonitor();
+                }).on("mouseover", (e) => {
+                    $(".ozy").find("svg").addClass("hover");
+                }).on("mouseleave", (e) => {
+                    $(".ozy").find("svg").removeClass("hover");
+                });
+                ozy = document.createElement("input");
+                ozy.type = "checkbox";
+                ozy.name = 'ozy';
+                ozy.value = 'ozy';
+                ozy.checked = cookies && cookies.match(/ozy=true/gi) ? true : false;
+                ozy.onclick = (e) => {
+                    document.cookie = `ozy=${ozy.checked}${cookieappend}`;
+                    updatemonitor();
+                };
+                container.append(ozy);
 
                 bezel = document.createElement("div");
                 bezel.className="bezel";
@@ -483,32 +522,6 @@ top:2px;
                     updatemonitor();
                 };
                 monitor.append(s3);
-
-                $(container).append(`<div class="ozy" style="position:relative">${arrow}<div class="section">Ozy</div></div>`);
-                $(".ozy").on("click", () => {
-                    $("input[name=ozy]").toggle();
-                    if($("input[name=ozy]").css("display") == "none") {
-                        $(".ozy").find("svg").css('transform','rotate(-90deg)');
-                        document.cookie = `collapseOZY=true${cookieappend}`;
-                    } else {
-                        $(".ozy").find("svg").css('transform','rotate(0deg)');
-                        document.cookie = `collapseOZY=false${cookieappend}`;
-                    }
-                }).on("mouseover", (e) => {
-                    $(".ozy").find("svg").addClass("hover");
-                }).on("mouseleave", (e) => {
-                    $(".ozy").find("svg").removeClass("hover");
-                });
-                ozy = document.createElement("input");
-                ozy.type = "checkbox";
-                ozy.name = 'ozy';
-                ozy.value = 'ozy';
-                ozy.checked = cookies && cookies.match(/ozy=true/gi) ? true : false;
-                ozy.onclick = (e) => {
-                    document.cookie = `ozy=${ozy.checked}${cookieappend}`;
-                    updatemonitor();
-                };
-                container.append(ozy);
 
                 if(cookies.match(/collapseST=true/gi)) {
                     $(".searchtype").click();
