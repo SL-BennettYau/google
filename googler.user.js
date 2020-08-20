@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      4.9
+// @version      5.0
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -364,44 +364,6 @@ top:2px;
                     }
                 }
 
-                $(container).append(`<div class="layout" style="position:relative">${arrow}<div class="section">Layout</div></div>`);
-                $(".layout").on("click", () => {
-                    $("input[name=layout]").toggle();
-                    if($("input[name=layout]").css("display") == "none") {
-                        $(".layout").find("svg").css('transform','rotate(-90deg)');
-                        document.cookie = `collapseLAY=true${cookieappend}`;
-                    } else {
-                        $(".layout").find("svg").css('transform','rotate(0deg)');
-                        document.cookie = `collapseLAY=false${cookieappend}`;
-                    }
-                    checkMonitor();
-                }).on("mouseover", (e) => {
-                    $(".layout").find("svg").addClass("hover");
-                }).on("mouseleave", (e) => {
-                    $(".layout").find("svg").removeClass("hover");
-                });
-                left = document.createElement("input");
-                left.type = "radio";
-                left.name = 'layout';
-                left.value = 'left';
-                left.checked = cookies.match(/layout=left/gi) || !cookies.match(/layout/gi) ? true : false;
-                left.onclick = () => {
-                    updatemonitor();
-                    document.cookie = `layout=left${cookieappend}`;
-                };
-                container.append(left);
-
-                right = document.createElement("input");
-                right.type = "radio";
-                right.name = 'layout';
-                right.value = 'right';
-                right.checked = cookies.match(/layout=right/gi) ? true : false;
-                right.onclick = () => {
-                    updatemonitor();
-                    document.cookie = `layout=right${cookieappend}`;
-                };
-                container.append(right);
-
                 $(container).append(`<div class="role" style="position:relative">${arrow}<div class="section">Role</div></div>`);
                 $(".role").on("click", () => {
                     $("input[name=role]").toggle();
@@ -450,6 +412,44 @@ top:2px;
                     document.cookie = `op3=${op3.checked}${cookieappend}`;
                 };
                 container.append(op3);
+
+                $(container).append(`<div class="layout" style="position:relative">${arrow}<div class="section">Layout</div></div>`);
+                $(".layout").on("click", () => {
+                    $("input[name=layout]").toggle();
+                    if($("input[name=layout]").css("display") == "none") {
+                        $(".layout").find("svg").css('transform','rotate(-90deg)');
+                        document.cookie = `collapseLAY=true${cookieappend}`;
+                    } else {
+                        $(".layout").find("svg").css('transform','rotate(0deg)');
+                        document.cookie = `collapseLAY=false${cookieappend}`;
+                    }
+                    checkMonitor();
+                }).on("mouseover", (e) => {
+                    $(".layout").find("svg").addClass("hover");
+                }).on("mouseleave", (e) => {
+                    $(".layout").find("svg").removeClass("hover");
+                });
+                left = document.createElement("input");
+                left.type = "radio";
+                left.name = 'layout';
+                left.value = 'left';
+                left.checked = cookies.match(/layout=left/gi) || !cookies.match(/layout/gi) ? true : false;
+                left.onclick = () => {
+                    updatemonitor();
+                    document.cookie = `layout=left${cookieappend}`;
+                };
+                container.append(left);
+
+                right = document.createElement("input");
+                right.type = "radio";
+                right.name = 'layout';
+                right.value = 'right';
+                right.checked = cookies.match(/layout=right/gi) ? true : false;
+                right.onclick = () => {
+                    updatemonitor();
+                    document.cookie = `layout=right${cookieappend}`;
+                };
+                container.append(right);
 
                 $(container).append(`<div class="ozy" style="position:relative">${arrow}<div class="section">Ozy</div></div>`);
                 $(".ozy").on("click", () => {
@@ -554,25 +554,31 @@ top:2px;
                 }
 
                 if(op1.checked) {
+                    $("input[value=op1]").stop().animate({"opacity":"1.0"});
+                    $("input[value=op2],input[value=op3]").stop().animate({"opacity":"0.35"});//.animate({"opacity":"1.0"});
                     document.cookie = `op1=true${cookieappend}`;
                     document.cookie = `op2=false${cookieappend}`;
                     document.cookie = `op3=false${cookieappend}`;
                 }
                 if(op2.checked) {
+                    $("input[value=op2]").stop().animate({"opacity":"1.0"});
+                    $("input[value=op1],input[value=op3]").stop().animate({"opacity":"0.35"});//.animate({"opacity":"1.0"});
                     document.cookie = `op2=true${cookieappend}`;
                     document.cookie = `op1=false${cookieappend}`;
                     document.cookie = `op3=false${cookieappend}`;
                 }
                 if(op3.checked) {
+                    $("input[value=op3]").stop().animate({"opacity":"1.0"});
+                    $("input[value=op1],input[value=op2]").stop().animate({"opacity":"0.35"});//.animate({"opacity":"1.0"});
                     document.cookie = `op3=true${cookieappend}`;
                     document.cookie = `op1=false${cookieappend}`;
                     document.cookie = `op2=false${cookieappend}`;
                 }
 
             } else {
-                $(op1).attr("type","checkbox")
-                $(op2).attr("type","checkbox")
-                $(op3).attr("type","checkbox")
+                $(op1).attr("type","checkbox").stop().animate({"opacity":"1.0"});
+                $(op2).attr("type","checkbox").stop().animate({"opacity":"1.0"});
+                $(op3).attr("type","checkbox").stop().animate({"opacity":"1.0"});
             }
 
 
