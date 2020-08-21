@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      5.1
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -831,7 +831,7 @@ top:2px;
                             }
                         }
                         //RIGHCTRL flip image
-                        if(evt.keyCode == 17) {
+                        if(evt.keyCode == 17 && GM_info.script.version < 5.0) {
                             if(full.checked || fullrev.checked || justans.checked || justq.checked) {
                                 if(ans1 && op1.checked && urlNotCheck[1]) {
                                     if(!urlNotCheck[1].match(/&tbm=isch/gi)) {
@@ -1256,7 +1256,7 @@ cursor:pointer;
             }
 
             //RIGHCTRL flip image
-            if(e.keyCode == 17) {
+            /*if(e.keyCode == 17) {
                 var fliptbm = urlParams.get('tbm');
                 if(window.location.hostname.match(/google.com/gi)) {
                     if(!fliptbm) {
@@ -1273,7 +1273,7 @@ cursor:pointer;
                         window.location.href = window.location.href.replace(/bing.com\/images\/search/gi, "bing.com/search")
                     }
                 }
-            }
+            }*/
         })
     }
 });
