@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      5.1
+// @version      5.2
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -45,6 +45,7 @@ padding-left:10px;
 font-weight: 600;
 font-size:12px;
 }
+.inputscontainer .seo:hover,
 .inputscontainer .collapseall:hover,
 .inputscontainer .sub:hover,
 .inputscontainer .searchtype:hover,
@@ -199,6 +200,13 @@ text-transform: none;
 left:-3px;
 top:2px;
 }
+.seo{
+position: absolute;
+top:5px;
+left:122px;
+z-index:999;
+cursor: pointer;
+}
 `);
         var questionClass = ".vote-question", answerClass=".answer-body";
         var q, ans, qencoded;
@@ -211,6 +219,7 @@ top:2px;
         var arrow = `<svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg>`;
         var pound = `<svg width="12" height="12" viewBox="0 0 24 24" class="icon-1_QxNX"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M5.88657 21C5.57547 21 5.3399 20.7189 5.39427 20.4126L6.00001 17H2.59511C2.28449 17 2.04905 16.7198 2.10259 16.4138L2.27759 15.4138C2.31946 15.1746 2.52722 15 2.77011 15H6.35001L7.41001 9H4.00511C3.69449 9 3.45905 8.71977 3.51259 8.41381L3.68759 7.41381C3.72946 7.17456 3.93722 7 4.18011 7H7.76001L8.39677 3.41262C8.43914 3.17391 8.64664 3 8.88907 3H9.87344C10.1845 3 10.4201 3.28107 10.3657 3.58738L9.76001 7H15.76L16.3968 3.41262C16.4391 3.17391 16.6466 3 16.8891 3H17.8734C18.1845 3 18.4201 3.28107 18.3657 3.58738L17.76 7H21.1649C21.4755 7 21.711 7.28023 21.6574 7.58619L21.4824 8.58619C21.4406 8.82544 21.2328 9 20.9899 9H17.41L16.35 15H19.7549C20.0655 15 20.301 15.2802 20.2474 15.5862L20.0724 16.5862C20.0306 16.8254 19.8228 17 19.5799 17H16L15.3632 20.5874C15.3209 20.8261 15.1134 21 14.8709 21H13.8866C13.5755 21 13.3399 20.7189 13.3943 20.4126L14 17H8.00001L7.36325 20.5874C7.32088 20.8261 7.11337 21 6.87094 21H5.88657ZM9.41045 9L8.35045 15H14.3504L15.4104 9H9.41045Z"></path></svg>`;
 
+        let engine = document.cookie.match(/seo=google/gi) ? 'google' : 'bing';
         var createinputs = () => {
             var channels=$("div[aria-label=Channels]");
             if(channels && channels[0] && $(".inputscontainer").length == 0) {
@@ -219,7 +228,13 @@ top:2px;
                 container = document.createElement("div");
                 container.className="inputscontainer";
                 $(container).insertBefore(channels);
-
+                $(container).append(`<div class="seo section"># engine <span>${engine}</span></div>`);
+                document.cookie = `seo=${engine}${cookieappend}`;
+                $(".seo").on("click", () => {
+                    engine = engine != "bing" ? "bing" : "google";
+                    $(".seo").find("span").text(engine);
+                    document.cookie = `seo=${engine}${cookieappend}`;
+                });
                 $(container).append(`<div class="collapseall" style="position:relative">${arrow}<div class="section">googler ${GM_info.script.version}</div></div>`);
                 $(".collapseall").on("click", () => {
                     $(".innercontainer").toggle();
@@ -595,103 +610,103 @@ top:2px;
             s2.style.width = `${sw}%`
             s3.style.width = `${sw}%`
             s1.style.display = op1.checked ? "flex" : "none"
-            s2.style.display = op2.checked ? "flex" : "none"
-            s3.style.display = op3.checked ? "flex" : "none"
+        s2.style.display = op2.checked ? "flex" : "none"
+        s3.style.display = op3.checked ? "flex" : "none"
 
-            $(".monitor").find("svg[class^=homeIcon-]").parent().remove();
-            var logo = $("svg[class^=homeIcon-]").parent().clone();
+        $(".monitor").find("svg[class^=homeIcon-]").parent().remove();
+        var logo = $("svg[class^=homeIcon-]").parent().clone();
+        if(left.checked) {
+            monitor.append(logo[0]);
+        }
+        if(right.checked) {
+            monitor.prepend(logo[0]);
+        }
+        $(".simg").remove();
+        if(manualfork.checked) {
+            simg = document.createElement("div");
+            simg.className="simg";
+            simg.innerText = "img";
+            simg.style.width = `${sw}%`;
             if(left.checked) {
-                monitor.append(logo[0]);
+                monitor.prepend(simg);
+            } else {
+                monitor.append(simg);
             }
-            if(right.checked) {
-                monitor.prepend(logo[0]);
+        }
+        $('.sozy').remove();
+        if(ozy.checked) {
+            $(".simg").prepend("<div class='sozy'>ozy.com</div>")
+            $(".s1").prepend("<div class='sozy'>ozy.com</div>")
+            $(".s2").prepend("<div class='sozy'>ozy.com</div>")
+            $(".s3").prepend("<div class='sozy'>ozy.com</div>")
+        }
+    }
+
+    var openwindows = (override) => {
+        let count = 0;
+        count = op1.checked ? ++count : count;
+        count = op2.checked ? ++count : count;
+        count = op3.checked ? ++count : count;
+        if(manualfork.checked) {
+            count++;
+        }
+        w = (screen.width - 630) / count;
+        //var maxW = screen.width / 2;
+        offset = right.checked ? 630 : 0;
+        if(manualfork.checked) {
+            offset += right.checked ? 0 : w;
+        }
+        //w = Math.min(w, maxW)
+
+        if(override) {
+            if(ans1) {
+                ans1.close();
             }
-            $(".simg").remove();
-            if(manualfork.checked) {
-                simg = document.createElement("div");
-                simg.className="simg";
-                simg.innerText = "img";
-                simg.style.width = `${sw}%`;
-                if(left.checked) {
-                    monitor.prepend(simg);
-                } else {
-                    monitor.append(simg);
-                }
+            if(ans2) {
+                ans2.close();
             }
-            $('.sozy').remove();
-            if(ozy.checked) {
-                $(".simg").prepend("<div class='sozy'>ozy.com</div>")
-                $(".s1").prepend("<div class='sozy'>ozy.com</div>")
-                $(".s2").prepend("<div class='sozy'>ozy.com</div>")
-                $(".s3").prepend("<div class='sozy'>ozy.com</div>")
+            if(ans3) {
+                ans3.close();
+            }
+            if(forkw) {
+                forkw.close();
+            }
+            if(op1.checked) {
+                ans1 = window.open('https://www.google.com/webhp?&hl=en', 'ans1', "width="+w+", height="+deviceHeight+", left="+offset);
+            }
+            if(op2.checked) {
+                ans2 = window.open('https://www.google.com/webhp?&hl=en', 'ans2', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(op1.checked ? 1 : 0))))
+            }
+            if(op3.checked) {
+                ans3 = window.open('https://www.google.com/webhp?&hl=en', 'ans3', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(Number(op1.checked ? 1 : 0) + Number(op2.checked ? 1 : 0)))))
             }
         }
 
-        var openwindows = (override) => {
-            let count = 0;
-            count = op1.checked ? ++count : count;
-            count = op2.checked ? ++count : count;
-            count = op3.checked ? ++count : count;
-            if(manualfork.checked) {
-                count++;
+    }
+    var closewindows = () => {
+        try{
+            if(ans1) {
+                ans1.close();
+                ans1 = null;
             }
-            w = (screen.width - 630) / count;
-            //var maxW = screen.width / 2;
-            offset = right.checked ? 630 : 0;
-            if(manualfork.checked) {
-                offset += right.checked ? 0 : w;
+            if(ans2) {
+                ans2.close();
+                ans2 = null;
             }
-            //w = Math.min(w, maxW)
-
-            if(override) {
-                if(ans1) {
-                    ans1.close();
-                }
-                if(ans2) {
-                    ans2.close();
-                }
-                if(ans3) {
-                    ans3.close();
-                }
-                if(forkw) {
-                    forkw.close();
-                }
-                if(op1.checked) {
-                    ans1 = window.open('https://www.google.com/webhp?&hl=en', 'ans1', "width="+w+", height="+deviceHeight+", left="+offset);
-                }
-                if(op2.checked) {
-                    ans2 = window.open('https://www.google.com/webhp?&hl=en', 'ans2', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(op1.checked ? 1 : 0))))
-                }
-                if(op3.checked) {
-                    ans3 = window.open('https://www.google.com/webhp?&hl=en', 'ans3', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(Number(op1.checked ? 1 : 0) + Number(op2.checked ? 1 : 0)))))
-                }
+            if(ans3) {
+                ans3.close();
+                ans3 = null;
             }
+            if(forkw) {
+                forkw.close();
+                forkw = null;
+            }
+        } catch(e){}
+    }
 
-        }
-        var closewindows = () => {
-            try{
-                if(ans1) {
-                    ans1.close();
-                    ans1 = null;
-                }
-                if(ans2) {
-                    ans2.close();
-                    ans2 = null;
-                }
-                if(ans3) {
-                    ans3.close();
-                    ans3 = null;
-                }
-                if(forkw) {
-                    forkw.close();
-                    forkw = null;
-                }
-            } catch(e){}
-        }
-
-        window.onbeforeunload = function(){
-            closewindows();
-        };
+    window.onbeforeunload = function(){
+        closewindows();
+    };
 
         var waitbody = setInterval(() =>{
             var messageList = $("body");
@@ -711,7 +726,7 @@ top:2px;
                     if(user == "GrayBot") {
                         let googlemain = `https://www.google.com/search?q=`;
                         let bingmain = `https://www.bing.com/search?q=`;
-                        let enginemain = googlemain;
+                        let enginemain = engine == 'google' ? googlemain : bingmain;
                         if(manual.checked || manualq.checked || manualfork.checked) {
                             enginemain = "https://www.google.com/webhp?&hl=en&"
                         }
@@ -736,139 +751,181 @@ top:2px;
                             let allanswers = `&brg1=${encodeURIComponent(values[1].innerText.trim())}&brg2=${encodeURIComponent(values[2].innerText.trim())}&brg3=${encodeURIComponent(values[3].innerText.trim())}`
 
                             let fork = manualfork.checked ? `&fork=true&width=${w}&height=${deviceHeight}&offset=${offset}&left=${left.checked}` : ``;
-                            let ozyprefix = ozy.checked ? 'ozy.com ' : '';
-                            var launch = (target, answer, i) => {
-                                if(manual.checked) {
-                                    target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}`;
-                                } else if(manualq.checked) {
-                                    target.location.href = `${enginemain}prepend${i}=${ozyprefix}${qencoded}${allanswers}`;
-                                } else if(manualfork.checked) {
-                                    target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}${fork}`;
-                                } else if(fullrev.checked) {
-                                    target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
-                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
-                                    urlNot[i] = true;
-                                } else if(justq.checked) {
-                                    target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
-                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
-                                    urlNot[i] = true;
-                                } else {
-                                    target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
-                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
-                                    urlNot[i] = true;
-                                }
-                            }
-
-                            if (ans1 && op1.checked && values[1].innerText) {
-                                let answer = encodeURIComponent(values[1].innerText.trim());
-                                launch(ans1, answer, 1);
-                            }
-                            if (ans2 && op2.checked && values[2].innerText) {
-                                let answer = encodeURIComponent(values[2].innerText.trim());
-                                launch(ans2, answer, 2);
-                            }
-                            if (ans3 && op3.checked && values[3].innerText) {
-                                let answer = encodeURIComponent(values[3].innerText.trim());
-                                launch(ans3, answer, 3);
-                            }
-                            lastq = q;
-                            lastans1 = values[1].innerText;
-                            lastans2 = values[2].innerText;
-                            lastans3 = values[3].innerText;
-                            if(ozy.checked && (op1.checked || op2.checked || op3.checked)) {
-                                ozy.click();
-                            }
-                        }
-                    }
-                    if(user != "GrayBot") {
-                        try{
-                            var lastmsgNot = messageList.find("div[class*=messageContent-]").last();
-                            var chattext = (lastmsgNot.text() || "").toLowerCase().trim();
-                            if(chattext == "n1" || chattext == "n2" || chattext == "n3") {
-                                //console.log(lastmsgNot.text())
-                                if(full.checked || fullrev.checked || justans.checked || justq.checked) {
-                                    if(chattext == "n1" && ans1 && op1.checked && urlNot[1]) {
-                                        ans1.location.href = `${urlNotCheck[1]}&notthis=y`;
-                                        urlNotCheck[1] = `${urlNotCheck[1]}&notthis=y`;
-                                        urlNot[1] = false;
-                                    }
-                                    if(chattext == "n2" && ans2 && op2.checked && urlNot[2]) {
-                                        ans2.location.href = `${urlNotCheck[2]}&notthis=y`;
-                                        urlNotCheck[2] = `${urlNotCheck[2]}&notthis=y`;
-                                        urlNot[2] = false;
-                                    }
-                                    if(chattext == "n3" && ans3 && op3.checked && urlNot[3]) {
-                                        ans3.location.href = `${urlNotCheck[3]}&notthis=y`;
-                                        urlNotCheck[3] = `${urlNotCheck[3]}&notthis=y`;
-                                        urlNot[3] = false;
-                                    }
-                                }
-                            }
-                        } catch(e){}
-                    }
-                });
-                observer.observe(messageList[0], {characterData: false, subtree: true, childList: true, attributes: false});
-
-                document.onkeydown = function(evt) {
-                    evt = evt || window.event;
-                    // keybinds
-                    //console.log(evt.keyCode)
-                    try{
-                        //F8 windows force null
-                        if(evt.keyCode == 119) {
-                            lastq = null;
-                            lastans1 = null;
-                            lastans2 = null;
-                            lastans3 = null;
-                        }
-                        //F9 windows
-                        if(evt.keyCode == 120) {
-                            if(ans1 || ans2 || ans3){
-                                closewindows();
+                        let ozyprefix = ozy.checked ? 'ozy.com ' : '';
+                        var launch = (target, answer, i) => {
+                            if(manual.checked) {
+                                target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}`;
+                            } else if(manualq.checked) {
+                                target.location.href = `${enginemain}prepend${i}=${ozyprefix}${qencoded}${allanswers}`;
+                            } else if(manualfork.checked) {
+                                target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}${fork}`;
+                            } else if(fullrev.checked) {
+                                target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
+                                urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
+                                urlNot[i] = true;
+                            } else if(justq.checked) {
+                                target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
+                                urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
+                                urlNot[i] = true;
                             } else {
-                                createinputs();
-                                openwindows(true);
+                                target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
+                                urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
+                                urlNot[i] = true;
                             }
                         }
-                        //RIGHCTRL flip image
-                        if(evt.keyCode == 17 && GM_info.script.version < 5.0) {
-                            if(full.checked || fullrev.checked || justans.checked || justq.checked) {
-                                if(ans1 && op1.checked && urlNotCheck[1]) {
-                                    if(!urlNotCheck[1].match(/&tbm=isch/gi)) {
-                                        ans1.location.href = `${urlNotCheck[1]}&tbm=isch`;
-                                        urlNotCheck[1] = `${urlNotCheck[1]}&tbm=isch`;
-                                    } else {
-                                        urlNotCheck[1] = urlNotCheck[1].replace(/&tbm=isch/gi, "");
-                                        ans1.location.href = urlNotCheck[1];
-                                    }
-                                }
-                                if(ans2 && op2.checked && urlNotCheck[2]) {
-                                    if(!urlNotCheck[2].match(/&tbm=isch/gi)) {
-                                        ans2.location.href = `${urlNotCheck[2]}&tbm=isch`;
-                                        urlNotCheck[2] = `${urlNotCheck[2]}&tbm=isch`;
-                                    } else {
-                                        urlNotCheck[2] = urlNotCheck[2].replace(/&tbm=isch/gi, "");
-                                        ans2.location.href = urlNotCheck[2];
-                                    }
-                                }
-                                if(ans3 && op3.checked && urlNotCheck[3]) {
-                                    if(!urlNotCheck[3].match(/&tbm=isch/gi)) {
-                                        ans3.location.href = `${urlNotCheck[3]}&tbm=isch`;
-                                        urlNotCheck[3] = `${urlNotCheck[3]}&tbm=isch`;
-                                    } else {
-                                        urlNotCheck[3] = urlNotCheck[3].replace(/&tbm=isch/gi, "");
-                                        ans3.location.href = urlNotCheck[3];
-                                    }
-                                }
-                            }
-                        }
-                    } catch(e) {
-                        console.log(e)
-                    }
 
-                };
-            }
-        },500);
+                        if (ans1 && op1.checked && values[1].innerText) {
+                            let answer = encodeURIComponent(values[1].innerText.trim());
+                            launch(ans1, answer, 1);
+                        }
+                        if (ans2 && op2.checked && values[2].innerText) {
+                            let answer = encodeURIComponent(values[2].innerText.trim());
+                            launch(ans2, answer, 2);
+                        }
+                        if (ans3 && op3.checked && values[3].innerText) {
+                            let answer = encodeURIComponent(values[3].innerText.trim());
+                            launch(ans3, answer, 3);
+                        }
+                        lastq = q;
+                        lastans1 = values[1].innerText;
+                        lastans2 = values[2].innerText;
+                        lastans3 = values[3].innerText;
+                        if(ozy.checked && (op1.checked || op2.checked || op3.checked)) {
+                            ozy.click();
+                        }
+                    }
+                }
+                if(user != "GrayBot") {
+                    try{
+                        var lastmsgNot = messageList.find("div[class*=messageContent-]").last();
+                        var chattext = (lastmsgNot.text() || "").toLowerCase().trim();
+                        if(chattext == "n1" || chattext == "n2" || chattext == "n3") {
+                            //console.log(lastmsgNot.text())
+                            if(full.checked || fullrev.checked || justans.checked || justq.checked) {
+                                if(chattext == "n1" && ans1 && op1.checked && urlNot[1]) {
+                                    ans1.location.href = `${urlNotCheck[1]}&notthis=y`;
+                                    urlNotCheck[1] = `${urlNotCheck[1]}&notthis=y`;
+                                    urlNot[1] = false;
+                                }
+                                if(chattext == "n2" && ans2 && op2.checked && urlNot[2]) {
+                                    ans2.location.href = `${urlNotCheck[2]}&notthis=y`;
+                                    urlNotCheck[2] = `${urlNotCheck[2]}&notthis=y`;
+                                    urlNot[2] = false;
+                                }
+                                if(chattext == "n3" && ans3 && op3.checked && urlNot[3]) {
+                                    ans3.location.href = `${urlNotCheck[3]}&notthis=y`;
+                                    urlNotCheck[3] = `${urlNotCheck[3]}&notthis=y`;
+                                    urlNot[3] = false;
+                                }
+                            }
+                        }
+                    } catch(e){}
+                }
+            });
+            observer.observe(messageList[0], {characterData: false, subtree: true, childList: true, attributes: false});
+
+            document.onkeydown = function(evt) {
+                evt = evt || window.event;
+                // keybinds
+                //console.log(evt.keyCode)
+                try{
+                    //F8 windows force null
+                    if(evt.keyCode == 119) {
+                        lastq = null;
+                        lastans1 = null;
+                        lastans2 = null;
+                        lastans3 = null;
+                    }
+                    //F9 windows
+                    if(evt.keyCode == 120) {
+                        if(ans1 || ans2 || ans3){
+                            closewindows();
+                        } else {
+                            createinputs();
+                            openwindows(true);
+                        }
+                    }
+                    //RIGHCTRL flip image
+                    if(evt.keyCode == 17 && GM_info.script.version < 5.0) {
+                        if(full.checked || fullrev.checked || justans.checked || justq.checked) {
+                            if(ans1 && op1.checked && urlNotCheck[1]) {
+                                if(engine == "google") {
+                                    if(!urlNotCheck[1].match(/&tbm=isch/gi)) {
+                                        let u = `${urlNotCheck[1]}&tbm=isch`;
+                                        ans1.location.href = u;
+                                        urlNotCheck[1] = u;
+                                    } else {
+                                        let u = urlNotCheck[1].replace(/&tbm=isch/gi, "");
+                                        urlNotCheck[1] = u;
+                                        ans1.location.href = u;
+                                    }
+                                } else {
+                                    if(!urlNotCheck[1].match(/bing.com\/images\/search/gi)) {
+                                        let u = urlNotCheck[1].replace("bing.com/search", "bing.com/images/search")
+                                        ans1.location.href = u;
+                                        urlNotCheck[1] = u;
+                                    } else {
+                                        let u = urlNotCheck[1].replace("bing.com/images/search", "bing.com/search");
+                                        ans1.location.href = u;
+                                        urlNotCheck[1] = u;
+                                    }
+                                }
+                            }
+                            if(ans2 && op2.checked && urlNotCheck[2]) {
+                                if(engine == "google") {
+                                    if(!urlNotCheck[2].match(/&tbm=isch/gi)) {
+                                        let u = `${urlNotCheck[2]}&tbm=isch`;
+                                        ans2.location.href = u;
+                                        urlNotCheck[2] = u;
+                                    } else {
+                                        let u = urlNotCheck[2].replace(/&tbm=isch/gi, "")
+                                        urlNotCheck[2] = u;
+                                        ans2.location.href = u;
+                                    }
+                                } else {
+                                    if(!urlNotCheck[2].match(/bing.com\/images\/search/gi)) {
+                                        let u = urlNotCheck[2].replace("bing.com/search", "bing.com/images/search");
+                                        ans2.location.href = u;
+                                        urlNotCheck[2] = u;
+                                    } else {
+                                        let u = urlNotCheck[2].replace("bing.com/images/search", "bing.com/search")
+                                        ans2.location.href = u;
+                                        urlNotCheck[2] = u;
+                                    }
+                                }
+                            }
+                            if(ans3 && op3.checked && urlNotCheck[3]) {
+                                if(engine == "google") {
+                                    if(!urlNotCheck[3].match(/&tbm=isch/gi)) {
+                                        let u = `${urlNotCheck[3]}&tbm=isch`
+                                        ans3.location.href = u;
+                                        urlNotCheck[3] = u;
+                                    } else {
+                                        let u = urlNotCheck[3].replace(/&tbm=isch/gi, "");
+                                        urlNotCheck[3] = u;
+                                        ans3.location.href = u;
+                                    }
+                                } else {
+                                    if(!urlNotCheck[3].match(/bing.com\/images\/search/gi)) {
+                                        let u = urlNotCheck[3].replace("bing.com/search", "bing.com/images/search");
+                                        ans3.location.href = u;
+                                        urlNotCheck[3] = u;
+                                    } else {
+                                        let u = urlNotCheck[3].replace("bing.com/images/search", "bing.com/search");
+                                        ans3.location.href = u;
+                                        urlNotCheck[3] = u;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.log(e)
+                }
+
+            };
+        }
+    },500);
     }
     else {
 
