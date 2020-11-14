@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      5.2
+// @version      5.3
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -25,6 +25,9 @@ $().ready(()=>{
     'use strict';
     if(location.hostname.match(/discord.com/gi)) {
         GM_addStyle(`
+div[class^=unread] {
+display:none;
+}
 .inputscontainer{
 display: block;
 color: white;
@@ -34,7 +37,7 @@ left: 0;
 right: 0;
 height: auto;
 background-color: var(--background-secondary);
-padding: 5px 5px 2px 5px;
+padding: 5px 5px 2px 2px;
 color: var(--channels-default);
 font-weight: 600;
 }
@@ -51,7 +54,7 @@ font-size:12px;
 .inputscontainer .searchtype:hover,
 .inputscontainer .layout:hover,
 .inputscontainer .role:hover,
-.inputscontainer .ozy:hover,
+.inputscontainer .customize:hover,
 .inputscontainer input:hover:after{
 color: var(--interactive-hover);
 }
@@ -63,7 +66,7 @@ color: var(--channels-default);
 fill: var(--interactive-hover);
 }
 
-input[name=role], input[name=layout], input[name=searchtype], input[name=ozy] {
+input[name=role], input[name=layout], input[name=searchtype], input[name=quotes], input[name=ozy] {
 display: block;
 color: white;
 cursor:pointer;
@@ -72,7 +75,7 @@ line-height:16px;
 margin-left:10px;
 }
 
-input[name=ozy]:after, input[name=role]:after, input[name=layout]:after, input[name=searchtype]:after{
+input[name=quotes]:after, input[name=ozy]:after, input[name=role]:after, input[name=layout]:after, input[name=searchtype]:after{
 padding-left: 18px;
 width: auto;
 white-space: nowrap;
@@ -119,12 +122,18 @@ input[value=op3]:after{
 content: 'option 3';
 }
 
+input[value=quotes]:after{
+content: 'quoth thy answer';
+}
 input[value=ozy]:after{
 content: 'prepend ozy.com';
 }
 
-.collapseall, .searchtype, .layout, .role, .ozy{
+.collapseall, .searchtype, .layout, .role, .customize {
 cursor: pointer;
+display: flex;
+justify-content: flex-start;
+align-items: center;
 }
 .searchtype {
 margin-top: 10px;
@@ -132,7 +141,7 @@ margin-top: 10px;
 input[value=justq], input[value=manualq] {
 margin-bottom: 10px;
 }
-.layout, .role, .ozy{
+.layout, .role, .customize{
 margin-top: 10px;
 }
 
@@ -187,7 +196,7 @@ height: 75%;
 border:1px solid #202225;
 }
 .section{
-margin-left: 11px;
+margin-left: 3px;
 font-size: 12px;
 text-transform: uppercase;
 line-height: 16px;
@@ -207,16 +216,28 @@ left:122px;
 z-index:999;
 cursor: pointer;
 }
+.affixes {
+margin: 4px 0 4px 10px;
+border: none;
+outline: none;
+}
+.scrabble {
+margin: 5px 0 5px 10px;
+padding: 3px 0;
+display: block;
+width: 140px;
+background-color: #dcddde;
+}
 `);
         var questionClass = ".vote-question", answerClass=".answer-body";
         var q, ans, qencoded;
-        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, ozy;
+        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, customize, ozy, prefix, suffix, scrabble, quotes;
         var collapseall, lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
         var urlNotCheck = {}, urlNot = {};
         var deviceHeight = screen.height - 100;
         var w, offset;
         var cookieappend = `;path=/;max-age=31556952`;
-        var arrow = `<svg class="arrow-gKvcEx icon-WnO6o2" width="24" height="24" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg>`;
+        var arrow = `<svg class="arrow-gKvcEx icon-WnO6o2" width="12" height="12" viewBox="0 0 24 24"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M16.59 8.59004L12 13.17L7.41 8.59004L6 10L12 16L18 10L16.59 8.59004Z"></path></svg>`;
         var pound = `<svg width="12" height="12" viewBox="0 0 24 24" class="icon-1_QxNX"><path fill="#8e9297" fill-rule="evenodd" clip-rule="evenodd" d="M5.88657 21C5.57547 21 5.3399 20.7189 5.39427 20.4126L6.00001 17H2.59511C2.28449 17 2.04905 16.7198 2.10259 16.4138L2.27759 15.4138C2.31946 15.1746 2.52722 15 2.77011 15H6.35001L7.41001 9H4.00511C3.69449 9 3.45905 8.71977 3.51259 8.41381L3.68759 7.41381C3.72946 7.17456 3.93722 7 4.18011 7H7.76001L8.39677 3.41262C8.43914 3.17391 8.64664 3 8.88907 3H9.87344C10.1845 3 10.4201 3.28107 10.3657 3.58738L9.76001 7H15.76L16.3968 3.41262C16.4391 3.17391 16.6466 3 16.8891 3H17.8734C18.1845 3 18.4201 3.28107 18.3657 3.58738L17.76 7H21.1649C21.4755 7 21.711 7.28023 21.6574 7.58619L21.4824 8.58619C21.4406 8.82544 21.2328 9 20.9899 9H17.41L16.35 15H19.7549C20.0655 15 20.301 15.2802 20.2474 15.5862L20.0724 16.5862C20.0306 16.8254 19.8228 17 19.5799 17H16L15.3632 20.5874C15.3209 20.8261 15.1134 21 14.8709 21H13.8866C13.5755 21 13.3399 20.7189 13.3943 20.4126L14 17H8.00001L7.36325 20.5874C7.32088 20.8261 7.11337 21 6.87094 21H5.88657ZM9.41045 9L8.35045 15H14.3504L15.4104 9H9.41045Z"></path></svg>`;
 
         let engine = document.cookie.match(/seo=google/gi) ? 'google' : 'bing';
@@ -251,8 +272,8 @@ cursor: pointer;
                         if(document.cookie.match(/collapseROLE=true/gi)) {
                             $(".role").click();
                         }
-                        if(document.cookie.match(/collapseOZY=true/gi)) {
-                            $(".ozy").click();
+                        if(document.cookie.match(/collapseCUSTOMIZE=true/gi)) {
+                            $(".customize").click();
                         }
                         $(".collapseall").find("svg").css('transform','rotate(0deg)');
                         document.cookie = `collapseall=false${cookieappend}`;
@@ -268,6 +289,85 @@ cursor: pointer;
                 $(container).append(innercontainer);
                 container = innercontainer;
 
+                ////////////////////// CUSTOMIZE
+                $(container).append(`<div class="customize" style="position:relative">${arrow}<div class="section">Customize</div></div>`);
+                $(".customize").on("click", () => {
+                    $(".customizebox").toggle();
+                    if($(".customizebox").css("display") == "none") {
+                        $(".customize").find("svg").css('transform','rotate(-90deg)');
+                        document.cookie = `collapseCUSTOMIZE=true${cookieappend}`;
+                    } else {
+                        $(".customize").find("svg").css('transform','rotate(0deg)');
+                        document.cookie = `collapseCUSTOMIZE=false${cookieappend}`;
+                    }
+                    checkMonitor();
+                }).on("mouseover", (e) => {
+                    $(".customize").find("svg").addClass("hover");
+                }).on("mouseleave", (e) => {
+                    $(".customize").find("svg").removeClass("hover");
+                });
+
+                customize = document.createElement("div");
+                customize.className = "customizebox";
+                container.append(customize);
+
+                scrabble = document.createElement("button");
+                scrabble.className = "scrabble";
+                scrabble.title = "calculate scrabble scores";
+                scrabble.innerHTML = "scrabble score";
+                scrabble.onclick = () => {
+                    var scrabbleArray = []
+                    if(lastans1) scrabbleArray.push(lastans1);
+                    if(lastans2) scrabbleArray.push(lastans2);
+                    if(lastans3) scrabbleArray.push(lastans3);
+                    if(scrabbleArray && scrabbleArray.length > 0) {
+                    scrabbleArray.sort((a, b) => {return scrabbleScore(b.toLowerCase().trim()) - scrabbleScore(a.trim().toLowerCase())});
+                    var scrabscore = ""
+                    scrabbleArray.map(a => {
+                        scrabscore += a + " " + scrabbleScore(a.trim().toLowerCase()) + "\n";
+                    });
+                    alert(scrabscore)
+                    }
+                }
+                customize.append(scrabble);
+
+                quotes = document.createElement("input");
+                quotes.type = "checkbox";
+                quotes.name = 'quotes';
+                quotes.value = 'quotes';
+                quotes.title = 'add quotes to answer';
+                quotes.checked = cookies && cookies.match(/quoteschecked=true/gi) ? true : false;
+                quotes.onclick = (e) => {
+                    document.cookie = `quoteschecked=${quotes.checked}${cookieappend}`;
+                };
+                customize.append(quotes);
+
+                ozy = document.createElement("input");
+                ozy.type = "checkbox";
+                ozy.name = 'ozy';
+                ozy.value = 'ozy';
+                ozy.title = 'prepend ozy.com to search';
+                ozy.checked = cookies && cookies.match(/ozychecked=true/gi) ? true : false;
+                ozy.onclick = (e) => {
+                    document.cookie = `ozychecked=${ozy.checked}${cookieappend}`;
+                    updatemonitor();
+                };
+                customize.append(ozy);
+
+                prefix = document.createElement("input");
+                prefix.className = "affixes";
+                prefix.type = "text";
+                prefix.placeholder = "prefix terms"
+                prefix.title = "prefix your search with";
+                customize.append(prefix);
+                suffix = document.createElement("input");
+                suffix.className = "affixes";
+                suffix.type = "text";
+                suffix.placeholder = "suffix terms"
+                suffix.title = "suffix your search with";
+                customize.append(suffix);
+
+                ////////////////////// SEARCH TYPE
                 $(container).append(`<div class="searchtype" style="position:relative">${arrow}<div class="section">Search Type</div></div>`);
                 $(".searchtype").on("click", () => {
                     $("input[name=searchtype], .sub").toggle();
@@ -379,6 +479,7 @@ cursor: pointer;
                     }
                 }
 
+                ////////////////////// ROLE
                 $(container).append(`<div class="role" style="position:relative">${arrow}<div class="section">Role</div></div>`);
                 $(".role").on("click", () => {
                     $("input[name=role]").toggle();
@@ -428,6 +529,7 @@ cursor: pointer;
                 };
                 container.append(op3);
 
+                ////////////////////// LAYOUT
                 $(container).append(`<div class="layout" style="position:relative">${arrow}<div class="section">Layout</div></div>`);
                 $(".layout").on("click", () => {
                     $("input[name=layout]").toggle();
@@ -466,33 +568,7 @@ cursor: pointer;
                 };
                 container.append(right);
 
-                $(container).append(`<div class="ozy" style="position:relative">${arrow}<div class="section">Ozy</div></div>`);
-                $(".ozy").on("click", () => {
-                    $("input[name=ozy]").toggle();
-                    if($("input[name=ozy]").css("display") == "none") {
-                        $(".ozy").find("svg").css('transform','rotate(-90deg)');
-                        document.cookie = `collapseOZY=true${cookieappend}`;
-                    } else {
-                        $(".ozy").find("svg").css('transform','rotate(0deg)');
-                        document.cookie = `collapseOZY=false${cookieappend}`;
-                    }
-                    checkMonitor();
-                }).on("mouseover", (e) => {
-                    $(".ozy").find("svg").addClass("hover");
-                }).on("mouseleave", (e) => {
-                    $(".ozy").find("svg").removeClass("hover");
-                });
-                ozy = document.createElement("input");
-                ozy.type = "checkbox";
-                ozy.name = 'ozy';
-                ozy.value = 'ozy';
-                ozy.checked = cookies && cookies.match(/ozy=true/gi) ? true : false;
-                ozy.onclick = (e) => {
-                    document.cookie = `ozy=${ozy.checked}${cookieappend}`;
-                    updatemonitor();
-                };
-                container.append(ozy);
-
+                ////////////////////// MONITOR
                 bezel = document.createElement("div");
                 bezel.className="bezel";
                 container.append(bezel);
@@ -547,8 +623,8 @@ cursor: pointer;
                 if(cookies.match(/collapseROLE=true/gi)) {
                     $(".role").click();
                 }
-                if(cookies.match(/collapseOZY=true/gi)) {
-                    $(".ozy").click();
+                if(cookies.match(/collapseCUSTOMIZE=true/gi)) {
+                    $(".customize").click();
                 }
                 if(cookies.match(/collapseall=true/gi)) {
                     $(".collapseall").click();
@@ -610,103 +686,103 @@ cursor: pointer;
             s2.style.width = `${sw}%`
             s3.style.width = `${sw}%`
             s1.style.display = op1.checked ? "flex" : "none"
-        s2.style.display = op2.checked ? "flex" : "none"
-        s3.style.display = op3.checked ? "flex" : "none"
+            s2.style.display = op2.checked ? "flex" : "none"
+            s3.style.display = op3.checked ? "flex" : "none"
 
-        $(".monitor").find("svg[class^=homeIcon-]").parent().remove();
-        var logo = $("svg[class^=homeIcon-]").parent().clone();
-        if(left.checked) {
-            monitor.append(logo[0]);
-        }
-        if(right.checked) {
-            monitor.prepend(logo[0]);
-        }
-        $(".simg").remove();
-        if(manualfork.checked) {
-            simg = document.createElement("div");
-            simg.className="simg";
-            simg.innerText = "img";
-            simg.style.width = `${sw}%`;
+            $(".monitor").find("svg[class^=homeIcon-]").parent().remove();
+            var logo = $("svg[class^=homeIcon-]").parent().clone();
             if(left.checked) {
-                monitor.prepend(simg);
-            } else {
-                monitor.append(simg);
+                monitor.append(logo[0]);
             }
-        }
-        $('.sozy').remove();
-        if(ozy.checked) {
-            $(".simg").prepend("<div class='sozy'>ozy.com</div>")
-            $(".s1").prepend("<div class='sozy'>ozy.com</div>")
-            $(".s2").prepend("<div class='sozy'>ozy.com</div>")
-            $(".s3").prepend("<div class='sozy'>ozy.com</div>")
-        }
-    }
-
-    var openwindows = (override) => {
-        let count = 0;
-        count = op1.checked ? ++count : count;
-        count = op2.checked ? ++count : count;
-        count = op3.checked ? ++count : count;
-        if(manualfork.checked) {
-            count++;
-        }
-        w = (screen.width - 630) / count;
-        //var maxW = screen.width / 2;
-        offset = right.checked ? 630 : 0;
-        if(manualfork.checked) {
-            offset += right.checked ? 0 : w;
-        }
-        //w = Math.min(w, maxW)
-
-        if(override) {
-            if(ans1) {
-                ans1.close();
+            if(right.checked) {
+                monitor.prepend(logo[0]);
             }
-            if(ans2) {
-                ans2.close();
+            $(".simg").remove();
+            if(manualfork.checked) {
+                simg = document.createElement("div");
+                simg.className="simg";
+                simg.innerText = "img";
+                simg.style.width = `${sw}%`;
+                if(left.checked) {
+                    monitor.prepend(simg);
+                } else {
+                    monitor.append(simg);
+                }
             }
-            if(ans3) {
-                ans3.close();
-            }
-            if(forkw) {
-                forkw.close();
-            }
-            if(op1.checked) {
-                ans1 = window.open('https://www.google.com/webhp?&hl=en', 'ans1', "width="+w+", height="+deviceHeight+", left="+offset);
-            }
-            if(op2.checked) {
-                ans2 = window.open('https://www.google.com/webhp?&hl=en', 'ans2', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(op1.checked ? 1 : 0))))
-            }
-            if(op3.checked) {
-                ans3 = window.open('https://www.google.com/webhp?&hl=en', 'ans3', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(Number(op1.checked ? 1 : 0) + Number(op2.checked ? 1 : 0)))))
+            $('.sozy').remove();
+            if(ozy.checked) {
+                $(".simg").prepend("<div class='sozy'>ozy.com</div>")
+                $(".s1").prepend("<div class='sozy'>ozy.com</div>")
+                $(".s2").prepend("<div class='sozy'>ozy.com</div>")
+                $(".s3").prepend("<div class='sozy'>ozy.com</div>")
             }
         }
 
-    }
-    var closewindows = () => {
-        try{
-            if(ans1) {
-                ans1.close();
-                ans1 = null;
+        var openwindows = (override) => {
+            let count = 0;
+            count = op1.checked ? ++count : count;
+            count = op2.checked ? ++count : count;
+            count = op3.checked ? ++count : count;
+            if(manualfork.checked) {
+                count++;
             }
-            if(ans2) {
-                ans2.close();
-                ans2 = null;
+            w = (screen.width - 630) / count;
+            //var maxW = screen.width / 2;
+            offset = right.checked ? 630 : 0;
+            if(manualfork.checked) {
+                offset += right.checked ? 0 : w;
             }
-            if(ans3) {
-                ans3.close();
-                ans3 = null;
-            }
-            if(forkw) {
-                forkw.close();
-                forkw = null;
-            }
-        } catch(e){}
-    }
+            //w = Math.min(w, maxW)
 
-    window.onbeforeunload = function(){
-        closewindows();
-    };
+            if(override) {
+                if(ans1) {
+                    ans1.close();
+                }
+                if(ans2) {
+                    ans2.close();
+                }
+                if(ans3) {
+                    ans3.close();
+                }
+                if(forkw) {
+                    forkw.close();
+                }
+                if(op1.checked) {
+                    ans1 = window.open('https://www.google.com/webhp?&hl=en', 'ans1', "width="+w+", height="+deviceHeight+", left="+offset);
+                }
+                if(op2.checked) {
+                    ans2 = window.open('https://www.google.com/webhp?&hl=en', 'ans2', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(op1.checked ? 1 : 0))))
+                }
+                if(op3.checked) {
+                    ans3 = window.open('https://www.google.com/webhp?&hl=en', 'ans3', "width="+w+", height="+deviceHeight+", left="+(offset + (w*(Number(op1.checked ? 1 : 0) + Number(op2.checked ? 1 : 0)))))
+                }
+            }
+
+        }
+        var closewindows = () => {
+            try{
+                if(ans1) {
+                    ans1.close();
+                    ans1 = null;
+                }
+                if(ans2) {
+                    ans2.close();
+                    ans2 = null;
+                }
+                if(ans3) {
+                    ans3.close();
+                    ans3 = null;
+                }
+                if(forkw) {
+                    forkw.close();
+                    forkw = null;
+                }
+            } catch(e){}
+        }
+
+        window.onbeforeunload = function(){
+            closewindows();
+        };
 
         var waitbody = setInterval(() =>{
             var messageList = $("body");
@@ -751,184 +827,236 @@ cursor: pointer;
                             let allanswers = `&brg1=${encodeURIComponent(values[1].innerText.trim())}&brg2=${encodeURIComponent(values[2].innerText.trim())}&brg3=${encodeURIComponent(values[3].innerText.trim())}`
 
                             let fork = manualfork.checked ? `&fork=true&width=${w}&height=${deviceHeight}&offset=${offset}&left=${left.checked}` : ``;
-                        let ozyprefix = ozy.checked ? 'ozy.com ' : '';
-                        var launch = (target, answer, i) => {
-                            if(manual.checked) {
-                                target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}`;
-                            } else if(manualq.checked) {
-                                target.location.href = `${enginemain}prepend${i}=${ozyprefix}${qencoded}${allanswers}`;
-                            } else if(manualfork.checked) {
-                                target.location.href = `${enginemain}prepend${i}=${ozyprefix}${answer}${allanswers}${fork}`;
-                            } else if(fullrev.checked) {
-                                target.location.href = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
-                                urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
-                                urlNot[i] = true;
-                            } else if(justq.checked) {
-                                target.location.href = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
-                                urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
-                                urlNot[i] = true;
-                            } else {
-                                target.location.href = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
-                                urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
-                                urlNot[i] = true;
+                            let ozyprefix = ozy.checked ? 'ozy.com ' : '';
+                            var launch = (target, answer, i) => {
+                                if(quotes.checked) {
+                                    answer = `"${answer}"`;
+                                }
+
+                                //prefix.value = 'herp';
+                                //suffix.value = 'derp';
+                                var pref = "", suf = "";
+                                if(prefix.value) {
+                                    pref = prefix.value + " ";
+                                }
+                                if(suffix.value) {
+                                    suf = " " + suffix.value;
+                                }
+
+                                if(manual.checked) {
+                                    target.location.href = `${enginemain}prepend${i}=${pref}${ozyprefix}${answer}${suf}${allanswers}`;
+                                } else if(manualq.checked) {
+                                    target.location.href = `${enginemain}prepend${i}=${pref}${ozyprefix}${qencoded}${suf}${allanswers}`;
+                                } else if(manualfork.checked) {
+                                    target.location.href = `${enginemain}prepend${i}=${pref}${ozyprefix}${answer}${suf}${allanswers}${fork}`;
+                                } else if(fullrev.checked) {
+                                    target.location.href = `${enginemain}${pref}${ozyprefix}${qencoded} ${answer}${suf}${allanswers}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded} ${answer}${allanswers}`;
+                                    urlNot[i] = true;
+                                } else if(justq.checked) {
+                                    target.location.href = `${enginemain}${pref}${ozyprefix}${qencoded}${suf}${allanswers}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${qencoded}${allanswers}`;
+                                    urlNot[i] = true;
+                                } else {
+                                    target.location.href = `${enginemain}${pref}${ozyprefix}${answer} ${qencoded}${suf}${allanswers}`;
+                                    urlNotCheck[i] = `${enginemain}${ozyprefix}${answer} ${qencoded}${allanswers}`;
+                                    urlNot[i] = true;
+                                }
+                            }
+
+                            if (ans1 && op1.checked && values[1].innerText) {
+                                let answer = encodeURIComponent(values[1].innerText.trim());
+                                launch(ans1, answer, 1);
+                            }
+                            if (ans2 && op2.checked && values[2].innerText) {
+                                let answer = encodeURIComponent(values[2].innerText.trim());
+                                launch(ans2, answer, 2);
+                            }
+                            if (ans3 && op3.checked && values[3].innerText) {
+                                let answer = encodeURIComponent(values[3].innerText.trim());
+                                launch(ans3, answer, 3);
+                            }
+                            lastq = q;
+                            lastans1 = values[1].innerText;
+                            lastans2 = values[2].innerText;
+                            lastans3 = values[3].innerText;
+                            if(ozy.checked && (op1.checked || op2.checked || op3.checked)) {
+                                ozy.click();
                             }
                         }
-
-                        if (ans1 && op1.checked && values[1].innerText) {
-                            let answer = encodeURIComponent(values[1].innerText.trim());
-                            launch(ans1, answer, 1);
-                        }
-                        if (ans2 && op2.checked && values[2].innerText) {
-                            let answer = encodeURIComponent(values[2].innerText.trim());
-                            launch(ans2, answer, 2);
-                        }
-                        if (ans3 && op3.checked && values[3].innerText) {
-                            let answer = encodeURIComponent(values[3].innerText.trim());
-                            launch(ans3, answer, 3);
-                        }
-                        lastq = q;
-                        lastans1 = values[1].innerText;
-                        lastans2 = values[2].innerText;
-                        lastans3 = values[3].innerText;
-                        if(ozy.checked && (op1.checked || op2.checked || op3.checked)) {
-                            ozy.click();
-                        }
                     }
-                }
-                if(user != "GrayBot") {
+
+                    // NOT LOGIC
+                    if(user != "GrayBot") {
+                        try{
+                            var lastmsgNot = messageList.find("div[class*=messageContent-]").last();
+                            var chattext = (lastmsgNot.text() || "").toLowerCase().trim();
+                            if(chattext == "n1" || chattext == "n2" || chattext == "n3") {
+                                //console.log(lastmsgNot.text())
+                                if(full.checked || fullrev.checked || justans.checked || justq.checked) {
+                                    if(chattext == "n1" && ans1 && op1.checked && urlNot[1]) {
+                                        ans1.location.href = `about:blank?brg1=${lastans1}`;
+                                        urlNotCheck[1] = `${urlNotCheck[1]}&notthis=y`;
+                                        urlNot[1] = false;
+                                    }
+                                    if(chattext == "n2" && ans2 && op2.checked && urlNot[2]) {
+                                        ans2.location.href = `about:blank?brg2=${lastans2}`;
+                                        urlNotCheck[2] = `${urlNotCheck[2]}&notthis=y`;
+                                        urlNot[2] = false;
+                                    }
+                                    if(chattext == "n3" && ans3 && op3.checked && urlNot[3]) {
+                                        ans3.location.href = `about:blank?brg3=${lastans3}`;
+                                        urlNotCheck[3] = `${urlNotCheck[3]}&notthis=y`;
+                                        urlNot[3] = false;
+                                    }
+                                }
+                            }
+                        } catch(e){}
+                    }
+                });
+                observer.observe(messageList[0], {characterData: false, subtree: true, childList: true, attributes: false});
+
+                document.onkeydown = function(evt) {
+                    evt = evt || window.event;
+                    // keybinds
+                    //console.log(evt.keyCode)
                     try{
-                        var lastmsgNot = messageList.find("div[class*=messageContent-]").last();
-                        var chattext = (lastmsgNot.text() || "").toLowerCase().trim();
-                        if(chattext == "n1" || chattext == "n2" || chattext == "n3") {
-                            //console.log(lastmsgNot.text())
+                        //F8 windows force null
+                        if(evt.keyCode == 119) {
+                            lastq = null;
+                            lastans1 = null;
+                            lastans2 = null;
+                            lastans3 = null;
+                        }
+                        //F9 windows
+                        if(evt.keyCode == 120) {
+                            if(ans1 || ans2 || ans3){
+                                closewindows();
+                            } else {
+                                createinputs();
+                                openwindows(true);
+                            }
+                        }
+                        //RIGHCTRL flip image
+                        if(evt.keyCode == 17 && GM_info.script.version < 5.0) {
                             if(full.checked || fullrev.checked || justans.checked || justq.checked) {
-                                if(chattext == "n1" && ans1 && op1.checked && urlNot[1]) {
-                                    ans1.location.href = `${urlNotCheck[1]}&notthis=y`;
-                                    urlNotCheck[1] = `${urlNotCheck[1]}&notthis=y`;
-                                    urlNot[1] = false;
+                                if(ans1 && op1.checked && urlNotCheck[1]) {
+                                    if(engine == "google") {
+                                        if(!urlNotCheck[1].match(/&tbm=isch/gi)) {
+                                            let u = `${urlNotCheck[1]}&tbm=isch`;
+                                            ans1.location.href = u;
+                                            urlNotCheck[1] = u;
+                                        } else {
+                                            let u = urlNotCheck[1].replace(/&tbm=isch/gi, "");
+                                            urlNotCheck[1] = u;
+                                            ans1.location.href = u;
+                                        }
+                                    } else {
+                                        if(!urlNotCheck[1].match(/bing.com\/images\/search/gi)) {
+                                            let u = urlNotCheck[1].replace("bing.com/search", "bing.com/images/search")
+                                            ans1.location.href = u;
+                                            urlNotCheck[1] = u;
+                                        } else {
+                                            let u = urlNotCheck[1].replace("bing.com/images/search", "bing.com/search");
+                                            ans1.location.href = u;
+                                            urlNotCheck[1] = u;
+                                        }
+                                    }
                                 }
-                                if(chattext == "n2" && ans2 && op2.checked && urlNot[2]) {
-                                    ans2.location.href = `${urlNotCheck[2]}&notthis=y`;
-                                    urlNotCheck[2] = `${urlNotCheck[2]}&notthis=y`;
-                                    urlNot[2] = false;
+                                if(ans2 && op2.checked && urlNotCheck[2]) {
+                                    if(engine == "google") {
+                                        if(!urlNotCheck[2].match(/&tbm=isch/gi)) {
+                                            let u = `${urlNotCheck[2]}&tbm=isch`;
+                                            ans2.location.href = u;
+                                            urlNotCheck[2] = u;
+                                        } else {
+                                            let u = urlNotCheck[2].replace(/&tbm=isch/gi, "")
+                                            urlNotCheck[2] = u;
+                                            ans2.location.href = u;
+                                        }
+                                    } else {
+                                        if(!urlNotCheck[2].match(/bing.com\/images\/search/gi)) {
+                                            let u = urlNotCheck[2].replace("bing.com/search", "bing.com/images/search");
+                                            ans2.location.href = u;
+                                            urlNotCheck[2] = u;
+                                        } else {
+                                            let u = urlNotCheck[2].replace("bing.com/images/search", "bing.com/search")
+                                            ans2.location.href = u;
+                                            urlNotCheck[2] = u;
+                                        }
+                                    }
                                 }
-                                if(chattext == "n3" && ans3 && op3.checked && urlNot[3]) {
-                                    ans3.location.href = `${urlNotCheck[3]}&notthis=y`;
-                                    urlNotCheck[3] = `${urlNotCheck[3]}&notthis=y`;
-                                    urlNot[3] = false;
+                                if(ans3 && op3.checked && urlNotCheck[3]) {
+                                    if(engine == "google") {
+                                        if(!urlNotCheck[3].match(/&tbm=isch/gi)) {
+                                            let u = `${urlNotCheck[3]}&tbm=isch`
+                                        ans3.location.href = u;
+                                            urlNotCheck[3] = u;
+                                        } else {
+                                            let u = urlNotCheck[3].replace(/&tbm=isch/gi, "");
+                                            urlNotCheck[3] = u;
+                                            ans3.location.href = u;
+                                        }
+                                    } else {
+                                        if(!urlNotCheck[3].match(/bing.com\/images\/search/gi)) {
+                                            let u = urlNotCheck[3].replace("bing.com/search", "bing.com/images/search");
+                                            ans3.location.href = u;
+                                            urlNotCheck[3] = u;
+                                        } else {
+                                            let u = urlNotCheck[3].replace("bing.com/images/search", "bing.com/search");
+                                            ans3.location.href = u;
+                                            urlNotCheck[3] = u;
+                                        }
+                                    }
                                 }
                             }
                         }
-                    } catch(e){}
-                }
-            });
-            observer.observe(messageList[0], {characterData: false, subtree: true, childList: true, attributes: false});
+                    } catch(e) {
+                        console.log(e)
+                    }
 
-            document.onkeydown = function(evt) {
-                evt = evt || window.event;
-                // keybinds
-                //console.log(evt.keyCode)
-                try{
-                    //F8 windows force null
-                    if(evt.keyCode == 119) {
-                        lastq = null;
-                        lastans1 = null;
-                        lastans2 = null;
-                        lastans3 = null;
-                    }
-                    //F9 windows
-                    if(evt.keyCode == 120) {
-                        if(ans1 || ans2 || ans3){
-                            closewindows();
-                        } else {
-                            createinputs();
-                            openwindows(true);
-                        }
-                    }
-                    //RIGHCTRL flip image
-                    if(evt.keyCode == 17 && GM_info.script.version < 5.0) {
-                        if(full.checked || fullrev.checked || justans.checked || justq.checked) {
-                            if(ans1 && op1.checked && urlNotCheck[1]) {
-                                if(engine == "google") {
-                                    if(!urlNotCheck[1].match(/&tbm=isch/gi)) {
-                                        let u = `${urlNotCheck[1]}&tbm=isch`;
-                                        ans1.location.href = u;
-                                        urlNotCheck[1] = u;
-                                    } else {
-                                        let u = urlNotCheck[1].replace(/&tbm=isch/gi, "");
-                                        urlNotCheck[1] = u;
-                                        ans1.location.href = u;
-                                    }
-                                } else {
-                                    if(!urlNotCheck[1].match(/bing.com\/images\/search/gi)) {
-                                        let u = urlNotCheck[1].replace("bing.com/search", "bing.com/images/search")
-                                        ans1.location.href = u;
-                                        urlNotCheck[1] = u;
-                                    } else {
-                                        let u = urlNotCheck[1].replace("bing.com/images/search", "bing.com/search");
-                                        ans1.location.href = u;
-                                        urlNotCheck[1] = u;
-                                    }
-                                }
-                            }
-                            if(ans2 && op2.checked && urlNotCheck[2]) {
-                                if(engine == "google") {
-                                    if(!urlNotCheck[2].match(/&tbm=isch/gi)) {
-                                        let u = `${urlNotCheck[2]}&tbm=isch`;
-                                        ans2.location.href = u;
-                                        urlNotCheck[2] = u;
-                                    } else {
-                                        let u = urlNotCheck[2].replace(/&tbm=isch/gi, "")
-                                        urlNotCheck[2] = u;
-                                        ans2.location.href = u;
-                                    }
-                                } else {
-                                    if(!urlNotCheck[2].match(/bing.com\/images\/search/gi)) {
-                                        let u = urlNotCheck[2].replace("bing.com/search", "bing.com/images/search");
-                                        ans2.location.href = u;
-                                        urlNotCheck[2] = u;
-                                    } else {
-                                        let u = urlNotCheck[2].replace("bing.com/images/search", "bing.com/search")
-                                        ans2.location.href = u;
-                                        urlNotCheck[2] = u;
-                                    }
-                                }
-                            }
-                            if(ans3 && op3.checked && urlNotCheck[3]) {
-                                if(engine == "google") {
-                                    if(!urlNotCheck[3].match(/&tbm=isch/gi)) {
-                                        let u = `${urlNotCheck[3]}&tbm=isch`
-                                        ans3.location.href = u;
-                                        urlNotCheck[3] = u;
-                                    } else {
-                                        let u = urlNotCheck[3].replace(/&tbm=isch/gi, "");
-                                        urlNotCheck[3] = u;
-                                        ans3.location.href = u;
-                                    }
-                                } else {
-                                    if(!urlNotCheck[3].match(/bing.com\/images\/search/gi)) {
-                                        let u = urlNotCheck[3].replace("bing.com/search", "bing.com/images/search");
-                                        ans3.location.href = u;
-                                        urlNotCheck[3] = u;
-                                    } else {
-                                        let u = urlNotCheck[3].replace("bing.com/images/search", "bing.com/search");
-                                        ans3.location.href = u;
-                                        urlNotCheck[3] = u;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch(e) {
-                    console.log(e)
-                }
+                };
+            }
+        },500);
 
-            };
-        }
-    },500);
+        const newAlphabet = {
+            a: 1,
+            e: 1,
+            i: 1,
+            o: 1,
+            u: 1,
+            l: 1,
+            n: 1,
+            r: 1,
+            s: 1,
+            t: 1,
+            d: 2,
+            g: 2,
+            b: 3,
+            c: 3,
+            m: 3,
+            p: 3,
+            f: 4,
+            h: 4,
+            v: 4,
+            w: 4,
+            y: 4,
+            k: 5,
+            j: 8,
+            x: 8,
+            q: 10,
+            z: 10,
+            ' ': 0,
+        };
+
+        const scrabbleScore = word =>
+        word
+        .split('')
+        .map(letter => newAlphabet[letter])
+        .reduce((a, b) => a + b);
+
     }
-    else {
-
+    else if(location.hostname.match(/google.com|bing.com/gi) && window.parent == window.self) {
         //////////////////////////////////////////
         // GOOGLER
         //////////////////////////////////////////
@@ -1066,12 +1194,15 @@ cursor:pointer;
             "a": "area",
             "b": "bordering",
             "c": "coordinates",
+            "ca": "capital",
             "d": "definition",
             "e": "etymology",
             "f": "flag",
             "i": "image",
+            "in": "inventor",
             "l": "lyrics",
             "m": "map",
+            "n": "news",
             "p": "population",
             "bd": "birthday",
             "fs": "founders",
@@ -1097,25 +1228,15 @@ cursor:pointer;
 
         let ctn, off, solid, mix;
 
-        $("body").append(`<div id="dialog" title="Dialog Title">
-        a: area<br/>
-        b: bordering<br/>
-        c: coordinates<br/>
-        d: definition<br/>
-        e: etymology<br/>
-        f: flag<br/>
-        i: image<br/>
-        l: lyrics<br/>
-        m: map<br/>
-        p: population<br/><br/>
-        bd: birthday<br/>
-        fs: founders<br/>
-        fw: founded when<br/>
-        hm: how many<br/>
-        ig: instagram followers<br/>
-        rd: release date<br/>
-        tw: twitter followers<br/><br/>
-</div>`);
+        $("body").append(`<div id="dialog" title="Dialog Title"></div>`);
+
+        for (var key in triggers) {
+            if (triggers.hasOwnProperty(key)) {
+                $("#dialog").append(key + ": " + triggers[key] + "<br/>");
+            }
+        }
+        $("#dialog").append("<br/>");
+
         ctn = document.createElement("div");
         $("#dialog").append(ctn);
         $(ctn).css({"position": "relative", "width": "auto"});
@@ -1264,7 +1385,11 @@ cursor:pointer;
 
         var openImgW = (search) => {
             if(fork) {
-                forkw = window.open(`https://www.google.com/search?q=${search}&tbm=isch`, `forkw`, `width=${w},height=${height},left=${imgoffset}`);
+                if(location.hostname.match(/bing.com/gi)) {
+                    forkw = window.open(`https://www.bing.com/images/search?q=${search}`, `forkw`, `width=${w},height=${height},left=${imgoffset}`);
+                } else {
+                    forkw = window.open(`https://www.google.com/search?q=${search}&tbm=isch`, `forkw`, `width=${w},height=${height},left=${imgoffset}`);
+                }
             }
         }
 
@@ -1282,6 +1407,8 @@ cursor:pointer;
                         if (triggers.hasOwnProperty(key)) {
                             if(key == "i" && search.match(/\bi\b$/gi)) {
                                 break;
+                            } else if(key == "n" && search.match(/\bn\b$/gi)) {
+                                break;
                             } else {
                                 search = search.replace(new RegExp(`\\b` + key + `\\b$`, `gi`), triggers[key]);
                             }
@@ -1292,15 +1419,30 @@ cursor:pointer;
                         search = search.replace(/\bi\b$/gi, "").trim();
                         openImgW(search);
                         setTimeout(()=>{
-                            window.location.href = `https://www.google.com/search?q=${search}&tbm=isch`;
+                            if(location.hostname.match(/bing.com/gi)) {
+                                window.location.href = `https://www.bing.com/images/search?q=${search}`;
+                            } else {
+                                window.location.href = `https://www.google.com/search?q=${search}&tbm=isch`;
+                            }
                         },100);
-
-
+                    } else if(search.match(/\bn\b$/gi)) {
+                        search = search.replace(/\bn\b$/gi, "").trim();
+                        setTimeout(()=>{
+                            if(location.hostname.match(/bing.com/gi)) {
+                                window.location.href = `https://www.bing.com/news/search?q=${search}`;
+                            } else {
+                                window.location.href = `https://www.google.com/search?q=${search}&tbm=nws`;
+                            }
+                        },100);
                     } else {
                         $(e.target).val(search)
                         if($("#sf").length > 0) {
                             openImgW(search);
-                            window.location.href = `https://www.google.com/search?q=${search}`;
+                            if(location.hostname.match(/bing.com/gi)) {
+                                window.location.href = `https://www.bing.com/search?q=${search}`;
+                            } else {
+                                window.location.href = `https://www.google.com/search?q=${search}`;
+                            }
                         } else {
                             openImgW(search);
                             searchform.submit();
@@ -1312,25 +1454,6 @@ cursor:pointer;
                 }
             }
 
-            //RIGHCTRL flip image
-            /*if(e.keyCode == 17) {
-                var fliptbm = urlParams.get('tbm');
-                if(window.location.hostname.match(/google.com/gi)) {
-                    if(!fliptbm) {
-                        window.location.href = window.location.href + "&tbm=isch"
-                    }
-                    if(fliptbm) {
-                        window.location.href = window.location.href.replace("&tbm=isch", "");
-                    }
-                } else if(window.location.hostname.match(/bing.com/gi)){
-                    if(window.location.href.match(/bing.com\/search/gi)) {
-                        window.location.href = window.location.href.replace(/bing.com\/search/gi, "bing.com/images/search")
-                    }
-                    if(window.location.href.match(/bing.com\/images\/search/gi)) {
-                        window.location.href = window.location.href.replace(/bing.com\/images\/search/gi, "bing.com/search")
-                    }
-                }
-            }*/
         })
     }
 });
