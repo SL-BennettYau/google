@@ -13,12 +13,15 @@ shortcuts available:
 [text] a ->	[text] area  
 [text] b ->	[text] bordering  
 [text] c ->	[text] coordinates  
+[text] ca ->	[text] capital  
 [text] d -> [text] definition  
 [text] e -> [text] etymology  
 [text] f -> [text] flag  
 [text] i -> [image search]  
+[text] in -> [inventor]  
 [text] l -> [text] lyrics  
 [text] m -> [text] map  
+[text] n -> [news search]  
 [text] p -> [text] population  
 
 [text] bd -> [text] birthday  
