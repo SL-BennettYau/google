@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1.0
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
+// @exclude      https://supervisor.ext-twitch.tv/*
 // @require http://code.jquery.com/jquery-3.4.1.min.js
 // @grant      GM_addStyle
 // ==/UserScript==
