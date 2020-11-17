@@ -31,3 +31,5 @@ shortcuts available:
 [text] ig -> [text] instagram followers  
 [text] rd -> [text] release date  
 [text] tw -> [text] twitter followers  
+  
+?) https://github.com/neukenrepo/google/raw/master/persephone.user.js
