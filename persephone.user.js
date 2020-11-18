@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
@@ -803,10 +803,10 @@ font-weight: bold;
                                 answer = `"${answer}"`;
                             }
                             answer = encodeURIComponent(answer);
-                            let highlight = combine && combine.checked ? `&brg1=${answer}&brgq=${answerquestion}` : `&brg1=${answer}`;
+                            let highlight = combine && combine.checked ? `&brg${i+1}=${answer}&brgq=${answerquestion}` : `&brg${i+1}=${answer}`;
                             switch(qtype) {
                                 case 'anagram':
-                                    href = `https://anagram-solver.net/${a.innerText}`;
+                                    href = `https://anagram-solver.net/${a.innerText}#${highlight}`;
                                     break;
                                 case 'palindrome':
                                     href = `https://www.willpeavy.com/palindrome/?t=${a.innerText}`;
@@ -1061,7 +1061,7 @@ font-weight: bold;
             $("#root").html(`<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">what profession was indiana jones?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Bank Teller</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">Novelist</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">College Professor</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Yoga Instructor</div></div></div>`);
         } else if(testq==2) {
             testq = 3;
-            $("#root").html(`<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">who first proposed heliocentric model?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">william shakespeare</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">galileo</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">santa claus</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Aristarchus</div></div></div>`);
+            $("#root").html(`<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">who anagram proposed heliocentric model santa   claus?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">william shakespeare</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">galileo</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">santa claus</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Aristarchus</div></div></div>`);
         } else if(testq==3) {
             testq = 4;
             $("#root").html(`<div class="trivia-question" style="font-size: 1.25vw;text-align:center;"> who was the first disney princess </div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
