@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
@@ -17,6 +17,7 @@ $().ready(function() {
 
 #inputscont {
 position: absolute;
+z-index: 999;
 top: 0;
 left:0;
 background-color: rgba(0,0,0,0.5);
@@ -141,7 +142,6 @@ font-weight: bold;
     var urlImages = {};
     var urlAll = {};
     var testq=1;
-    var cookieappend = `;path=/;max-age=31556952`;
     prefix.value ="";
     suffix.value ="";
     combine.checked = true;
@@ -195,7 +195,6 @@ font-weight: bold;
     var createinputs = () => {
         if($("#inputscont").length == 0) {
             console.log('createinputs');
-            var cookies = document.cookie || "";
             if($(".Trivia-Wrapper").length > 0) {
                 $(".Trivia-Wrapper").prepend("<div id='inputscont'></div>");
             } else {
@@ -219,9 +218,11 @@ font-weight: bold;
             bing.type = "checkbox";
             bing.name = 'bing';
             bing.value = 'bing';
-            bing.checked = cookies && cookies.match(/neukbing=true/gi) ? true : false;
+            bing.checked = localStorage && localStorage.getItem(`neukbing`) == "true" ? true : false;
             bing.onclick = (e) => {
-                document.cookie = `neukbing=${bing.checked}${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukbing`, bing.checked);
+                }
             };
             $("#inputscont").append(bing);
 
@@ -230,16 +231,20 @@ font-weight: bold;
             quotes.type = "checkbox";
             quotes.name = 'quotes';
             quotes.value = 'quotes';
-            quotes.checked = cookies && cookies.match(/neukquotes=true/gi) ? true : false;
+            quotes.checked = localStorage && localStorage.getItem(`neukquotes`) == "true" ? true : false;
             quotes.onclick = (e) => {
-                document.cookie = `neukquotes=${quotes.checked}${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukquotes`, quotes.checked);
+                }
             };
             $("#inputscont").append(quotes);
 
             searchtype = document.createElement("select");
             searchtype.id="searchtype";
             searchtype.onchange = () => {
-                document.cookie = `neukselect=${searchtype.value}${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukselect`, searchtype.value);
+                }
                 checkroles();
             }
             $("#inputscont").append(searchtype);
@@ -258,29 +263,30 @@ font-weight: bold;
             option.text = "{q} + {input}";
             option.value = "manualquestion";
             searchtype.add(option);
-            searchtype.selectedIndex = cookies.match(/neukselect=auto/gi) ? 0 : cookies.match(/neukselect=manualoption/gi) ? 1 : 2;
+            if(localStorage) {
+                searchtype.selectedIndex = localStorage.getItem(`neukselect`) == "auto" ? 0 : localStorage.getItem(`neukselect`) == "manualoption" ? 1 : 2;
+            }
 
             $("#inputscont").append("<div id='layer'>layer</div>");
             layer = document.createElement("input");
             layer.type = "checkbox";
             layer.name = 'layer';
-            layer.checked = cookies && cookies.match(/neuklayer=false/gi) ? false : true;
-            layer.onclick = (e) => {
-                document.cookie = `neuklayer=${layer.checked}${cookieappend}`;
-            };
+            layer.checked = true;
             $("#layer").append(layer);
 
             $("#inputscont").append("<div id='roles'>roles</div>");
             op1 = document.createElement("input");
             op1.type = "checkbox";
             op1.name = 'role';
-            op1.checked = cookies && cookies.match(/neukop1=false/gi) ? false : true;
+            op1.checked = localStorage && localStorage.getItem(`neukop1`) == "false" ? false : true;
             op1.onclick = (e) => {
                 if(searchtype.value == "manualoption") {
                     resetroles();
                     op1.checked = true;
                 }
-                document.cookie = `neukop1=${op1.checked}${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukop1`, op1.checked);
+                }
             };
             $("#roles").append(op1);
 
@@ -288,13 +294,15 @@ font-weight: bold;
             op2.type = "checkbox";
             op2.name = 'role';
             op2.checked = true;
-            op2.checked = cookies && cookies.match(/neukop2=false/gi) ? false : true;
+            op2.checked = localStorage && localStorage.getItem(`neukop2`) == "false" ? false : true;
             op2.onclick = (e) => {
                 if(searchtype.value == "manualoption") {
                     resetroles();
                     op2.checked = true;
                 }
-                document.cookie = `neukop2=${op2.checked}${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukop2`, op2.checked);
+                }
             };
             $("#roles").append(op2);
 
@@ -302,13 +310,15 @@ font-weight: bold;
             op3.type = "checkbox";
             op3.name = 'role';
             op3.checked = true;
-            op3.checked = cookies && cookies.match(/neukop3=false/gi) ? false : true;
+            op3.checked = localStorage && localStorage.getItem(`neukop3`) == "false" ? false : true;
             op3.onclick = (e) => {
                 if(searchtype.value == "manualoption") {
                     resetroles();
                     op3.checked = true;
                 }
-                document.cookie = `neukop3=${op3.checked}${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukop3`, op3.checked);
+                }
             };
             $("#roles").append(op3);
 
@@ -316,13 +326,15 @@ font-weight: bold;
             op4.type = "checkbox";
             op4.name = 'role';
             op4.checked = true;
-            op4.checked = cookies && cookies.match(/neukop4=false/gi) ? false : true;
+            op4.checked = localStorage && localStorage.getItem(`neukop4`) == "false" ? false : true;
             op4.onclick = (e) => {
                 if(searchtype.value == "manualoption") {
                     resetroles();
                     op4.checked = true;
                 }
-                document.cookie = `neukop4=${op4.checked}${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukop4`, op4.checked);
+                }
             };
             $("#roles").append(op4);
 
@@ -341,19 +353,8 @@ font-weight: bold;
             scrabble.id = "scrabble";
             scrabble.innerHTML = "scrabble";
             scrabble.onclick = (e) => {
-                var scrabbleArray = []
-                if(lastans1) scrabbleArray.push(lastans1);
-                if(lastans2) scrabbleArray.push(lastans2);
-                if(lastans3) scrabbleArray.push(lastans3);
-                if(lastans4) scrabbleArray.push(lastans4);
-                if(scrabbleArray && scrabbleArray.length > 0) {
-                    scrabbleArray.sort((a, b) => {return scrabbleScore(b.toLowerCase().trim()) - scrabbleScore(a.trim().toLowerCase())});
-                    var scrabscore = ""
-                    scrabbleArray.map(a => {
-                        scrabscore += a + " " + scrabbleScore(a.trim().toLowerCase()) + "\n";
-                    });
-                    alert(scrabscore)
-                }
+                scrabble.value = true;
+                forcemutate();
             };
             $("#wolfscrab").append(scrabble);
 
@@ -456,10 +457,12 @@ font-weight: bold;
 
             var resetroles = () => {
                 $("input[name^='role']").prop("checked", false);
-                document.cookie = `neukop1=false${cookieappend}`;
-                document.cookie = `neukop2=false${cookieappend}`;
-                document.cookie = `neukop3=false${cookieappend}`;
-                document.cookie = `neukop4=false${cookieappend}`;
+                if(localStorage) {
+                    localStorage.setItem(`neukop1`, false);
+                    localStorage.setItem(`neukop2`, false);
+                    localStorage.setItem(`neukop3`, false);
+                    localStorage.setItem(`neukop4`, false);
+                }
             }
 
             var checkroles = () => {
@@ -738,6 +741,10 @@ font-weight: bold;
                                 venue = q.innerText.match(/(.*)\s*(perform(s*)|performer(s*))\s*(at)\s*/gi)
                                 venue = q.innerText.replace(venue, "");
                             }
+                            if(scrabble && scrabble.value == "true") {
+                                qtype = "scrabble";
+                                scrabble.value = "false";
+                            }
                             if(age && age.value == "true") {
                                 qtype = "age";
                                 age.value = "false";
@@ -825,6 +832,9 @@ font-weight: bold;
                                     break;
                                 case 'flag':
                                     href = `${enginealt}flag of ${prefix.value} ${answer} ${highlight}`;
+                                    break;
+                                case 'scrabble':
+                                    href = `https://www.anagrammer.com/scrabble-score-calculator/scrabble/${answer}`;
                                     break;
                                 case 'age':
                                     href = `${enginemain}${answer} age ${highlight}`;
@@ -1116,40 +1126,8 @@ font-weight: bold;
         }
     }
 
-    const newAlphabet = {
-        a: 1,
-        e: 1,
-        i: 1,
-        o: 1,
-        u: 1,
-        l: 1,
-        n: 1,
-        r: 1,
-        s: 1,
-        t: 1,
-        d: 2,
-        g: 2,
-        b: 3,
-        c: 3,
-        m: 3,
-        p: 3,
-        f: 4,
-        h: 4,
-        v: 4,
-        w: 4,
-        y: 4,
-        k: 5,
-        j: 8,
-        x: 8,
-        q: 10,
-        z: 10,
-        ' ': 0,
-    };
-
-    const scrabbleScore = word =>
-    word
-    .split('')
-    .map(letter => newAlphabet[letter])
-    .reduce((a, b) => a + b);
 
 });
+
+
+
