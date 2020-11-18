@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
@@ -17,18 +17,25 @@ $().ready(function() {
 
 #inputscont {
 position: absolute;
-top:0;
+top: 0;
 left:0;
 background-color: rgba(0,0,0,0.5);
 zright: 0;
 zheight: 100px;
+font-size: 10px
 }
-
+#dragme {
+text-align:center;
+background-color: black;
+color: white;
+cursor: move;
+}
 #bing, #quotes {
 line-height: 15px;
 height: 15px;
 display: flex;
 align-items:center;
+cursor: pointer;
 }
 
 #bing:after {
@@ -37,7 +44,6 @@ color: white;
 font-weight:bold;
 white-space: nowrap;
 margin-left: 15px;
-font-size: 12px;
 }
 
 #quotes:after {
@@ -46,32 +52,40 @@ color: white;
 font-weight:bold;
 white-space: nowrap;
 margin-left: 15px;
-font-size: 12px;
 }
 
 #layer, #roles {
 color: white;
 font-weight:bold;
-font-size: 12px;
+text-align: left;
+display: flex;
+align-items:center;
 }
 input[name^="layer"], input[name^="role"] {
 padding: 0;
-margin: 0 0 0 5px;
+margin: 0 0 0 1px;
+cursor: pointer;
 }
 #searchtype {
 display:block;
-font-size: 10px;
 padding:0;
 margin:0;
+cursor: pointer;
 }
 .f9 {
 color: white;
 font-weight:bold;
-font-size: 10px;
+}
+#wolfram, #scrabble, button {
+margin-top:2px;
+padding: 2px;
+}
+#scrabble {
+margin-left: 3px;
 }
 `);
 
-    var questionClass = ".trivia-question", answerClass="trivia-answer";
+    var questionClass = ".trivia-question", answerClass="trivia-answer", wolfram = null;
     var q, ans, qencoded, op1 = null, op2 = null, op3 = null, op4 = null, layer=null, tester = null, searchtype=null, cycle=null;
     var words = null, ans1 = null, ans2 = null, ans3 = null, ans4 = null, uk=null, mainprefix = null, prefix={}, suffix={};
     var radioall, radioimg, radiomap, bing, google, quotes= null;
@@ -147,7 +161,8 @@ font-size: 10px;
             } else {
                 $("body").prepend("<div id='inputscont'></div>");
             }
-
+            $("#inputscont").append(`<div id='dragme'>drag me ${GM_info.script.version}</div>`);
+            dragElement(document.getElementById("inputscont"));
             bing = document.createElement("input");
             bing.id = "bing";
             bing.type = "checkbox";
@@ -224,28 +239,57 @@ font-size: 10px;
             searchtype.id="searchtype";
 
             searchtype.onchange = () => {
-                console.log(searchtype.value)
                 document.cookie = `nuekselect=${searchtype.value}${cookieappend}`;
             }
             $("#inputscont").append(searchtype);
 
             var option = document.createElement("option");
-            option.text = "auto option + question";
+            option.text = "auto op + q";
             option.value = "auto";
             searchtype.add(option);
 
             option = document.createElement("option");
-            option.text = "{option} + {input}";
+            option.text = "{op} + {input}";
             option.value = "manualoption";
             searchtype.add(option);
 
             option = document.createElement("option");
-            option.text = "{question} + {input}";
+            option.text = "{q} + {input}";
             option.value = "manualquestion";
             searchtype.add(option);
             searchtype.selectedIndex = cookies.match(/nuekselect=auto/gi) ? 0 : cookies.match(/nuekselect=manualoption/gi) ? 1 : 2;
 
-            $("#inputscont").append(`<div class='f9'>F9 to preload windows</div>`);
+            wolfram = document.createElement("button");
+            wolfram.id = "wolfram";
+            wolfram.innerHTML = "wolfram";
+            wolfram.onclick = (e) => {
+                if(words) {
+                    words.location.href = `https://www.wolframalpha.com/input/?i=${qencoded}`;
+                }
+            };
+            $("#inputscont").append(wolfram);
+
+            scrabble = document.createElement("button");
+            scrabble.id = "scrabble";
+            scrabble.innerHTML = "scrabble";
+            scrabble.onclick = (e) => {
+                    var scrabbleArray = []
+                    if(lastans1) scrabbleArray.push(lastans1);
+                    if(lastans2) scrabbleArray.push(lastans2);
+                    if(lastans3) scrabbleArray.push(lastans3);
+                    if(lastans4) scrabbleArray.push(lastans4);
+                    if(scrabbleArray && scrabbleArray.length > 0) {
+                        scrabbleArray.sort((a, b) => {return scrabbleScore(b.toLowerCase().trim()) - scrabbleScore(a.trim().toLowerCase())});
+                    var scrabscore = ""
+                    scrabbleArray.map(a => {
+                        scrabscore += a + " " + scrabbleScore(a.trim().toLowerCase()) + "\n";
+                    });
+                        alert(scrabscore)
+                    }
+            };
+            $("#inputscont").append(scrabble);
+
+            $("#inputscont").append(`<div class='f9'>F9 to preload</div>`);
             if($(".Trivia-Wrapper").length == 0 && $("#root").length > 0) {
                 tester = document.createElement("button");
                 tester.innerHTML = "test q";
@@ -268,7 +312,7 @@ font-size: 10px;
                         clearInterval(cycle);
                     }
                     cycle = setInterval(() => {
-                         testinterval();
+                        testinterval();
                     }, 3000);
                 };
                 $("#inputscont").append(tester);
@@ -303,7 +347,7 @@ font-size: 10px;
                 }
 
                 if(q && q.innerText && ans && lastq != q.innerText) {
-
+                    lastans1 = ""; lastans2 = ""; lastans3 = ""; lastans4 = "";
                     qencoded = encodeURIComponent(q.innerText);
                     openwindows();
                     let googlebase = `https://www.google.com/search?q=`;
@@ -619,26 +663,27 @@ font-size: 10px;
 
                             //var urlImages = {};
                             //var urlAll = {};
+                            if(i == 0) lastans1 = a.innerText;
+                            if(i == 1) lastans2 = a.innerText;
+                            if(i == 2) lastans3 = a.innerText;
+                            if(i == 3) lastans4 = a.innerText;
+
                             if(i==0 && ans1 && op1 && op1.checked && searchtype.value == "auto"){
-                                lastans1 = a.innerText;
                                 ans1.location.href = href;
                                 urlImages[1] = `https://www.google.com/search?q=${a.innerText}`
                                 urlAll[1] = href;
                             }
                             if(i==1 && ans2 && op2 && op2.checked && searchtype.value == "auto"){
-                                lastans2 = a.innerText;
                                 ans2.location.href = href
                                 urlImages[2] = `https://www.google.com/search?q=${a.innerText}`
                                 urlAll[2] = href;
                             }
                             if(i==2 && ans3 && op3 && op3.checked && searchtype.value == "auto"){
-                                lastans3 = a.innerText;
                                 ans3.location.href = href
                                 urlImages[3] = `https://www.google.com/search?q=${a.innerText}`
                                 urlAll[3] = href;
                             }
                             if(i==3 && ans4 && op4 && op4.checked && searchtype.value == "auto"){
-                                lastans4 = a.innerText;
                                 ans4.location.href = href
                                 urlImages[4] = `https://www.google.com/search?q=${a.innerText}`
                                 urlAll[4] = href;
@@ -773,9 +818,89 @@ font-size: 10px;
             testq = 3;
             $("#root").html(`<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">who first proposed heliocentric model?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">william shakespeare</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">galileo</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">santa claus</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Aristarchus</div></div></div>`);
         } else if(testq==3) {
-            testq = 1;
+            testq = 4;
             $("#root").html(`<div class="trivia-question" style="font-size: 1.25vw;text-align:center;"> who was the first disney princess </div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
+        } else if(testq==4) {
+            testq = 1;
+            $("#root").html(`<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">If X = 12, Y = 4, and Z= 8, what is Z times X divided by Y^2?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
         }
     }
+
+
+    function dragElement(elmnt) {
+        console.log('derp')
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (document.getElementById("dragme")) {
+            /* if present, the header is where you move the DIV from:*/
+            console.log('derp1')
+            document.getElementById("dragme").onmousedown = dragMouseDown;
+        }
+        function dragMouseDown(e) {
+            console.log('dragMouseDown')
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            /* stop moving when mouse button is released:*/
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+    const newAlphabet = {
+        a: 1,
+        e: 1,
+        i: 1,
+        o: 1,
+        u: 1,
+        l: 1,
+        n: 1,
+        r: 1,
+        s: 1,
+        t: 1,
+        d: 2,
+        g: 2,
+        b: 3,
+        c: 3,
+        m: 3,
+        p: 3,
+        f: 4,
+        h: 4,
+        v: 4,
+        w: 4,
+        y: 4,
+        k: 5,
+        j: 8,
+        x: 8,
+        q: 10,
+        z: 10,
+        ' ': 0,
+    };
+
+    const scrabbleScore = word =>
+    word
+    .split('')
+    .map(letter => newAlphabet[letter])
+    .reduce((a, b) => a + b);
 
 });
