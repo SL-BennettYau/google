@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.3
+// @version      1.4
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
@@ -21,7 +21,7 @@ top: 0;
 left:0;
 background-color: rgba(0,0,0,0.5);
 font-size: 10px;
-font-family: consolas;
+font-family: Arial;
 }
 #dragme {
 padding-left:2px;
@@ -63,7 +63,7 @@ margin-left: 15px;
 }
 
 #quotes:after {
-content: 'qoutes';
+content: 'quotes';
 color: white;
 font-weight:bold;
 white-space: nowrap;
@@ -104,8 +104,9 @@ font-weight:bold;
 }
 #wolfram, #scrabble, button {
 margin-top:4px;
-padding: 2px 2px 2px 2px;
+padding: 2px 2px 2px 0px;
 text-align: left;
+overflow: hidden;
 }
 
 .nontriggers, .triggers {
@@ -115,7 +116,7 @@ justify-content: space-between;
 }
 .nontriggers button, .triggers button, button {
 width:49%;
-font-family: consolas;
+font-family: arial;
 text-transform: capitalize;
 border: none;
 border-radius: 0;
@@ -532,7 +533,7 @@ font-weight: bold;
         }
     }
     var forcemutate = () => {
-        $("body").append("<span></span>");
+        $("body").append("<span style='display:none'></span>");
         forceMutate = true;
     };
 
