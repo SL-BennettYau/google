@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
@@ -51,6 +51,7 @@ height: 15px;
 display: flex;
 align-items:center;
 cursor: pointer;
+margin-left: 2px;
 }
 
 #bing:after {
@@ -75,7 +76,7 @@ font-weight:bold;
 text-align: left;
 display: flex;
 align-items:center;
-margin-top: 2px;
+margin: 2px 0 0 2px;
 }
 
 #layer {
@@ -91,7 +92,8 @@ cursor: pointer;
 #searchtype {
 display:block;
 padding:0;
-margin:2px 2px 0 2px;
+margin:2px auto 0 auto;
+width:95%;
 cursor: pointer;
 font-family: arial;
 }
@@ -102,7 +104,8 @@ font-weight:bold;
 }
 #wolfram, #scrabble, button {
 margin-top:4px;
-padding: 2px;
+padding: 2px 2px 2px 2px;
+text-align: left;
 }
 
 .nontriggers, .triggers {
