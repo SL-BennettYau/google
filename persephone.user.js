@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
@@ -20,16 +20,31 @@ position: absolute;
 top: 0;
 left:0;
 background-color: rgba(0,0,0,0.5);
-zright: 0;
-zheight: 100px;
-font-size: 10px
+font-size: 10px;
+font-family: consolas;
 }
 #dragme {
-text-align:center;
+padding-left:2px;
+text-align:left;
 background-color: black;
 color: white;
 cursor: move;
 }
+#collapse {
+cursor: pointer;
+float:right;
+font-family: consolas;
+}
+
+#dragme2 {
+margin-top:3px;
+padding-left:2px;
+text-align:left;
+background-color: black;
+color: white;
+cursor: move;
+}
+
 #bing, #quotes {
 line-height: 15px;
 height: 15px;
@@ -60,32 +75,53 @@ font-weight:bold;
 text-align: left;
 display: flex;
 align-items:center;
+margin-top: 2px;
 }
+
+#layer {
+display: none;
+}
+
 input[name^="layer"], input[name^="role"] {
 padding: 0;
 margin: 0 0 0 1px;
 cursor: pointer;
 }
+
 #searchtype {
 display:block;
 padding:0;
-margin:0;
+margin:2px 2px 0 2px;
 cursor: pointer;
+font-family: arial;
 }
+
 .f9 {
 color: white;
 font-weight:bold;
 }
 #wolfram, #scrabble, button {
-margin-top:2px;
+margin-top:4px;
 padding: 2px;
 }
-#scrabble {
-margin-left: 3px;
+
+.nontriggers, .triggers {
+display: flex;
+justify-content: space-between;
+
+}
+.nontriggers button, .triggers button, button {
+width:49%;
+font-family: consolas;
+text-transform: capitalize;
+border: none;
+border-radius: 0;
+outline-radius: 0;
+font-weight: bold;
 }
 `);
 
-    var questionClass = ".trivia-question", answerClass="trivia-answer", wolfram = null;
+    var questionClass = ".trivia-question", answerClass="trivia-answer", wolfram = null, forceMutate = false;
     var q, ans, qencoded, op1 = null, op2 = null, op3 = null, op4 = null, layer=null, tester = null, searchtype=null, cycle=null;
     var words = null, ans1 = null, ans2 = null, ans3 = null, ans4 = null, uk=null, mainprefix = null, prefix={}, suffix={};
     var radioall, radioimg, radiomap, bing, google, quotes= null;
@@ -161,16 +197,27 @@ margin-left: 3px;
             } else {
                 $("body").prepend("<div id='inputscont'></div>");
             }
-            $("#inputscont").append(`<div id='dragme'>drag me ${GM_info.script.version}</div>`);
-            dragElement(document.getElementById("inputscont"));
+            $("#inputscont").append(`<div id='dragme'>drag me ${GM_info.script.version}<span id='collapse'>[-]</span></div>`);
+            $("#collapse").on("click", (e) => {
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                if($(e.target).html() == "[-]") {
+                    $(e.target).html("[+]");
+                    $("#inputscont").css({"height": "15px", "overflow":"hidden"});
+                } else {
+                    $(e.target).html("[-]");
+                    $("#inputscont").css({"height": "auto", "overflow":"visible"});
+                }
+            });
+
             bing = document.createElement("input");
             bing.id = "bing";
             bing.type = "checkbox";
             bing.name = 'bing';
             bing.value = 'bing';
-            bing.checked = cookies && cookies.match(/nuekbing=true/gi) ? true : false;
+            bing.checked = cookies && cookies.match(/neukbing=true/gi) ? true : false;
             bing.onclick = (e) => {
-                document.cookie = `nuekbing=${bing.checked}${cookieappend}`;
+                document.cookie = `neukbing=${bing.checked}${cookieappend}`;
             };
             $("#inputscont").append(bing);
 
@@ -179,67 +226,17 @@ margin-left: 3px;
             quotes.type = "checkbox";
             quotes.name = 'quotes';
             quotes.value = 'quotes';
-            quotes.checked = cookies && cookies.match(/nuekquotes=true/gi) ? true : false;
+            quotes.checked = cookies && cookies.match(/neukquotes=true/gi) ? true : false;
             quotes.onclick = (e) => {
-                document.cookie = `nuekquotes=${quotes.checked}${cookieappend}`;
+                document.cookie = `neukquotes=${quotes.checked}${cookieappend}`;
             };
             $("#inputscont").append(quotes);
 
-            $("#inputscont").append("<div id='layer'>layer</div>");
-            layer = document.createElement("input");
-            layer.type = "checkbox";
-            layer.name = 'layer';
-            layer.checked = cookies && cookies.match(/nueklayer=false/gi) ? false : true;
-            layer.onclick = (e) => {
-                document.cookie = `nueklayer=${layer.checked}${cookieappend}`;
-            };
-            $("#layer").append(layer);
-
-            $("#inputscont").append("<div id='roles'>roles</div>");
-            op1 = document.createElement("input");
-            op1.type = "checkbox";
-            op1.name = 'role';
-            op1.checked = cookies && cookies.match(/nuekop1=false/gi) ? false : true;
-            op1.onclick = (e) => {
-                document.cookie = `nuekop1=${op1.checked}${cookieappend}`;
-            };
-            $("#roles").append(op1);
-
-            op2 = document.createElement("input");
-            op2.type = "checkbox";
-            op2.name = 'role';
-            op2.checked = true;
-            op2.checked = cookies && cookies.match(/nuekop2=false/gi) ? false : true;
-            op2.onclick = (e) => {
-                document.cookie = `nuekop2=${op2.checked}${cookieappend}`;
-            };
-            $("#roles").append(op2);
-
-            op3 = document.createElement("input");
-            op3.type = "checkbox";
-            op3.name = 'role';
-            op3.checked = true;
-            op3.checked = cookies && cookies.match(/nuekop3=false/gi) ? false : true;
-            op3.onclick = (e) => {
-                document.cookie = `nuekop3=${op3.checked}${cookieappend}`;
-            };
-            $("#roles").append(op3);
-
-            op4 = document.createElement("input");
-            op4.type = "checkbox";
-            op4.name = 'role';
-            op4.checked = true;
-            op4.checked = cookies && cookies.match(/nuekop4=false/gi) ? false : true;
-            op4.onclick = (e) => {
-                document.cookie = `nuekop4=${op4.checked}${cookieappend}`;
-            };
-            $("#roles").append(op4);
-
             searchtype = document.createElement("select");
             searchtype.id="searchtype";
-
             searchtype.onchange = () => {
-                document.cookie = `nuekselect=${searchtype.value}${cookieappend}`;
+                document.cookie = `neukselect=${searchtype.value}${cookieappend}`;
+                checkroles();
             }
             $("#inputscont").append(searchtype);
 
@@ -257,8 +254,75 @@ margin-left: 3px;
             option.text = "{q} + {input}";
             option.value = "manualquestion";
             searchtype.add(option);
-            searchtype.selectedIndex = cookies.match(/nuekselect=auto/gi) ? 0 : cookies.match(/nuekselect=manualoption/gi) ? 1 : 2;
+            searchtype.selectedIndex = cookies.match(/neukselect=auto/gi) ? 0 : cookies.match(/neukselect=manualoption/gi) ? 1 : 2;
 
+            $("#inputscont").append("<div id='layer'>layer</div>");
+            layer = document.createElement("input");
+            layer.type = "checkbox";
+            layer.name = 'layer';
+            layer.checked = cookies && cookies.match(/neuklayer=false/gi) ? false : true;
+            layer.onclick = (e) => {
+                document.cookie = `neuklayer=${layer.checked}${cookieappend}`;
+            };
+            $("#layer").append(layer);
+
+            $("#inputscont").append("<div id='roles'>roles</div>");
+            op1 = document.createElement("input");
+            op1.type = "checkbox";
+            op1.name = 'role';
+            op1.checked = cookies && cookies.match(/neukop1=false/gi) ? false : true;
+            op1.onclick = (e) => {
+                if(searchtype.value == "manualoption") {
+                    resetroles();
+                    op1.checked = true;
+                }
+                document.cookie = `neukop1=${op1.checked}${cookieappend}`;
+            };
+            $("#roles").append(op1);
+
+            op2 = document.createElement("input");
+            op2.type = "checkbox";
+            op2.name = 'role';
+            op2.checked = true;
+            op2.checked = cookies && cookies.match(/neukop2=false/gi) ? false : true;
+            op2.onclick = (e) => {
+                if(searchtype.value == "manualoption") {
+                    resetroles();
+                    op2.checked = true;
+                }
+                document.cookie = `neukop2=${op2.checked}${cookieappend}`;
+            };
+            $("#roles").append(op2);
+
+            op3 = document.createElement("input");
+            op3.type = "checkbox";
+            op3.name = 'role';
+            op3.checked = true;
+            op3.checked = cookies && cookies.match(/neukop3=false/gi) ? false : true;
+            op3.onclick = (e) => {
+                if(searchtype.value == "manualoption") {
+                    resetroles();
+                    op3.checked = true;
+                }
+                document.cookie = `neukop3=${op3.checked}${cookieappend}`;
+            };
+            $("#roles").append(op3);
+
+            op4 = document.createElement("input");
+            op4.type = "checkbox";
+            op4.name = 'role';
+            op4.checked = true;
+            op4.checked = cookies && cookies.match(/neukop4=false/gi) ? false : true;
+            op4.onclick = (e) => {
+                if(searchtype.value == "manualoption") {
+                    resetroles();
+                    op4.checked = true;
+                }
+                document.cookie = `neukop4=${op4.checked}${cookieappend}`;
+            };
+            $("#roles").append(op4);
+
+            $("#inputscont").append(`<div id='wolfscrab' class='nontriggers'></div>`);
             wolfram = document.createElement("button");
             wolfram.id = "wolfram";
             wolfram.innerHTML = "wolfram";
@@ -267,32 +331,175 @@ margin-left: 3px;
                     words.location.href = `https://www.wolframalpha.com/input/?i=${qencoded}`;
                 }
             };
-            $("#inputscont").append(wolfram);
+            $("#wolfscrab").append(wolfram);
 
             scrabble = document.createElement("button");
             scrabble.id = "scrabble";
             scrabble.innerHTML = "scrabble";
             scrabble.onclick = (e) => {
-                    var scrabbleArray = []
-                    if(lastans1) scrabbleArray.push(lastans1);
-                    if(lastans2) scrabbleArray.push(lastans2);
-                    if(lastans3) scrabbleArray.push(lastans3);
-                    if(lastans4) scrabbleArray.push(lastans4);
-                    if(scrabbleArray && scrabbleArray.length > 0) {
-                        scrabbleArray.sort((a, b) => {return scrabbleScore(b.toLowerCase().trim()) - scrabbleScore(a.trim().toLowerCase())});
+                var scrabbleArray = []
+                if(lastans1) scrabbleArray.push(lastans1);
+                if(lastans2) scrabbleArray.push(lastans2);
+                if(lastans3) scrabbleArray.push(lastans3);
+                if(lastans4) scrabbleArray.push(lastans4);
+                if(scrabbleArray && scrabbleArray.length > 0) {
+                    scrabbleArray.sort((a, b) => {return scrabbleScore(b.toLowerCase().trim()) - scrabbleScore(a.trim().toLowerCase())});
                     var scrabscore = ""
                     scrabbleArray.map(a => {
                         scrabscore += a + " " + scrabbleScore(a.trim().toLowerCase()) + "\n";
                     });
-                        alert(scrabscore)
-                    }
+                    alert(scrabscore)
+                }
             };
-            $("#inputscont").append(scrabble);
+            $("#wolfscrab").append(scrabble);
 
-            $("#inputscont").append(`<div class='f9'>F9 to preload</div>`);
+            $("#inputscont").append(`<div id='agebd' class='triggers'></div>`);
+            age = document.createElement("button");
+            age.id = "age";
+            age.innerHTML = "age";
+            age.onclick = (e) => {
+                age.value = true;
+                forcemutate();
+            };
+            $("#agebd").append(age);
+
+            birthday = document.createElement("button");
+            birthday.id = "birthday";
+            birthday.innerHTML = "b-day";
+            birthday.onclick = (e) => {
+                birthday.value = true;
+                forcemutate();
+            };
+            $("#agebd").append(birthday);
+
+            $("#inputscont").append(`<div id='deathfounder' class='triggers'></div>`);
+            death = document.createElement("button");
+            death.id = "death";
+            death.innerHTML = "death";
+            death.onclick = (e) => {
+                death.value = true;
+                forcemutate();
+            };
+            $("#deathfounder").append(death);
+
+            founder = document.createElement("button");
+            founder.id = "founder";
+            founder.innerHTML = "founder";
+            founder.onclick = (e) => {
+                founder.value = true;
+                forcemutate();
+            };
+            $("#deathfounder").append(founder);
+
+            $("#inputscont").append(`<div id='flaglag' class='triggers'></div>`);
+            flag = document.createElement("button");
+            flag.id = "flag";
+            flag.innerHTML = "flag";
+            flag.onclick = (e) => {
+                flag.value = true;
+                forcemutate();
+            };
+            $("#flaglag").append(flag);
+
+            lat = document.createElement("button");
+            lat.id = "lat";
+            lat.innerHTML = "lat-lng";
+            lat.onclick = (e) => {
+                lat.value = true;
+                forcemutate();
+            };
+            $("#flaglag").append(lat);
+
+            $("#inputscont").append(`<div id='openclose' class='triggers'></div>`);
+            opening = document.createElement("button");
+            opening.id = "opening";
+            opening.innerHTML = "opening";
+            opening.onclick = (e) => {
+                opening.value = true;
+                forcemutate();
+            };
+            $("#openclose").append(opening);
+
+            closing = document.createElement("button");
+            closing.id = "closing";
+            closing.innerHTML = "closing";
+            closing.onclick = (e) => {
+                closing.value = true;
+                forcemutate();
+            };
+            $("#openclose").append(closing);
+
+
+
+            $("#inputscont").append(`<div id='releasecap' class='triggers'></div>`);
+            release = document.createElement("button");
+            release.id = "release";
+            release.innerHTML = "release";
+            release.onclick = (e) => {
+                release.value = true;
+                forcemutate();
+            };
+            $("#releasecap").append(release);
+
+            capacity = document.createElement("button");
+            capacity.id = "capacity";
+            capacity.innerHTML = "capacity";
+            capacity.onclick = (e) => {
+                capacity.value = true;
+                forcemutate();
+            };
+            $("#releasecap").append(capacity);
+
+            var resetroles = () => {
+                $("input[name^='role']").prop("checked", false);
+                document.cookie = `neukop1=false${cookieappend}`;
+                document.cookie = `neukop2=false${cookieappend}`;
+                document.cookie = `neukop3=false${cookieappend}`;
+                document.cookie = `neukop4=false${cookieappend}`;
+            }
+
+            var checkroles = () => {
+                if(searchtype.value == "auto" || searchtype.value == "manualoption") {
+                    $(".triggers").slideDown();
+                } else {
+                    $(".triggers").slideUp();
+                }
+                if(searchtype.value == "manualquestion") {
+                    $("#roles").slideUp();
+                    $("input[name^='role']").attr("disabled", true);
+                } else {
+                    $("#roles").slideDown();
+                    $("input[name^='role']").attr("disabled", false);
+                }
+                if(searchtype.value == "manualoption") {
+                    if(op1.checked || (!op1.checked && !op2.checked && !op3.checked && !op4.checked)) {
+                        op1.click();
+                    }
+                    if(op2.checked) {
+                        op2.click();
+                    }
+                    if(op3.checked) {
+                        op3.click();
+                    }
+                    if(op4.checked) {
+                        op4.click();
+                    }
+                }
+
+                if(searchtype.value == "manualoption" || searchtype.value == "manualquestion") {
+                    layer.checked = true;
+                    layer.disabled = true;
+                } else {
+                    layer.disabled = false;
+                }
+
+            }
+            checkroles();
+
+            $("#inputscont").append(`<div id='dragme2'>[F9] to preload</div>`);
             if($(".Trivia-Wrapper").length == 0 && $("#root").length > 0) {
                 tester = document.createElement("button");
-                tester.innerHTML = "test q";
+                tester.innerHTML = "test";
                 tester.onclick = (e) => {
                     openwindows();
                     if(cycle) {
@@ -303,8 +510,8 @@ margin-left: 3px;
                 $("#inputscont").append(tester);
 
                 tester = document.createElement("button");
-                tester.style.margin = "0 0 0 10px";
-                tester.innerHTML = "cycle q";
+                tester.style.float = "right";
+                tester.innerHTML = "cycle";
                 tester.onclick = (e) => {
                     openwindows();
                     testinterval();
@@ -317,8 +524,14 @@ margin-left: 3px;
                 };
                 $("#inputscont").append(tester);
             }
+
+            dragElement(document.getElementById("inputscont"));
         }
     }
+    var forcemutate = () => {
+        $("body").append("<span></span>");
+        forceMutate = true;
+    };
 
     var waitbody = setInterval(() =>{
         var x = document.querySelector("body");
@@ -346,7 +559,7 @@ margin-left: 3px;
                     });
                 }
 
-                if(q && q.innerText && ans && lastq != q.innerText) {
+                if((q && q.innerText && ans && lastq != q.innerText) || (forceMutate && q && q.innerText)) {
                     lastans1 = ""; lastans2 = ""; lastans3 = ""; lastans4 = "";
                     qencoded = encodeURIComponent(q.innerText);
                     openwindows();
@@ -357,7 +570,8 @@ margin-left: 3px;
                         layer.checked = true;
                         enginebase = "https://www.google.com/webhp?&hl=en&"
                     }
-                    if(words && layer && layer.checked) {
+                    console.log('forceMutate', forceMutate);
+                    if(words && layer && layer.checked && !forceMutate) {
                         if(searchtype.value == "manualoption") {
                             let yourans = op1.checked && ans[0] ? `${ans[0].innerText}` :
                             op2.checked && ans[1] ? `${ans[1].innerText}` :
@@ -379,6 +593,7 @@ margin-left: 3px;
                         }
                     }
 
+                    //forceMutate = false;
                     if(ans && ans.length > 0) {
                         // GAME TITLE
                         var desc = document.getElementById("quiz-details-title");
@@ -523,6 +738,10 @@ margin-left: 3px;
                                 qtype = "age";
                                 age.value = "false";
                             }
+                            if(founder && founder.value == "true") {
+                                qtype = "founder";
+                                founder.value = "false";
+                            }
                             if(radiomap && radiomap.checked) {
                                 qtype = "map";
                             }
@@ -595,7 +814,7 @@ margin-left: 3px;
                                     href = `${enginemain}miles distance ${origin} to ${answer} ${highlight}`;
                                     break;
                                 case 'global':
-                                    href = `${enginemain}latitude ${answer} ${highlight}`;
+                                    href = `${enginemain}lat long ${answer} ${highlight}`;
                                     break;
                                 case 'birth':
                                     href = `${enginemain}date of birth ${answer} ${highlight}`;
@@ -605,6 +824,9 @@ margin-left: 3px;
                                     break;
                                 case 'age':
                                     href = `${enginemain}${answer} age ${highlight}`;
+                                    break;
+                                case 'founder':
+                                    href = `${enginemain}${answer} founder ${highlight}`;
                                     break;
                                 case 'death':
                                     href = `${enginemain}date of death ${answer} ${highlight}`;
@@ -667,6 +889,23 @@ margin-left: 3px;
                             if(i == 1) lastans2 = a.innerText;
                             if(i == 2) lastans3 = a.innerText;
                             if(i == 3) lastans4 = a.innerText;
+                            if(i == 0 && searchtype.value == "manualoption" && words && op1 && op1.checked && forceMutate) {
+                                words.location.href = href;
+                                forceMutate = false;
+                            }
+                            if(i == 1 && searchtype.value == "manualoption" && words && op2 && op2.checked && forceMutate) {
+                                words.location.href = href;
+                                forceMutate = false;
+                            }
+                            if(i == 2 && searchtype.value == "manualoption" && words && op3 && op3.checked && forceMutate) {
+                                words.location.href = href;
+                                forceMutate = false;
+                            }
+                            if(i == 3 && searchtype.value == "manualoption" && words && op4 && op4.checked && forceMutate) {
+                                words.location.href = href;
+                                forceMutate = false;
+                            }
+
 
                             if(i==0 && ans1 && op1 && op1.checked && searchtype.value == "auto"){
                                 ans1.location.href = href;
@@ -716,8 +955,10 @@ margin-left: 3px;
                         }
                     }
 
-                    //resetbuttons();
                     lastq = q.innerText;
+                    forceMutate = false;
+                } else {
+                    forceMutate = false;
                 }
 
             });
@@ -828,15 +1069,19 @@ margin-left: 3px;
 
 
     function dragElement(elmnt) {
-        console.log('derp')
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         if (document.getElementById("dragme")) {
-            /* if present, the header is where you move the DIV from:*/
-            console.log('derp1')
             document.getElementById("dragme").onmousedown = dragMouseDown;
         }
+        if (document.getElementById("dragme2")) {
+            document.getElementById("dragme2").onmousedown = dragMouseDown;
+        }
+
+
         function dragMouseDown(e) {
-            console.log('dragMouseDown')
+            if(e.target.id == "collapse") {
+                return;
+            }
             e = e || window.event;
             e.preventDefault();
             // get the mouse cursor position at startup:
