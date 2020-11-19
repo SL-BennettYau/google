@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.7
 // @description  try to take over the world!
 // @author       You
 // @match        https://*.ext-twitch.tv/*
@@ -105,7 +105,7 @@ font-weight:bold;
 }
 #wolfram, #scrabble, button {
 margin-top:4px;
-padding: 2px 2px 2px 0px;
+padding: 4px 4px 4px 2px;
 text-align: left;
 overflow: hidden;
 }
@@ -113,16 +113,17 @@ overflow: hidden;
 .nontriggers, .triggers {
 display: flex;
 justify-content: space-between;
-
 }
+
 .nontriggers button, .triggers button, button {
-width:49%;
+width:48%;
 font-family: arial;
 text-transform: capitalize;
 border: none;
 border-radius: 0;
 outline-radius: 0;
 font-weight: bold;
+font-size: 11px;
 }
 `);
 
@@ -200,7 +201,7 @@ font-weight: bold;
             } else {
                 $("body").prepend("<div id='inputscont'></div>");
             }
-            $("#inputscont").append(`<div id='dragme'>drag me ${GM_info.script.version}<span id='collapse'>[-]</span></div>`);
+            $("#inputscont").append(`<div id='dragme'>Drag me ${GM_info.script.version}<span id='collapse'>[-]</span></div>`);
             $("#collapse").on("click", (e) => {
                 e.stopPropagation();
                 e.stopImmediatePropagation();
