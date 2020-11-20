@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.8
+// @version      1.9
 // @description  try to take over the world!
 // @author       me
 // @match        https://*.ext-twitch.tv/*
@@ -1028,7 +1028,7 @@ font-size: 11px;
                         fields: [
                             {
                                 name: `Question ${counter++}`,
-                                value: `[${decodeURIComponent(qencoded)}](https://www.google.com/search?q=${qencoded})`,
+                                value: `[\u2BC8](https://www.google.com/webhp?hl=en&q=${qencoded}&prepend1=${qencoded})\u00A0\u00A0[${decodeURIComponent(qencoded)}](https://www.google.com/search?q=${qencoded})`,
                                 inline: false
                             }
                         ]
@@ -1036,31 +1036,32 @@ font-size: 11px;
                     if(lastans1) {
                         myEmbed.fields.push({
                             name: `1`,
-                            value: `[${decodeURIComponent(lastans1)}](https://www.google.com/search?q=${encodeURIComponent(lastans1)})`,
-                            inline: false
+                            value: `[\u2BC8](https://www.google.com/webhp?hl=en&q=${encodeURIComponent(lastans1)}&prepend1=${encodeURIComponent(lastans1)})\u00A0\u00A0[${decodeURIComponent(lastans1)}](https://www.google.com/search?q=${encodeURIComponent(lastans1)})`,
+                            inline: true
                         });
                     }
                     if(lastans2) {
                         myEmbed.fields.push({
                             name: `2`,
-                            value: `[${decodeURIComponent(lastans2)}](https://www.google.com/search?q=${encodeURIComponent(lastans2)})`,
+                            value: `[\u2BC8](https://www.google.com/webhp?hl=en&q=${encodeURIComponent(lastans2)}&prepend2=${encodeURIComponent(lastans2)})\u00A0\u00A0[${decodeURIComponent(lastans2)}](https://www.google.com/search?q=${encodeURIComponent(lastans2)})`,
                             inline: false
                         });
                     }
                     if(lastans3) {
                         myEmbed.fields.push({
                             name: `3`,
-                            value: `[${decodeURIComponent(lastans3)}](https://www.google.com/search?q=${encodeURIComponent(lastans3)})`,
+                            value: `[\u2BC8](https://www.google.com/webhp?hl=en&q=${encodeURIComponent(lastans3)}&prepend3=${encodeURIComponent(lastans3)})\u00A0\u00A0[${decodeURIComponent(lastans3)}](https://www.google.com/search?q=${encodeURIComponent(lastans3)})`,
                             inline: false
                         });
                     }
                     if(lastans4) {
                         myEmbed.fields.push({
                             name: `4`,
-                            value: `[${decodeURIComponent(lastans4)}](https://www.google.com/search?q=${encodeURIComponent(lastans4)})`,
+                            value: `[\u2BC8](https://www.google.com/webhp?hl=en&q=${encodeURIComponent(lastans4)}&prepend4=${encodeURIComponent(lastans4)})\u00A0\u00A0[${decodeURIComponent(lastans4)}](https://www.google.com/search?q=${encodeURIComponent(lastans4)})`,
                             inline: false
                         });
                     }
+
                     var params = {
                         username: "Magatron",
                         avatar_url: "https://cdn.shopify.com/s/files/1/2528/8830/products/FU50967_300x371.jpg",
