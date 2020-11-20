@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.7
+// @version      1.8
 // @description  try to take over the world!
-// @author       You
+// @author       me
 // @match        https://*.ext-twitch.tv/*
 // @exclude      https://supervisor.ext-twitch.tv/*
 // @require http://code.jquery.com/jquery-3.4.1.min.js
@@ -23,6 +23,9 @@ left:0;
 background-color: rgba(0,0,0,0.5);
 font-size: 10px;
 font-family: Arial;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
 }
 #dragme {
 padding-left:2px;
@@ -46,13 +49,31 @@ color: white;
 cursor: move;
 }
 
-#bing, #quotes {
+#bing, #quotes, #broadcast {
 line-height: 15px;
 height: 15px;
 display: flex;
 align-items:center;
 cursor: pointer;
 margin-left: 2px;
+}
+
+#broadcast:after {
+content: 'broadcast';
+color: white;
+font-weight:bold;
+white-space: nowrap;
+margin-left: 15px;
+}
+#bicon {
+font-size: 13px;
+display: inline-block;
+position: absolute;
+top: 14px;
+left: 66px;
+color: black;
+cursor:pointer;
+
 }
 
 #bing:after {
@@ -127,7 +148,7 @@ font-size: 11px;
 }
 `);
 
-    var questionClass = ".trivia-question", answerClass="trivia-answer", wolfram = null, forceMutate = false;
+    var questionClass = ".trivia-question", answerClass="trivia-answer", wolfram = null, forceMutate = false, broadcast=false, broadcastedQ = "";
     var q, ans, qencoded, op1 = null, op2 = null, op3 = null, op4 = null, layer=null, tester = null, searchtype=null, cycle=null;
     var words = null, ans1 = null, ans2 = null, ans3 = null, ans4 = null, uk=null, mainprefix = null, prefix={}, suffix={};
     var radioall, radioimg, radiomap, bing, google, quotes= null;
@@ -143,6 +164,7 @@ font-size: 11px;
     var urlImages = {};
     var urlAll = {};
     var testq=1;
+    var counter = 1;
     prefix.value ="";
     suffix.value ="";
     combine.checked = true;
@@ -212,6 +234,23 @@ font-size: 11px;
                     $(e.target).html("[-]");
                     $("#inputscont").css({"height": "auto", "overflow":"visible"});
                 }
+            });
+
+            broadcast = document.createElement("input");
+            broadcast.id = "broadcast";
+            broadcast.type = "checkbox";
+            broadcast.checked = false;
+            broadcast.onclick = (e) => {
+                if(broadcast.checked) {
+                    $("#bicon").html("&#128266;");
+                } else {
+                    $("#bicon").html("&#128264;");
+                }
+            };
+            $("#inputscont").append(broadcast);
+            $("#broadcast").after(`<div id='bicon'>&#128264;</div>`);
+            $("#bicon").on("click", () => {
+                broadcast.click();
             });
 
             bing = document.createElement("input");
@@ -578,7 +617,7 @@ font-size: 11px;
                         layer.checked = true;
                         enginebase = "https://www.google.com/webhp?&hl=en&"
                     }
-                    console.log('forceMutate', forceMutate);
+
                     if(words && layer && layer.checked && !forceMutate) {
                         if(searchtype.value == "manualoption") {
                             let yourans = op1.checked && ans[0] ? `${ans[0].innerText}` :
@@ -976,6 +1015,62 @@ font-size: 11px;
                     forceMutate = false;
                 }
 
+                if(broadcast.checked && lastq != broadcastedQ) {
+                    broadcastedQ = lastq;
+                    var request = new XMLHttpRequest();
+                    request.open("POST", "https://discord.com/api/webhooks/779107435318345768/HnHgmNiau6s19n9jrYrwwzAxPIFQUIUELw-s41Yx6cjoysf6V4p1nubXMoZ02nqV0Q8a");
+                    request.setRequestHeader('Content-type', 'application/json');
+                    function hexToDecimal(hex) {
+                        return parseInt(hex.replace("#",""), 16)
+                    }
+                    var myEmbed = {
+                        color: hexToDecimal("#000000"),
+                        fields: [
+                            {
+                                name: `Question ${counter++}`,
+                                value: `[${decodeURIComponent(qencoded)}](https://www.google.com/search?q=${qencoded})`,
+                                inline: false
+                            }
+                        ]
+                    }
+                    if(lastans1) {
+                        myEmbed.fields.push({
+                            name: `1`,
+                            value: `[${decodeURIComponent(lastans1)}](https://www.google.com/search?q=${encodeURIComponent(lastans1)})`,
+                            inline: false
+                        });
+                    }
+                    if(lastans2) {
+                        myEmbed.fields.push({
+                            name: `2`,
+                            value: `[${decodeURIComponent(lastans2)}](https://www.google.com/search?q=${encodeURIComponent(lastans2)})`,
+                            inline: false
+                        });
+                    }
+                    if(lastans3) {
+                        myEmbed.fields.push({
+                            name: `3`,
+                            value: `[${decodeURIComponent(lastans3)}](https://www.google.com/search?q=${encodeURIComponent(lastans3)})`,
+                            inline: false
+                        });
+                    }
+                    if(lastans4) {
+                        myEmbed.fields.push({
+                            name: `4`,
+                            value: `[${decodeURIComponent(lastans4)}](https://www.google.com/search?q=${encodeURIComponent(lastans4)})`,
+                            inline: false
+                        });
+                    }
+                    var params = {
+                        username: "Magatron",
+                        avatar_url: "https://cdn.shopify.com/s/files/1/2528/8830/products/FU50967_300x371.jpg",
+                        embeds: [ myEmbed ]
+                    }
+                    request.send(JSON.stringify(params));
+                }
+                else if(!broadcast.checked) {
+                    broadcastedQ = lastq;
+                }
             });
 
             observer.observe(x, {characterData: true, subtree: true, childList: true, attributes: false});
