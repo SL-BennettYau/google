@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         googler
 // @namespace    http://tampermonkey.net/
-// @version      5.3
+// @version      5.4
 // @description  nothing to see here
 // @author       burger
 // @match        https://www.google.com/*
@@ -221,17 +221,17 @@ margin: 4px 0 4px 10px;
 border: none;
 outline: none;
 }
-.scrabble {
+.scrabble, .wolfram {
 margin: 5px 0 5px 10px;
 padding: 3px 0;
-display: block;
-width: 140px;
+display: inline-block;
+width: 61px;
 background-color: #dcddde;
 }
 `);
         var questionClass = ".vote-question", answerClass=".answer-body";
         var q, ans, qencoded;
-        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, customize, ozy, prefix, suffix, scrabble, quotes;
+        var ans1 = null, ans2 = null, ans3 = null, container, op1, op2, op3, left, right, bezel, monitor, simg, s1, s2, s3, full, fullrev, justans, justq, manual, manualq, manualfork, forkw, customize, ozy, prefix, suffix, wolfram, scrabble, quotes;
         var collapseall, lastq = "", lastans1 = "", lastans2 = "", lastans3 = "";
         var urlNotCheck = {}, urlNot = {};
         var deviceHeight = screen.height - 100;
@@ -311,10 +311,26 @@ background-color: #dcddde;
                 customize.className = "customizebox";
                 container.append(customize);
 
+                wolfram = document.createElement("button");
+                wolfram.className = "wolfram";
+                wolfram.title = "wolfram";
+                wolfram.innerHTML = "wolfram";
+                wolfram.onclick = () => {
+                    if(!qencoded) return;
+                    if(op3.checked) {
+                        ans3.location.href = `https://www.wolframalpha.com/input/?i=${qencoded}`;
+                    } else if (op2.checked) {
+                        ans2.location.href = `https://www.wolframalpha.com/input/?i=${qencoded}`;
+                    } else if (op1.checked) {
+                        ans1.location.href = `https://www.wolframalpha.com/input/?i=${qencoded}`;
+                    }
+                }
+                customize.append(wolfram);
+
                 scrabble = document.createElement("button");
                 scrabble.className = "scrabble";
                 scrabble.title = "calculate scrabble scores";
-                scrabble.innerHTML = "scrabble score";
+                scrabble.innerHTML = "scrabble";
                 scrabble.onclick = () => {
                     var scrabbleArray = []
                     if(lastans1) scrabbleArray.push(lastans1);
@@ -1156,6 +1172,7 @@ cursor:pointer;
         var prepend1 = urlParams.get('prepend1');
         var prepend2 = urlParams.get('prepend2');
         var prepend3 = urlParams.get('prepend3');
+        var prepend4 = urlParams.get('prepend4');
         var fork = urlParams.get('fork');
         let forkw;
         let w = urlParams.get('width');
@@ -1179,6 +1196,9 @@ cursor:pointer;
         }
         if(prepend3) {
             $('input[name=q]').val(prepend3 + " ");
+        }
+        if(prepend4) {
+            $('input[name=q]').val(prepend4 + " ");
         }
 
         var instance = new Mark(document.querySelector("*"));
