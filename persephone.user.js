@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.9
+// @version      1.91
 // @description  try to take over the world!
 // @author       me
 // @match        https://*.ext-twitch.tv/*
@@ -26,6 +26,9 @@ font-family: Arial;
 -webkit-user-select: none;
 -moz-user-select: none;
 -ms-user-select: none;
+}
+#inputscont * {
+font-size: 10px;
 }
 #dragme {
 padding-left:2px;
@@ -145,6 +148,7 @@ border-radius: 0;
 outline-radius: 0;
 font-weight: bold;
 font-size: 11px;
+background-color: #EEE;
 }
 `);
 
@@ -1064,7 +1068,7 @@ font-size: 11px;
 
                     var params = {
                         username: "Magatron",
-                        avatar_url: "https://cdn.shopify.com/s/files/1/2528/8830/products/FU50967_300x371.jpg",
+                        avatar_url: "https://pbs.twimg.com/profile_images/796200101072945153/PhzU1Eyo_400x400.jpg",
                         embeds: [ myEmbed ]
                     }
                     request.send(JSON.stringify(params));
