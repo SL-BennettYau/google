@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.95
+// @version      1.96
 // @description  try to take over the world!
 // @author       me
 // @include      https://*.ext-twitch.tv/*
@@ -30,6 +30,9 @@ font-family: Arial;
 font-size: 10px;
 }
 #dragme {
+height: 14px;
+line-height: 14px;
+font-size: 10px;
 padding-left:2px;
 text-align:left;
 background-color: black;
@@ -37,12 +40,18 @@ color: white;
 cursor: move;
 }
 #collapse {
+height: 14px;
+line-height: 14px;
+font-size: 10px;
 cursor: pointer;
 float:right;
 font-family: consolas;
 }
 
 #dragme2 {
+height: 14px;
+line-height: 14px;
+font-size: 10px;
 margin-top:3px;
 padding-left:2px;
 text-align:left;
@@ -159,13 +168,16 @@ left: 100%;
 display:flex;
 flex-direction: column;
 border: 1px solid black;
+border-top: none;
 padding: 0 0px;
+overflow: hidden;
 }
 #poke .heading {
 background-color: black;
 padding-left: 5px;
 height: 14px;
 line-height: 14px;
+font-size: 10px;
 width: 100%;
 }
 #poke button {
