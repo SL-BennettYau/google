@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.96
+// @version      1.97
 // @description  try to take over the world!
 // @author       me
 // @include      https://*.ext-twitch.tv/*
@@ -15,6 +15,8 @@ $().ready(function() {
     'use strict';
     GM_addStyle(`
 #inputscont {
+border: 1px solid black;
+border-top: none;
 position: absolute;
 z-index: 999;
 top: 0;
@@ -169,6 +171,8 @@ display:flex;
 flex-direction: column;
 border: 1px solid black;
 border-top: none;
+border-left: none;
+margin-left: 0;
 padding: 0 0px;
 overflow: hidden;
 }
@@ -186,6 +190,7 @@ white-space: nowrap;
 display: block;
 margin: 0 2px 3px 2px;
 }
+
 #bw, #platem, #pvp {
 display: flex;
 }
@@ -320,12 +325,15 @@ flex-basis: 50%;
                 broadcast = document.createElement("input");
                 broadcast.id = "broadcast";
                 broadcast.type = "checkbox";
-                broadcast.checked = true;
+                broadcast.checked = localStorage && localStorage.getItem(`neukbroadcast`) == "true" ? true : false;;
                 broadcast.onclick = (e) => {
                     if(broadcast.checked) {
                         $("#bicon").html("&#128266;");
                     } else {
                         $("#bicon").html("&#128264;");
+                    }
+                    if(localStorage) {
+                        localStorage.setItem(`neukbroadcast`, broadcast.checked);
                     }
                 };
                 $("#inputscont").append(broadcast);
@@ -684,7 +692,7 @@ flex-basis: 50%;
 
                 omega = document.createElement("button");
                 omega.id = "omega";
-                omega.innerHTML = "omega, ruby, alpha, sapphire";
+                omega.innerHTML = "omega ruby alpha sapphire";
                 omega.onclick = (e) => {
                     checkPokemon("omega")
                 };
@@ -858,7 +866,8 @@ flex-basis: 50%;
                 checkroles();
 
                 $("#inputscont").append(`<div id='dragme2'>[F9] to preload</div>`);
-                if($(".Trivia-Wrapper").length == 0 && $("#root").length > 0) {
+                console.log(window.top == window.self);
+                if($(".Trivia-Wrapper").length == 0 && $("#root").length > 0 && window.top == window.self) {
                     tester = document.createElement("button");
                     tester.innerHTML = "test";
                     tester.onclick = (e) => {
