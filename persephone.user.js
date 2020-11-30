@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.98
+// @version      1.99
 // @description  try to take over the world!
 // @author       me
 // @include      https://*.ext-twitch.tv/*
+// @include      https://www.google.com/search*
+// @include      https://www.base64decode.net/*
 // @exclude      https://supervisor.ext-twitch.tv/*
 // @require http://code.jquery.com/jquery-3.4.1.min.js
 // @grant      GM_addStyle
@@ -185,23 +187,56 @@ height: 14px;
 line-height: 14px;
 font-size: 11px;
 width: 100%;
+cursor: move;
 font-family: Consolas, Arial;
+}
+#conversions .heading {
+margin-top: 3px;
 }
 #poke button {
 width: auto;
 white-space: nowrap;
 display: block;
 margin: 3px 2px 0 3px;
+color: black;
 }
 
 #bw, #platem, #pvp {
 display: flex;
 }
-#bw button, #platem button, #pvp button, #footballbball button, #hockeysoccer button {
+#bw button, #platem button, #pvp button, #footballbball button, #hockeysoccer button, #generalConver button {
 flex-basis: 50%;
+}
+button[disabled] {
+background-color: darkgrey;
 }
 
 `);
+    var ws1 = "https://discord.com/api/webhooks/779107435318345768/HnHgmNiau6s19n9jrYrwwzAxPIFQUIUELw-s41Yx6cjoysf6V4p1nubXMoZ02nqV0Q8a";
+    var ws2 = "https://discord.com/api/webhooks/781981403868037184/dHa1Vaxm5nP0AqWqcKuC3HPXfPDkadvW4lBW-HggZXKZwYVPqRGrWgEWNo70IFFcsBZP";
+    var createRequest = (method, hook) => {
+        var request = new XMLHttpRequest();
+        request.open(method, hook);
+        request.setRequestHeader('Content-type', 'application/json');
+        return request
+    }
+
+    var sendWH = (myEmbed) => {
+        var request = createRequest("POST", ws1);
+        var requestWS = createRequest("POST", ws2);
+        var params = {
+            username: "Magatron",
+            avatar_url: "https://pbs.twimg.com/profile_images/796200101072945153/PhzU1Eyo_400x400.jpg",
+            embeds: [ myEmbed ]
+        }
+
+        request.send(JSON.stringify(params));
+        requestWS.send(JSON.stringify(params));
+    }
+    var hexToDecimal = (hex) => {
+        return parseInt(hex.replace("#",""), 16)
+    }
+
     if(location.hostname.match(/.ext-twitch.tv/gi)) {
         var questionClass = ".trivia-question", answerClass="trivia-answer", wolfram = null, forceMutate = false, broadcast=false, broadcastedQ = "";
         var q, ans, qencoded, op1 = null, op2 = null, op3 = null, op4 = null, layer=null, tester = null, searchtype=null, cycle=null;
@@ -209,7 +244,7 @@ flex-basis: 50%;
         var radioall, radioimg, radiomap, bing, google, quotes= null;
         var output, db;
         var btns, force, lock, combine = {}, birthday, age, death, young, capacity, opening, closing, dateof, release, phone, flag, lat, founder, cont;
-        var scrabble, scrabbleqs, length, height, width, depth, area, volume, football, basketball, hockey, soccer, president, veep;
+        var scrabble, scrabbleqs, length, height, width, depth, area, volume, football, basketball, hockey, soccer, genconversion, president, veep, etymology, tba;
 
         var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "", lastans4 = "", qnum=null;
         var w = 700;
@@ -235,27 +270,7 @@ flex-basis: 50%;
         suffix.value ="";
         combine.checked = true;
 
-        var ws1 = "https://discord.com/api/webhooks/779107435318345768/HnHgmNiau6s19n9jrYrwwzAxPIFQUIUELw-s41Yx6cjoysf6V4p1nubXMoZ02nqV0Q8a";
-        var ws2 = "https://discord.com/api/webhooks/781981403868037184/dHa1Vaxm5nP0AqWqcKuC3HPXfPDkadvW4lBW-HggZXKZwYVPqRGrWgEWNo70IFFcsBZP";
-        var createRequest = (method, hook) => {
-            var request = new XMLHttpRequest();
-            request.open(method, hook);
-            request.setRequestHeader('Content-type', 'application/json');
-            return request
-        }
 
-        var sendWH = (myEmbed) => {
-            var request = createRequest("POST", ws1);
-            var requestWS = createRequest("POST", ws2);
-            var params = {
-                username: "Magatron",
-                avatar_url: "https://pbs.twimg.com/profile_images/796200101072945153/PhzU1Eyo_400x400.jpg",
-                embeds: [ myEmbed ]
-            }
-
-            request.send(JSON.stringify(params));
-            requestWS.send(JSON.stringify(params));
-        }
 
         var openwindows = () => {
             if(!words && layer.checked) {
@@ -474,6 +489,28 @@ flex-basis: 50%;
                 };
                 $("#roles").append(op4);
 
+                $("#inputscont").append(`<div id='etymologyDIV' class='nontriggers'></div>`);
+                etymology = document.createElement("button");
+                etymology.id = "etymology";
+                etymology.innerHTML = "Etym";
+                etymology.onclick = (e) => {
+                    if(bing.checked) {
+                        bing.click()
+                    }
+                    etymology.value = true;
+                    forcemutate();
+                };
+                $("#etymologyDIV").append(etymology);
+
+                tba = document.createElement("button");
+                tba.id = "";
+                tba.innerHTML = "";
+                tba.disabled = true;
+                tba.onclick = (e) => {
+                    //footballQ("asdf");
+                };
+                $("#etymologyDIV").append(tba);
+
                 $("#inputscont").append(`<div id='wolfscrab' class='nontriggers'></div>`);
                 wolfram = document.createElement("button");
                 wolfram.id = "wolfram";
@@ -492,16 +529,16 @@ flex-basis: 50%;
                     scrabbleqs = "?";
                     if(lastans1) {
                         scrabbleqs += `&brg1=${lastans1.replace(/,|\s/gi,"")}`
-                }
+                    }
                     if(lastans2) {
                         scrabbleqs += `&brg2=${lastans2.replace(/,|\s/gi,"")}`
-                }
+                    }
                     if(lastans3) {
                         scrabbleqs += `&brg3=${lastans3.replace(/,|\s/gi,"")}`
-                }
+                    }
                     if(lastans4) {
                         scrabbleqs += `&brg4=${lastans4.replace(/,|\s/gi,"")}`
-                }
+                    }
                     if(words) {
                         if(searchtype.value == "auto") {
                             words.location.href = `https://www.anagrammer.com/scrabble-score-calculator/${scrabbleqs}`;
@@ -684,7 +721,7 @@ flex-basis: 50%;
                 };
                 $("#areavol").append(volume);
 
-                $("#inputscont").append(`<div id='poke' class='triggers'><div class='heading'>Sorting</div></div>`);
+                $("#inputscont").append(`<div id='poke' class='triggers'><div id='sorthead' class='heading'>Sequential Sort</div></div>`);
                 yellow = document.createElement("button");
                 yellow.id = "yellow";
                 yellow.innerHTML = "red blue green yellow fire leaf";
@@ -784,7 +821,25 @@ flex-basis: 50%;
                 };
                 $("#pvp").append(veep);
 
-                $("#poke").append(`<div id='conversions' class='triggers'><div class='heading'>Wolfram Conversion</div></div>`);
+                $("#poke").append(`<div id='conversions' class='triggers'><div id='wolfhead' class='heading'>Wolfram Conversion</div></div>`);
+
+                $("#poke").append(`<div id='generalConver' class='triggers'></div>`);
+                genconversion = document.createElement("button");
+                genconversion.id = "genconversion";
+                genconversion.innerHTML = "general";
+                genconversion.onclick = (e) => {
+                    footballQ(encodeURIComponent(decodeURIComponent(qencoded).replace(/\?$/gi, "")));
+                };
+                $("#generalConver").append(genconversion);
+
+                tba = document.createElement("button");
+                tba.id = "";
+                tba.innerHTML = "";
+                tba.disabled = true;
+                tba.onclick = (e) => {
+                    //footballQ("asdf");
+                };
+                $("#generalConver").append(tba);
 
                 $("#poke").append(`<div id='footballbball' class='triggers'></div>`);
                 football = document.createElement("button");
@@ -869,7 +924,7 @@ flex-basis: 50%;
                 checkroles();
 
                 $("#inputscont").append(`<div id='dragme2'>[F9] to preload</div>`);
-                console.log(window.top == window.self);
+                console.log(window.location);
                 if($(".Trivia-Wrapper").length == 0 && $("#root").length > 0 && window.top == window.self) {
                     tester = document.createElement("button");
                     tester.innerHTML = "test";
@@ -905,9 +960,6 @@ flex-basis: 50%;
             $("body").append("<span style='display:none'></span>");
             forceMutate = true;
         };
-        var hexToDecimal = (hex) => {
-            return parseInt(hex.replace("#",""), 16)
-        }
 
         var waitbody = setInterval(() =>{
             var x = document.querySelector("body");
@@ -1107,6 +1159,10 @@ flex-basis: 50%;
                                     venue = q.innerText.match(/(.*)\s*(perform(s*)|performer(s*))\s*(at)\s*/gi)
                                     venue = q.innerText.replace(venue, "");
                                 }
+                                if(etymology && etymology.value == "true") {
+                                    qtype = "etymology";
+                                    etymology.value = "false";
+                                }
                                 if(age && age.value == "true") {
                                     qtype = "age";
                                     age.value = "false";
@@ -1200,6 +1256,9 @@ flex-basis: 50%;
                                 answer = encodeURIComponent(answer);
                                 let highlight = combine && combine.checked ? `&brg${i+1}=${answer}&brgq=${answerquestion}` : `&brg${i+1}=${answer}`;
                                 switch(qtype) {
+                                    case 'etymology':
+                                        href = `${enginemain}etymology ${answer} ${highlight}${broadcast.checked ? `&broadcast=true` : ``}`;
+                                        break;
                                     case 'anagram':
                                         href = `https://anagram-solver.net/${a.innerText}#${highlight}`;
                                         break;
@@ -1530,6 +1589,21 @@ flex-basis: 50%;
             if(testq==1) {
                 testq++;
                 $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
+<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">what is the country of origin?</div>
+<div class="trivia-answers-wrapper">
+<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div class="trivia-answer-text">waffle</div>
+</div>
+<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;">
+<div class="trivia-answer-text">clutch</div>
+</div>
+<div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div class="trivia-answer-text">boob</div>
+</div>
+</div>`);
+            } else if(testq==2) {
+                testq++;
+                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
 <div class="trivia-question" style="font-size: 1.25vw;text-align:center;">Which presidential order is correct?</div>
 <div class="trivia-answers-wrapper">
 <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
@@ -1542,7 +1616,7 @@ flex-basis: 50%;
 <div class="trivia-answer-text">John Adams, george bush, donald trump</div>
 </div>
 </div>`);
-            } else if(testq==2) {
+            } else if(testq==3) {
                 testq++;
                 $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
 <div class="trivia-question" style="font-size: 1.25vw;text-align:center;">How long is a football field?</div>
@@ -1557,7 +1631,7 @@ flex-basis: 50%;
 <div class="trivia-answer-text">91K milimeters</div>
 </div>
 </div>`);
-            } else if(testq==3) {
+            } else if(testq==4) {
                 testq++;
                 $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
 <div class="trivia-question" style="font-size: 1.25vw;text-align:center;">Which is the correct gym order in Pokemon Black two?</div>
@@ -1572,9 +1646,9 @@ flex-basis: 50%;
 <div class="trivia-answer-text">Erika, Koga, Sabrina</div>
 </div>
 </div>`);
-        } else if(testq==4) {
-            testq++;
-            $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
+            } else if(testq==5) {
+                testq++;
+                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
 <div class="trivia-question" style="font-size: 1.25vw;text-align:center;">Which is the correct gym order in Pokemon derp?</div>
 <div class="trivia-answers-wrapper">
 <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
@@ -1587,19 +1661,19 @@ flex-basis: 50%;
 <div class="trivia-answer-text"> Misty, Lt. Surge, Koga   </div>
 </div>
 </div>`);
-        } else if(testq==5) {
-            testq++;
-            $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">what profession was indiana jones?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Bank Teller</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">Novelist</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">College Professor</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Yoga Instructor</div></div></div>`);
-        } else if(testq==6) {
-            testq++;
-            $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">who anagram proposed heliocentric model santa   claus?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">william shakespeare</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">galileo</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">santa claus</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Aristarchus</div></div></div>`);
-        } else if(testq==7) {
-            testq++;
-            $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;"> who was the first disney princess </div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
-        } else if(testq==8) {
-            testq = 1;
-            $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">If X = 12, Y = 4, and Z= 8, what is Z times X divided by Y^2?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
-        }
+            } else if(testq==6) {
+                testq++;
+                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">what profession was indiana jones?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Bank Teller</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">Novelist</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">College Professor</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Yoga Instructor</div></div></div>`);
+            } else if(testq==7) {
+                testq++;
+                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">who anagram proposed heliocentric model santa   claus?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">william shakespeare</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">galileo</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">santa claus</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Aristarchus</div></div></div>`);
+            } else if(testq==8) {
+                testq++;
+                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;"> who was the first disney princess </div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
+            } else if(testq==9) {
+                testq = 1;
+                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">If X = 12, Y = 4, and Z= 8, what is Z times X divided by Y^2?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
+            }
         }
 
 
@@ -1611,8 +1685,12 @@ flex-basis: 50%;
             if (document.getElementById("dragme2")) {
                 document.getElementById("dragme2").onmousedown = dragMouseDown;
             }
-
-
+            if (document.getElementById("sorthead")) {
+                document.getElementById("sorthead").onmousedown = dragMouseDown;
+            }
+            if (document.getElementById("wolfhead")) {
+                document.getElementById("wolfhead").onmousedown = dragMouseDown;
+            }
             function dragMouseDown(e) {
                 if(e.target.id == "collapse") {
                     return;
@@ -1696,7 +1774,7 @@ flex-basis: 50%;
 
         var footballQ = (field) => {
             field = field.replace(/\s/gi, "+");
-            var dothis = (w, answer) => {
+            var dothis = (w, answer, i) => {
                 let p = answer.match(/\s\D*/gi);
                 if(p && p[0]) {
                     p = p[0];
@@ -1708,23 +1786,23 @@ flex-basis: 50%;
                     p = answer
                 }
                 if(searchtype.value == "manualoption" && words) {
-                    words.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg1=${answer}`;
+                    words.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${answer}`;
                 }
                 if(w) {
-                    w.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg1=${answer}`;
+                    w.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${answer}`;
                 }
             }
             if(lastans1 && op1.checked) {
-                dothis(ans1, lastans1)
+                dothis(ans1, lastans1, 1)
             }
             if(lastans2 && op2.checked) {
-                dothis(ans2, lastans2)
+                dothis(ans2, lastans2, 2)
             }
             if(lastans3 && op3.checked) {
-                dothis(ans3, lastans3)
+                dothis(ans3, lastans3, 3)
             }
             if(lastans4 && op4.checked) {
-                dothis(ans4, lastans4)
+                dothis(ans4, lastans4, 4)
             }
         }
 
@@ -2147,22 +2225,160 @@ flex-basis: 50%;
             }
         }
 
-        } else if(location.hostname.match(/wolframalpha.com/gi)) {
-            //alert(1)
-            /*var urlParams = new URLSearchParams(window.location.search);
-        var prepend = urlParams.get('prepend');
-        console.log(prepend)
-        console.log($("._2oXzi"))
-        //$("._9CcbX").text(prepend)
-        //$("._2oXzi").val(prepend)
+        } else if(location.hostname.match(/google.com/gi)) {
 
-        setTimeout(()=>{
-            $("._2oXzi").addClass("asdf focus-visible").val(prepend + " ").focus()
-            }, 1000);
-        setInterval(() => {
-            //$("input._2oXzi").addClass("focus-visible").val(prepend + " ")
-        }, 200)*/
+            var urlParams = new URLSearchParams(window.location.search);
+            var gbroadcast = urlParams.get('broadcast');
+            var brg1 = urlParams.get('brg1');
+            var brg2 = urlParams.get('brg2');
+            var brg3 = urlParams.get('brg3');
+            var brg4 = urlParams.get('brg4');
+
+            if(gbroadcast) {
+                //alert(1)
+
+                var gwaitbody = setInterval(() =>{
+                    var x = document.querySelector("body");
+                    if(x) {
+                        clearInterval(gwaitbody);
+                        gwaitbody=null;
+                        var imgArray = [];
+                        var imgJSON = {};
+                        var observer = new MutationObserver(function() {
+                            setTimeout(()=>{
+                                var origin=$("img[id^='lr_dct_img_origin_']");
+                                //console.log('found images', origin.length);
+
+                                var alldone = () => {
+                                    console.log('alldone')
+                                    imgArray.map((imgsrc, i) => {
+                                        var embeds= {
+                                            color: brg1 ? hexToDecimal("#6702fd") : brg2 ? hexToDecimal("#0622f9") : brg3 ? hexToDecimal("#09c5f6") : hexToDecimal("#08f77e"),
+                                            "title": `${brg1 ? 1 : brg2 ? 2 : brg3 ? 3 : 4}) ${brg1 || brg2 || brg3 || brg4}`,
+                                            "image": {
+                                                "url": imgJSON[i]
+                                            }
+                                        }
+                                        console.log(imgJSON[i])
+                                        sendWH(embeds)
+                                    });
+                                };
+
+                                $(origin).each((i, img) => {
+                                    //console.log(origin[1]);
+                                    if(!$(img).hasClass('broadcasted')) {
+                                        //console.log($(img).attr('id'));
+
+                                        var imgsrc = $(img).attr('src');
+                                        console.log(imgsrc)
+                                        if(imgsrc.indexOf("data:image/png;base64,") == 0) {
+                                            $(img).addClass('broadcasted');
+                                            imgsrc = imgsrc.replace("data:image/png;base64,", "")
+                                            let u = `https://www.base64decode.net/base64-image-decoder?brg=${brg1 ? 1 : brg2 ? 2 : brg3 ? 3 : 4}`;
+
+                                            const t = document.createElement('iframe');
+                                            t.width = "100%";
+                                            t.height = "200px";
+                                            t.id = "bsixtyfour";
+                                            t.name = "bsixtyfour";
+                                            t.src = u;
+                                            document.body.appendChild(t);
+                                            window.addEventListener('message', ({ data }) => {
+                                                if (data && data.eventType && data.eventType == 'b64loaded') {
+                                                    //console.log('iframe loaded')
+                                                    t.contentWindow.postMessage({
+                                                        'eventType': 'b64',
+                                                        "src": imgsrc,
+                                                        'option': brg1 ? 1 : brg2 ? 2 : brg3 ? 3 : 4,
+                                                        'word': brg1 || brg2 || brg3 || brg4
+                                                    }, '*')
+                                                }
+                                                if (data && data.eventType && data.eventType == 'b64cb') {
+                                                    //console.log(data.url)
+                                                    imgArray.push(data.url)
+                                                    imgJSON[i] = data.url;
+                                                    if(imgArray.length == origin.length) {
+                                                        alldone();
+                                                    }
+                                                }
+                                            });
+                                        } else if(imgsrc.indexOf("https://ssl.gstatic") == 0){
+                                            console.log('boom', imgsrc)
+                                            $(img).addClass('broadcasted');
+                                            //console.log(imgsrc)
+                                            if(imgsrc) {
+                                                var embeds= {
+                                                    color: brg1 ? hexToDecimal("#6702fd") : brg2 ? hexToDecimal("#0622f9") : brg3 ? hexToDecimal("#09c5f6") : hexToDecimal("#08f77e"),
+                                                    "title": `${brg1 ? 1 : brg2 ? 2 : brg3 ? 3 : 4}) ${brg1 || brg2 || brg3 || brg4}`,
+                                                    "image": {
+                                                        "url":imgsrc
+                                                    }
+                                                }
+                                                imgArray.push(imgsrc)
+                                                imgJSON[i] = imgsrc;
+                                                //console.log(imgArray.length, origin.length)
+                                                if(imgArray.length == origin.length) {
+                                                    alldone();
+                                                }
+                                                /*setTimeout(()=>{
+                                                    sendWH(embeds)
+                                                }, (((brg1 ? 1 : brg2 ? 2 : brg3 ? 3 : 4)) - 1) * 2000)*/
+                                            }
+                                        }
+                                    }
+                                });
+                            }, 0);
+                        });
+
+                        observer.observe(x, {characterData: true, subtree: true, childList: true, attributes: false});
+                    }
+                });
+
+            }
+
+        } else if(location.hostname.match(/www.base64decode.net/gi)) {
+            if($("#response").length == 0) {
+                var urlParamsb64 = new URLSearchParams(window.location.search);
+                var brg = urlParamsb64.get('brg');
+
+                window.addEventListener('message', ({ data }) => {
+                    if (data && data.eventType === 'b64' && data.option == brg) {
+                        setTimeout(()=>{
+                            $.ajax({
+                                type: "POST",
+                                url: 'https://www.base64decode.net/base64-image-decoder',
+                                data: {
+                                    request: data.src
+                                },
+                                success: (res) => {
+                                    var t = res.match(/https:\/\/cdn\.base64decode\.net\/images\/decode\/.*\.png/gi)
+                                    $("#left").append(`<div style='margin-top: 50px'>${data.src}</div><img src='${t[0]}' />`)
+                                    window.parent.postMessage({
+                                        eventType: 'b64cb',
+                                        url: t[0]
+                                    }, '*');
+                                    /*var embeds= {
+                                        color: data.option == 1 ? hexToDecimal("#6702fd") : data.option == 2 ? hexToDecimal("#0622f9") : data.option == 3 ? hexToDecimal("#09c5f6") : hexToDecimal("#08f77e"),
+                                        "title": `${data.option}) ${data.word}`,
+                                        "image": {
+                                            "url": t[0]
+                                        }
+                                    }
+                                    sendWH(embeds);*/
+                                },
+                                dataType: 'html'
+                            });
+                        }, (data.option - 1) * 2000);
+                    }
+                });
+
+                window.parent.postMessage({
+                    eventType: 'b64loaded',
+                }, '*');
+            } else {
+            }
         }
+
 });
 
 
