@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      1.99
+// @version      2.0
 // @description  try to take over the world!
 // @author       me
 // @include      https://*.ext-twitch.tv/*
@@ -33,6 +33,9 @@ font-family: Arial;
 #inputscont * {
 font-size: 10px;
 }
+.dragme {
+cursor: move;
+}
 #dragme {
 height: 14px;
 line-height: 14px;
@@ -41,7 +44,6 @@ padding-left:2px;
 text-align:left;
 background-color: black;
 color: white;
-cursor: move;
 font-family: Consolas, Arial;
 }
 #collapse {
@@ -53,7 +55,7 @@ float:right;
 font-family: Consolas, Arial;
 }
 
-#dragme2 {
+#dragme2, #dateshead, #measureshead {
 height: 14px;
 line-height: 14px;
 font-size: 11px;
@@ -62,8 +64,8 @@ padding-left:2px;
 text-align:left;
 background-color: black;
 color: white;
-cursor: move;
 font-family: Consolas, Arial;
+width:  100%;
 }
 
 #bing, #quotes, #broadcast {
@@ -187,7 +189,6 @@ height: 14px;
 line-height: 14px;
 font-size: 11px;
 width: 100%;
-cursor: move;
 font-family: Consolas, Arial;
 }
 #conversions .heading {
@@ -327,13 +328,13 @@ background-color: darkgrey;
                 } else {
                     $("body").prepend("<div id='inputscont'></div>");
                 }
-                $("#inputscont").append(`<div id='dragme'>Drag me ${GM_info.script.version}<span id='collapse'>[-]</span></div>`);
+                $("#inputscont").append(`<div id='dragme' class='dragme'>Drag me ${GM_info.script.version}<span id='collapse'>[-]</span></div>`);
                 $("#collapse").on("click", (e) => {
                     e.stopPropagation();
                     e.stopImmediatePropagation();
                     if($(e.target).html() == "[-]") {
                         $(e.target).html("[+]");
-                        $("#inputscont").css({"height": "15px", "overflow":"hidden"});
+                        $("#inputscont").css({"overflow":"hidden"}).animate({"height": "15px"}, "fast")
                     } else {
                         $(e.target).html("[-]");
                         $("#inputscont").css({"height": "auto", "overflow":"visible"});
@@ -569,35 +570,7 @@ background-color: darkgrey;
                 };
                 $("#wolfscrab").append(scrabble);
 
-                $("#inputscont").append(`<div id='agebd' class='triggers'></div>`);
-                age = document.createElement("button");
-                age.id = "age";
-                age.innerHTML = "age";
-                age.onclick = (e) => {
-                    age.value = true;
-                    forcemutate();
-                };
-                $("#agebd").append(age);
-
-                birthday = document.createElement("button");
-                birthday.id = "birthday";
-                birthday.innerHTML = "b-day";
-                birthday.onclick = (e) => {
-                    birthday.value = true;
-                    forcemutate();
-                };
-                $("#agebd").append(birthday);
-
-                $("#inputscont").append(`<div id='deathfounder' class='triggers'></div>`);
-                death = document.createElement("button");
-                death.id = "death";
-                death.innerHTML = "death";
-                death.onclick = (e) => {
-                    death.value = true;
-                    forcemutate();
-                };
-                $("#deathfounder").append(death);
-
+                $("#inputscont").append(`<div id='foundercontainer' class='triggers'></div>`);
                 founder = document.createElement("button");
                 founder.id = "founder";
                 founder.innerHTML = "founder";
@@ -605,7 +578,16 @@ background-color: darkgrey;
                     founder.value = true;
                     forcemutate();
                 };
-                $("#deathfounder").append(founder);
+                $("#foundercontainer").append(founder);
+
+                capacity = document.createElement("button");
+                capacity.id = "capacity";
+                capacity.innerHTML = "capacity";
+                capacity.onclick = (e) => {
+                    capacity.value = true;
+                    forcemutate();
+                };
+                $("#foundercontainer").append(capacity);
 
                 $("#inputscont").append(`<div id='flaglag' class='triggers'></div>`);
                 flag = document.createElement("button");
@@ -626,6 +608,44 @@ background-color: darkgrey;
                 };
                 $("#flaglag").append(lat);
 
+                $("#inputscont").append(`<div id='dates' class='dragme triggers'><div id='dateshead' class='heading'>Dates</div></div>`);
+                $("#inputscont").append(`<div id='agebd' class='triggers'></div>`);
+                age = document.createElement("button");
+                age.id = "age";
+                age.innerHTML = "age";
+                age.onclick = (e) => {
+                    age.value = true;
+                    forcemutate();
+                };
+                $("#agebd").append(age);
+
+                birthday = document.createElement("button");
+                birthday.id = "birthday";
+                birthday.innerHTML = "Born";
+                birthday.onclick = (e) => {
+                    birthday.value = true;
+                    forcemutate();
+                };
+                $("#agebd").append(birthday);
+
+                $("#inputscont").append(`<div id='deathcontainer' class='triggers'></div>`);
+                death = document.createElement("button");
+                death.id = "death";
+                death.innerHTML = "death";
+                death.onclick = (e) => {
+                    death.value = true;
+                    forcemutate();
+                };
+                $("#deathcontainer").append(death);
+                release = document.createElement("button");
+                release.id = "release";
+                release.innerHTML = "release";
+                release.onclick = (e) => {
+                    release.value = true;
+                    forcemutate();
+                };
+                $("#deathcontainer").append(release);
+
                 $("#inputscont").append(`<div id='openclose' class='triggers'></div>`);
                 opening = document.createElement("button");
                 opening.id = "opening";
@@ -645,25 +665,7 @@ background-color: darkgrey;
                 };
                 $("#openclose").append(closing);
 
-                $("#inputscont").append(`<div id='releasecap' class='triggers'></div>`);
-                release = document.createElement("button");
-                release.id = "release";
-                release.innerHTML = "release";
-                release.onclick = (e) => {
-                    release.value = true;
-                    forcemutate();
-                };
-                $("#releasecap").append(release);
-
-                capacity = document.createElement("button");
-                capacity.id = "capacity";
-                capacity.innerHTML = "capacity";
-                capacity.onclick = (e) => {
-                    capacity.value = true;
-                    forcemutate();
-                };
-                $("#releasecap").append(capacity);
-
+                $("#inputscont").append(`<div id='measures' class='dragme triggers'><div id='measureshead' class='heading'>Measures</div></div>`);
                 $("#inputscont").append(`<div id='heightlength' class='triggers'></div>`);
                 height = document.createElement("button");
                 height.id = "height";
@@ -721,7 +723,7 @@ background-color: darkgrey;
                 };
                 $("#areavol").append(volume);
 
-                $("#inputscont").append(`<div id='poke' class='triggers'><div id='sorthead' class='heading'>Sequential Sort</div></div>`);
+                $("#inputscont").append(`<div id='poke' class='triggers dragme'><div id='sorthead' class='heading'>Sequential Sort</div></div>`);
                 yellow = document.createElement("button");
                 yellow.id = "yellow";
                 yellow.innerHTML = "red blue green yellow fire leaf";
@@ -821,7 +823,7 @@ background-color: darkgrey;
                 };
                 $("#pvp").append(veep);
 
-                $("#poke").append(`<div id='conversions' class='triggers'><div id='wolfhead' class='heading'>Wolfram Conversion</div></div>`);
+                $("#poke").append(`<div id='conversions' class='triggers dragme'><div id='wolfhead' class='heading'>Wolfram Conversion</div></div>`);
 
                 $("#poke").append(`<div id='generalConver' class='triggers'></div>`);
                 genconversion = document.createElement("button");
@@ -923,7 +925,7 @@ background-color: darkgrey;
                 }
                 checkroles();
 
-                $("#inputscont").append(`<div id='dragme2'>[F9] to preload</div>`);
+                $("#inputscont").append(`<div id='dragme2' class='dragme'>[F9] to preload</div>`);
                 console.log(window.location);
                 if($(".Trivia-Wrapper").length == 0 && $("#root").length > 0 && window.top == window.self) {
                     tester = document.createElement("button");
@@ -1679,18 +1681,13 @@ background-color: darkgrey;
 
         function dragElement(elmnt) {
             var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            if (document.getElementById("dragme")) {
-                document.getElementById("dragme").onmousedown = dragMouseDown;
-            }
-            if (document.getElementById("dragme2")) {
-                document.getElementById("dragme2").onmousedown = dragMouseDown;
-            }
-            if (document.getElementById("sorthead")) {
-                document.getElementById("sorthead").onmousedown = dragMouseDown;
-            }
-            if (document.getElementById("wolfhead")) {
-                document.getElementById("wolfhead").onmousedown = dragMouseDown;
-            }
+            var t = document.getElementsByClassName("dragme")
+            t = Array.from(t)
+            t.map(el => {
+                el.onmousedown = dragMouseDown
+            });
+
+
             function dragMouseDown(e) {
                 if(e.target.id == "collapse") {
                     return;
