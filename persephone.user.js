@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.02
 // @description  try to take over the world!
 // @author       me
 // @include      https://*.ext-twitch.tv/*
@@ -245,7 +245,7 @@ background-color: darkgrey;
         var radioall, radioimg, radiomap, bing, google, quotes= null;
         var output, db;
         var btns, force, lock, combine = {}, birthday, age, death, young, capacity, opening, closing, dateof, release, phone, flag, lat, founder, cont;
-        var scrabble, scrabbleqs, length, height, width, depth, area, volume, football, basketball, hockey, soccer, genconversion, president, veep, etymology, tba;
+        var scrabble, scrabbleqs, length, height, width, depth, area, volume, football, basketball, hockey, soccer, genconversion, president, veep, etymology, capital, population, tba;
 
         var lastq = "", lastans1 = "", lastans2 = "", lastans3 = "", lastans4 = "", qnum=null;
         var w = 700;
@@ -490,27 +490,27 @@ background-color: darkgrey;
                 };
                 $("#roles").append(op4);
 
-                $("#inputscont").append(`<div id='etymologyDIV' class='nontriggers'></div>`);
+                $("#inputscont").append(`<div id='etymologyDIV' class='triggers'></div>`);
                 etymology = document.createElement("button");
                 etymology.id = "etymology";
                 etymology.innerHTML = "Etym";
                 etymology.onclick = (e) => {
-                    if(bing.checked) {
-                        bing.click()
+                    if(qencoded) {
+                        etymology.value = true;
+                        forcemutate();
                     }
-                    etymology.value = true;
-                    forcemutate();
                 };
                 $("#etymologyDIV").append(etymology);
-
-                tba = document.createElement("button");
-                tba.id = "";
-                tba.innerHTML = "";
-                tba.disabled = true;
-                tba.onclick = (e) => {
-                    //footballQ("asdf");
+                founder = document.createElement("button");
+                founder.id = "founder";
+                founder.innerHTML = "founder";
+                founder.onclick = (e) => {
+                    if(qencoded) {
+                        founder.value = true;
+                        forcemutate();
+                    }
                 };
-                $("#etymologyDIV").append(tba);
+                $("#etymologyDIV").append(founder);
 
                 $("#inputscont").append(`<div id='wolfscrab' class='nontriggers'></div>`);
                 wolfram = document.createElement("button");
@@ -518,12 +518,13 @@ background-color: darkgrey;
                 wolfram.innerHTML = "wolfram";
                 wolfram.onclick = (e) => {
                     if(words) {
-                        words.location.href = `https://www.wolframalpha.com/input/?i=${qencoded}`;
+                        words.location.href = `https://www.wolframalpha.com/input/?i=${qencoded}${broadcast.checked ? `&broadcast=true` : ``}`;
                     }
                 };
                 $("#wolfscrab").append(wolfram);
 
                 scrabble = document.createElement("button");
+                scrabble.className = 'triggers';
                 scrabble.id = "scrabble";
                 scrabble.innerHTML = "scrabble";
                 scrabble.onclick = (e) => {
@@ -570,32 +571,39 @@ background-color: darkgrey;
                 };
                 $("#wolfscrab").append(scrabble);
 
-                $("#inputscont").append(`<div id='foundercontainer' class='triggers'></div>`);
-                founder = document.createElement("button");
-                founder.id = "founder";
-                founder.innerHTML = "founder";
-                founder.onclick = (e) => {
-                    founder.value = true;
-                    forcemutate();
+                $("#inputscont").append(`<div id='capitalDiv' class='triggers'></div>`);
+                capital = document.createElement("button");
+                capital.id = "capital";
+                capital.innerHTML = "capital";
+                capital.onclick = (e) => {
+                    if(qencoded) {
+                        capital.value = true;
+                        forcemutate();
+                    }
                 };
-                $("#foundercontainer").append(founder);
+                $("#capitalDiv").append(capital);
 
-                capacity = document.createElement("button");
-                capacity.id = "capacity";
-                capacity.innerHTML = "capacity";
-                capacity.onclick = (e) => {
-                    capacity.value = true;
-                    forcemutate();
+                population
+                population = document.createElement("button");
+                population.id = "population";
+                population.innerHTML = "population";
+                population.onclick = (e) => {
+                    if(qencoded) {
+                        population.value = true;
+                        forcemutate();
+                    }
                 };
-                $("#foundercontainer").append(capacity);
+                $("#capitalDiv").append(population);
 
                 $("#inputscont").append(`<div id='flaglag' class='triggers'></div>`);
                 flag = document.createElement("button");
                 flag.id = "flag";
                 flag.innerHTML = "flag";
                 flag.onclick = (e) => {
-                    flag.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        flag.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#flaglag").append(flag);
 
@@ -603,8 +611,10 @@ background-color: darkgrey;
                 lat.id = "lat";
                 lat.innerHTML = "lat-lng";
                 lat.onclick = (e) => {
-                    lat.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        lat.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#flaglag").append(lat);
 
@@ -614,8 +624,10 @@ background-color: darkgrey;
                 age.id = "age";
                 age.innerHTML = "age";
                 age.onclick = (e) => {
-                    age.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        age.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#agebd").append(age);
 
@@ -623,8 +635,10 @@ background-color: darkgrey;
                 birthday.id = "birthday";
                 birthday.innerHTML = "Born";
                 birthday.onclick = (e) => {
-                    birthday.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        birthday.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#agebd").append(birthday);
 
@@ -633,16 +647,20 @@ background-color: darkgrey;
                 death.id = "death";
                 death.innerHTML = "death";
                 death.onclick = (e) => {
-                    death.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        death.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#deathcontainer").append(death);
                 release = document.createElement("button");
                 release.id = "release";
                 release.innerHTML = "release";
                 release.onclick = (e) => {
-                    release.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        release.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#deathcontainer").append(release);
 
@@ -651,8 +669,10 @@ background-color: darkgrey;
                 opening.id = "opening";
                 opening.innerHTML = "opening";
                 opening.onclick = (e) => {
-                    opening.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        opening.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#openclose").append(opening);
 
@@ -660,57 +680,70 @@ background-color: darkgrey;
                 closing.id = "closing";
                 closing.innerHTML = "closing";
                 closing.onclick = (e) => {
-                    closing.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        closing.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#openclose").append(closing);
 
                 $("#inputscont").append(`<div id='measures' class='dragme triggers'><div id='measureshead' class='heading'>Measures</div></div>`);
-                $("#inputscont").append(`<div id='heightlength' class='triggers'></div>`);
+                $("#inputscont").append(`<div id='heightwidth' class='triggers'></div>`);
                 height = document.createElement("button");
                 height.id = "height";
                 height.innerHTML = "height";
                 height.onclick = (e) => {
-                    height.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        height.value = true;
+                        forcemutate();
+                    }
                 };
-                $("#heightlength").append(height);
+                $("#heightwidth").append(height);
 
-                length = document.createElement("button");
-                length.id = "length";
-                length.innerHTML = "length";
-                length.onclick = (e) => {
-                    length.value = true;
-                    forcemutate();
-                };
-                $("#heightlength").append(length);
-
-                $("#inputscont").append(`<div id='widthdepth' class='triggers'></div>`);
                 width = document.createElement("button");
                 width.id = "width";
                 width.innerHTML = "width";
                 width.onclick = (e) => {
-                    width.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        width.value = true;
+                        forcemutate();
+                    }
                 };
-                $("#widthdepth").append(width);
+                $("#heightwidth").append(width);
+
+
+                $("#inputscont").append(`<div id='lengthdepth' class='triggers'></div>`);
+                length = document.createElement("button");
+                length.id = "length";
+                length.innerHTML = "length";
+                length.onclick = (e) => {
+                    if(qencoded) {
+                        length.value = true;
+                        forcemutate();
+                    }
+                };
+                $("#lengthdepth").append(length);
 
                 depth = document.createElement("button");
                 depth.id = "depth";
                 depth.innerHTML = "depth";
                 depth.onclick = (e) => {
-                    depth.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        depth.value = true;
+                        forcemutate();
+                    }
                 };
-                $("#widthdepth").append(depth);
+                $("#lengthdepth").append(depth);
 
                 $("#inputscont").append(`<div id='areavol' class='triggers'></div>`);
                 area = document.createElement("button");
                 area.id = "area";
                 area.innerHTML = "area";
                 area.onclick = (e) => {
-                    area.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        area.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#areavol").append(area);
 
@@ -718,10 +751,36 @@ background-color: darkgrey;
                 volume.id = "volume";
                 volume.innerHTML = "volume";
                 volume.onclick = (e) => {
-                    volume.value = true;
-                    forcemutate();
+                    if(qencoded) {
+                        volume.value = true;
+                        forcemutate();
+                    }
                 };
                 $("#areavol").append(volume);
+
+                $("#inputscont").append(`<div id='capacityDiv' class='triggers'></div>`);
+                capacity = document.createElement("button");
+                capacity.id = "capacity";
+                capacity.innerHTML = "capacity";
+                capacity.onclick = (e) => {
+                    if(qencoded) {
+                        capacity.value = true;
+                        forcemutate();
+                    }
+                };
+                $("#capacityDiv").append(capacity);
+
+                tba = document.createElement("button");
+                tba.disabled = true;
+                tba.id = "tba";
+                tba.innerHTML = "";
+                tba.onclick = (e) => {
+                    if(qencoded) {
+                        tba.value = true;
+                        forcemutate();
+                    }
+                };
+                $("#capacityDiv").append(tba);
 
                 $("#inputscont").append(`<div id='poke' class='triggers dragme'><div id='sorthead' class='heading'>Sequential Sort</div></div>`);
                 yellow = document.createElement("button");
@@ -926,7 +985,7 @@ background-color: darkgrey;
                 checkroles();
 
                 $("#inputscont").append(`<div id='dragme2' class='dragme'>[F9] to preload</div>`);
-                console.log(window.location);
+
                 if($(".Trivia-Wrapper").length == 0 && $("#root").length > 0 && window.top == window.self) {
                     tester = document.createElement("button");
                     tester.innerHTML = "test";
@@ -1165,6 +1224,10 @@ background-color: darkgrey;
                                     qtype = "etymology";
                                     etymology.value = "false";
                                 }
+                                if(capital && capital.value == "true") {
+                                    qtype = "capital";
+                                    capital.value = "false";
+                                }
                                 if(age && age.value == "true") {
                                     qtype = "age";
                                     age.value = "false";
@@ -1259,7 +1322,10 @@ background-color: darkgrey;
                                 let highlight = combine && combine.checked ? `&brg${i+1}=${answer}&brgq=${answerquestion}` : `&brg${i+1}=${answer}`;
                                 switch(qtype) {
                                     case 'etymology':
-                                        href = `${enginemain}etymology ${answer} ${highlight}${broadcast.checked ? `&broadcast=true` : ``}`;
+                                        href = `${googlemain}etymology ${answer} ${highlight}${broadcast.checked ? `&broadcast=true` : ``}`;
+                                        break;
+                                    case 'capital':
+                                        href = `${enginemain}capital of ${answer} ${highlight}`;
                                         break;
                                     case 'anagram':
                                         href = `https://anagram-solver.net/${a.innerText}#${highlight}`;
@@ -1782,11 +1848,11 @@ background-color: darkgrey;
                 } else {
                     p = answer
                 }
-                if(searchtype.value == "manualoption" && words) {
+                if (searchtype.value == "manualoption" && words) {
                     words.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${answer}`;
                 }
-                if(w) {
-                    w.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${answer}`;
+                if (w) {
+                    w.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${answer}${broadcast.checked ? '&broadcast=true' : ''}`;
                 }
             }
             if(lastans1 && op1.checked) {
@@ -1801,6 +1867,7 @@ background-color: darkgrey;
             if(lastans4 && op4.checked) {
                 dothis(ans4, lastans4, 4)
             }
+            //KVA92J-2YR6GWYV9A
         }
 
 
@@ -2256,7 +2323,7 @@ background-color: darkgrey;
                                                 "url": imgJSON[i]
                                             }
                                         }
-                                        console.log(imgJSON[i])
+                                        //console.log(imgJSON[i])
                                         sendWH(embeds)
                                     });
                                 };
