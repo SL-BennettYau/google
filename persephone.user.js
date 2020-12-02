@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      2.02
+// @version      2.03
 // @description  try to take over the world!
 // @author       me
 // @include      https://*.ext-twitch.tv/*
@@ -490,28 +490,6 @@ background-color: darkgrey;
                 };
                 $("#roles").append(op4);
 
-                $("#inputscont").append(`<div id='etymologyDIV' class='triggers'></div>`);
-                etymology = document.createElement("button");
-                etymology.id = "etymology";
-                etymology.innerHTML = "Etym";
-                etymology.onclick = (e) => {
-                    if(qencoded) {
-                        etymology.value = true;
-                        forcemutate();
-                    }
-                };
-                $("#etymologyDIV").append(etymology);
-                founder = document.createElement("button");
-                founder.id = "founder";
-                founder.innerHTML = "founder";
-                founder.onclick = (e) => {
-                    if(qencoded) {
-                        founder.value = true;
-                        forcemutate();
-                    }
-                };
-                $("#etymologyDIV").append(founder);
-
                 $("#inputscont").append(`<div id='wolfscrab' class='nontriggers'></div>`);
                 wolfram = document.createElement("button");
                 wolfram.id = "wolfram";
@@ -570,6 +548,28 @@ background-color: darkgrey;
                     }
                 };
                 $("#wolfscrab").append(scrabble);
+
+                $("#inputscont").append(`<div id='etymologyDIV' class='triggers'></div>`);
+                etymology = document.createElement("button");
+                etymology.id = "etymology";
+                etymology.innerHTML = "Etym";
+                etymology.onclick = (e) => {
+                    if(qencoded) {
+                        etymology.value = true;
+                        forcemutate();
+                    }
+                };
+                $("#etymologyDIV").append(etymology);
+                founder = document.createElement("button");
+                founder.id = "founder";
+                founder.innerHTML = "founder";
+                founder.onclick = (e) => {
+                    if(qencoded) {
+                        founder.value = true;
+                        forcemutate();
+                    }
+                };
+                $("#etymologyDIV").append(founder);
 
                 $("#inputscont").append(`<div id='capitalDiv' class='triggers'></div>`);
                 capital = document.createElement("button");
