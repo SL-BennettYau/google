@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         persephone
 // @namespace    http://tampermonkey.net/
-// @version      2.03
+// @version      2.05
 // @description  try to take over the world!
 // @author       me
 // @include      https://*.ext-twitch.tv/*
@@ -26,6 +26,7 @@ left:0;
 background-color: rgba(0,0,0,0.5);
 font-size: 10px;
 font-family: Arial;
+width: 115px;
 -webkit-user-select: none;
 -moz-user-select: none;
 -ms-user-select: none;
@@ -181,6 +182,23 @@ border-left: none;
 margin-left: 0;
 padding: 0 0px;
 overflow: hidden;
+}
+#pokemonlabel {
+    font-family: Consolas;
+    position: absolute;
+    top: 0px;
+    left: 246%;
+    width: 15px;
+    flex-direction: column;
+    justify-content: center;
+    height: 223px;
+    text-align: center;
+    color: white;
+    padding-top: 9px;
+    background-color: rgba(0,0,0,1.0);
+}
+#pokemonlabel *{
+font-size: 13px;
 }
 #poke .heading {
 background-color: black;
@@ -508,36 +526,36 @@ background-color: darkgrey;
                 scrabble.onclick = (e) => {
                     scrabbleqs = "?";
                     if(lastans1) {
-                        scrabbleqs += `&brg1=${lastans1.replace(/,|\s/gi,"")}`
+                        scrabbleqs += `&brg1=${lastans1.replace(/\W|\d/gi,"")}`
                     }
                     if(lastans2) {
-                        scrabbleqs += `&brg2=${lastans2.replace(/,|\s/gi,"")}`
+                        scrabbleqs += `&brg2=${lastans2.replace(/\W|\d/gi,"")}`
                     }
                     if(lastans3) {
-                        scrabbleqs += `&brg3=${lastans3.replace(/,|\s/gi,"")}`
+                        scrabbleqs += `&brg3=${lastans3.replace(/\W|\d/gi,"")}`
                     }
                     if(lastans4) {
-                        scrabbleqs += `&brg4=${lastans4.replace(/,|\s/gi,"")}`
+                        scrabbleqs += `&brg4=${lastans4.replace(/\W|\d/gi,"")}`
                     }
                     if(words) {
                         if(searchtype.value == "auto") {
-                            words.location.href = `https://www.anagrammer.com/scrabble-score-calculator/${scrabbleqs}`;
+                            words.location.href = `https://www.anagrammer.com/scrabble-score-calculator/${scrabbleqs}${broadcast.checked ? `&broadcast=true` : ``}`;
                         } else if(searchtype.value == "manualoption") {
                             var scrabbleword = ""
-                            if(op1 && op1.checked) scrabbleword = lastans1.replace(/,|\s/gi,"");
-                            if(op2 && op2.checked) scrabbleword = lastans2.replace(/,|\s/gi,"");
-                            if(op3 && op3.checked) scrabbleword = lastans3.replace(/,|\s/gi,"");
-                            if(op4 && op4.checked) scrabbleword = lastans4.replace(/,|\s/gi,"");
+                            if(op1 && op1.checked) scrabbleword = lastans1.replace(/\W|\d/gi,"");
+                            if(op2 && op2.checked) scrabbleword = lastans2.replace(/\W|\d/gi,"");
+                            if(op3 && op3.checked) scrabbleword = lastans3.replace(/\W|\d/gi,"");
+                            if(op4 && op4.checked) scrabbleword = lastans4.replace(/\W|\d/gi,"");
                             if(scrabbleword) {
                                 words.location.href = `https://www.anagrammer.com/scrabble-score-calculator/scrabble/${scrabbleword}`;
                             }
                         }
                     }
                     var scrabbleArray = []
-                    if(lastans1) scrabbleArray.push(lastans1.replace(/,|\s/gi,""));
-                    if(lastans2) scrabbleArray.push(lastans2.replace(/,|\s/gi,""));
-                    if(lastans3) scrabbleArray.push(lastans3.replace(/,|\s/gi,""));
-                    if(lastans4) scrabbleArray.push(lastans4.replace(/,|\s/gi,""));
+                    if(lastans1) scrabbleArray.push(lastans1.replace(/\W|\d/gi,""));
+                    if(lastans2) scrabbleArray.push(lastans2.replace(/\W|\d/gi,""));
+                    if(lastans3) scrabbleArray.push(lastans3.replace(/\W|\d/gi,""));
+                    if(lastans4) scrabbleArray.push(lastans4.replace(/\W|\d/gi,""));
                     if(scrabbleArray && scrabbleArray.length > 0) {
                         scrabbleArray.sort((a, b) => {return scrabbleScore(b.toLowerCase().trim()) - scrabbleScore(a.trim().toLowerCase())});
                         var scrabscore = ""
@@ -618,7 +636,7 @@ background-color: darkgrey;
                 };
                 $("#flaglag").append(lat);
 
-                $("#inputscont").append(`<div id='dates' class='dragme triggers'><div id='dateshead' class='heading'>Dates</div></div>`);
+                $("#inputscont").append(`<div id='dates' class='triggers'><div id='dateshead' class='heading dragme'>Dates</div></div>`);
                 $("#inputscont").append(`<div id='agebd' class='triggers'></div>`);
                 age = document.createElement("button");
                 age.id = "age";
@@ -687,7 +705,7 @@ background-color: darkgrey;
                 };
                 $("#openclose").append(closing);
 
-                $("#inputscont").append(`<div id='measures' class='dragme triggers'><div id='measureshead' class='heading'>Measures</div></div>`);
+                $("#inputscont").append(`<div id='measures' class='triggers'><div id='measureshead' class='heading dragme'>Measures</div></div>`);
                 $("#inputscont").append(`<div id='heightwidth' class='triggers'></div>`);
                 height = document.createElement("button");
                 height.id = "height";
@@ -782,12 +800,13 @@ background-color: darkgrey;
                 };
                 $("#capacityDiv").append(tba);
 
-                $("#inputscont").append(`<div id='poke' class='triggers dragme'><div id='sorthead' class='heading'>Sequential Sort</div></div>`);
+                $("#inputscont").append(`<div id='poke' class='triggers'><div id='sorthead' class='heading dragme'>Sequential Sort</div></div>`);
+                $("#inputscont").append(`<div id='pokemonlabel' class='triggers dragme'><div>p</div><div>o</div><div>k</div><div>e</div><div>m</div><div>o</div><div>n</div></div>`);
                 yellow = document.createElement("button");
                 yellow.id = "yellow";
                 yellow.innerHTML = "red blue green yellow fire leaf";
                 yellow.onclick = (e) => {
-                    checkPokemon("yellow")
+                    checkPokemon("yellow", e.target.innerHTML)
                 };
                 $("#poke").append(yellow);
 
@@ -795,7 +814,7 @@ background-color: darkgrey;
                 omega.id = "omega";
                 omega.innerHTML = "omega ruby alpha sapphire";
                 omega.onclick = (e) => {
-                    checkPokemon("omega")
+                    checkPokemon("omega", e.target.innerHTML)
                 };
                 $("#poke").append(omega);
 
@@ -803,7 +822,7 @@ background-color: darkgrey;
                 heartgold.id = "heartgold";
                 heartgold.innerHTML = "heart soul silver crystal gold";
                 heartgold.onclick = (e) => {
-                    checkPokemon("heartgold")
+                    checkPokemon("heartgold", e.target.innerHTML)
                 };
                 $("#poke").append(heartgold);
 
@@ -811,7 +830,7 @@ background-color: darkgrey;
                 letsgo.id = "letsgo";
                 letsgo.innerHTML = "lets go pikachu eevee";
                 letsgo.onclick = (e) => {
-                    checkPokemon("letsgo")
+                    checkPokemon("letsgo", e.target.innerHTML)
                 };
                 $("#poke").append(letsgo);
 
@@ -819,7 +838,7 @@ background-color: darkgrey;
                 sword.id = "sword";
                 sword.innerHTML = "sword shield";
                 sword.onclick = (e) => {
-                    checkPokemon("sword")
+                    checkPokemon("sword", e.target.innerHTML)
                 };
                 $("#poke").append(sword);
 
@@ -828,7 +847,7 @@ background-color: darkgrey;
                 black.id = "black";
                 black.innerHTML = "black white";
                 black.onclick = (e) => {
-                    checkPokemon("black")
+                    checkPokemon("black", e.target.innerHTML)
                 };
                 $("#bw").append(black);
 
@@ -836,7 +855,7 @@ background-color: darkgrey;
                 black2.id = "black2";
                 black2.innerHTML = "black2 white2";
                 black2.onclick = (e) => {
-                    checkPokemon("black2")
+                    checkPokemon("black2", e.target.innerHTML)
                 };
                 $("#bw").append(black2);
 
@@ -845,7 +864,7 @@ background-color: darkgrey;
                 platinum.id = "platinum";
                 platinum.innerHTML = "platinum";
                 platinum.onclick = (e) => {
-                    checkPokemon("platinum")
+                    checkPokemon("platinum", e.target.innerHTML)
                 };
                 $("#platem").append(platinum);
 
@@ -853,7 +872,7 @@ background-color: darkgrey;
                 emerald.id = "emerald";
                 emerald.innerHTML = "emerald";
                 emerald.onclick = (e) => {
-                    checkPokemon("emerald")
+                    checkPokemon("emerald", e.target.innerHTML)
                 };
                 $("#platem").append(emerald);
 
@@ -861,7 +880,7 @@ background-color: darkgrey;
                 x.id = "x";
                 x.innerHTML = "X Y";
                 x.onclick = (e) => {
-                    checkPokemon("x")
+                    checkPokemon("x", e.target.innerHTML)
                 };
                 $("#poke").append(x);
 
@@ -870,7 +889,7 @@ background-color: darkgrey;
                 president.id = "president";
                 president.innerHTML = "president";
                 president.onclick = (e) => {
-                    checkPresidents(presidentsdb);
+                    checkPresidents(presidentsdb, e.target.innerHTML);
                 };
                 $("#pvp").append(president);
 
@@ -878,11 +897,11 @@ background-color: darkgrey;
                 veep.id = "veep";
                 veep.innerHTML = "veep";
                 veep.onclick = (e) => {
-                    checkPresidents(vp);
+                    checkPresidents(vp, e.target.innerHTML);
                 };
                 $("#pvp").append(veep);
 
-                $("#poke").append(`<div id='conversions' class='triggers dragme'><div id='wolfhead' class='heading'>Wolfram Conversion</div></div>`);
+                $("#poke").append(`<div id='conversions' class='triggers'><div id='wolfhead' class='heading dragme'>Wolfram Conversion</div></div>`);
 
                 $("#poke").append(`<div id='generalConver' class='triggers'></div>`);
                 genconversion = document.createElement("button");
@@ -990,6 +1009,7 @@ background-color: darkgrey;
                     tester = document.createElement("button");
                     tester.innerHTML = "test";
                     tester.onclick = (e) => {
+                        window.resizeTo(100, 100)
                         openwindows();
                         if(cycle) {
                             clearInterval(cycle);
@@ -1601,7 +1621,8 @@ background-color: darkgrey;
                             }
                         }
                         //RIGHCTRL flip image
-                        if(evt.keyCode == 17 && GM_info.script.version < 5.0 && searchtype && searchtype.value == "auto") {
+                        //console.log(evt.keyCode, evt.location)
+                        if(evt.keyCode == 17 && evt.location == 2 && GM_info.script.version < 5.0 && searchtype && searchtype.value == "auto") {
                             if(ans1 && lastans1) {
                                 if(!urlImages[1].match(/&tbm=isch/gi)) {
                                     let u = `${urlImages[1]}&tbm=isch`;
@@ -1653,94 +1674,77 @@ background-color: darkgrey;
             }
         }, 1000);
 
-        var testinterval = () => {
-            if(testq==1) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
-<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">what is the country of origin?</div>
+        var sampleqs = [
+            `<div class="trivia-question" style="font-size: 20px;">what is the country of origin?</div>
 <div class="trivia-answers-wrapper">
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
-<div class="trivia-answer-text">waffle</div>
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
+<div class="trivia-answer-text">testwaf, f&l1234e</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">clutch</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer users-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">boob</div>
 </div>
-</div>`);
-            } else if(testq==2) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
-<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">Which presidential order is correct?</div>
+</div>`,
+            `<div class="trivia-question" style="font-size: 20px;">Which presidential order is correct?</div>
 <div class="trivia-answers-wrapper">
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">washington, trump, obama</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">adams, morton, bush</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer users-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">John Adams, george bush, donald trump</div>
 </div>
-</div>`);
-            } else if(testq==3) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
-<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">How long is a football field?</div>
+</div>`,
+`<div class="trivia-question" style="font-size: 20px;">How long is a football field?</div>
 <div class="trivia-answers-wrapper">
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">6000 inches</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">0.07 miles</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer users-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">91K milimeters</div>
 </div>
-</div>`);
-            } else if(testq==4) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
-<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">Which is the correct gym order in Pokemon Black two?</div>
+</div>`,
+            `<div class="trivia-question" style="font-size: 20px;">Which is the correct gym order in Pokemon Black two?</div>
 <div class="trivia-answers-wrapper">
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">Cheren, Humilau , Marshal</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text"> Nessa   , melony, Raihan</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer users-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">Erika, Koga, Sabrina</div>
 </div>
-</div>`);
-            } else if(testq==5) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div>
-<div class="trivia-question" style="font-size: 1.25vw;text-align:center;">Which is the correct gym order in Pokemon derp?</div>
+</div>`,
+            `<div class="trivia-question" style="font-size: 20px;">Which is the correct gym order in Pokemon derp?</div>
 <div class="trivia-answers-wrapper">
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text">Brock, Erika, Lt. Surge</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;">
+<div title="" class="trivia-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text"> Misty, Koga, Erika</div>
 </div>
-<div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;">
+<div title="" class="trivia-answer users-answer click-disabled" style="font-size: 20px;">
 <div class="trivia-answer-text"> Misty, Lt. Surge, Koga   </div>
 </div>
-</div>`);
-            } else if(testq==6) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">what profession was indiana jones?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Bank Teller</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">Novelist</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">College Professor</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Yoga Instructor</div></div></div>`);
-            } else if(testq==7) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">who anagram proposed heliocentric model santa   claus?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">william shakespeare</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">galileo</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center users-answer click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">santa claus</div></div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">Aristarchus</div></div></div>`);
-            } else if(testq==8) {
-                testq++;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;"> who was the first disney princess </div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
-            } else if(testq==9) {
-                testq = 1;
-                $("#root").html(`<div class="trivia-subtitle-text">Question ${testq-1}</div><div class="trivia-question" style="font-size: 1.25vw;text-align:center;">If X = 12, Y = 4, and Z= 8, what is Z times X divided by Y^2?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.2vw; line-height: 1.2vw;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer d-flex align-items-center justify-content-center click-disabled" style="font-size: 1.3vw; line-height: 1.3vw;"> <div class="trivia-answer-text">persephone</div> </div> </div>`);
+</div>`,
+            `<div class="trivia-question" style="font-size: 20px;">what profession was indiana jones?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">Bank Teller</div></div> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">Novelist</div></div> <div title="" class="trivia-answer users-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">College Professor</div></div> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">Yoga Instructor</div></div></div>`,
+            `<div class="trivia-question" style="font-size: 20px;">who anagram proposed heliocentric model santa   claus?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">william shakespeare</div></div> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">galileo</div></div> <div title="" class="trivia-answer users-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">santa claus</div></div> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">Aristarchus</div></div></div>`,
+            `<div class="trivia-question" style="font-size: 20px;"> who was the first disney princess </div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">persephone</div> </div> </div>`,
+            `<div class="trivia-question" style="font-size: 20px;">If X = 12, Y = 4, and Z= 8, what is Z times X divided by Y^2?</div> <div class="trivia-answers-wrapper"> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">snow white</div> </div> <div title="" class="trivia-answer click-disabled" style="font-size: 20px;"> <div class="trivia-answer-text">persephone</div> </div> </div>`,
+        ];
+        var testinterval = () => {
+            $("#root").html(`<div style="text-align:right"><div class="trivia-subtitle-text">Question ${testq}</div>${sampleqs[testq-1]}</div>`);
+            testq++;
+            if(!sampleqs[testq-1]){
+                testq=1;
             }
         }
 
@@ -1788,18 +1792,20 @@ background-color: darkgrey;
             }
         }
 
-        var sendAnswerNotFound = () => {
-            var myEmbed = {
-                color: hexToDecimal("#cc0000"),
-                fields: [
-                    {
-                        name: `Correct Answer [${decodeURIComponent(qencoded)}]`,
-                        value: `NOT FOUND`,
-                        inline: false
-                    }
-                ]
+        var sendAnswerNotFound = (key) => {
+            if(broadcast.checked) {
+                var myEmbed = {
+                    color: hexToDecimal("#cc0000"),
+                    fields: [
+                        {
+                            name: `Correct Answer [${decodeURIComponent(qencoded)}]\n[db = ${key}]\n`,
+                            value: `NOT FOUND`,
+                            inline: false
+                        }
+                    ]
+                }
+                sendWH(myEmbed);
             }
-            sendWH(myEmbed);
         }
 
         const newAlphabet = {
@@ -1838,7 +1844,7 @@ background-color: darkgrey;
         var footballQ = (field) => {
             field = field.replace(/\s/gi, "+");
             var dothis = (w, answer, i) => {
-                let p = answer.match(/\s\D*/gi);
+                let p = answer.match(/\s*\D*$/gi);
                 if(p && p[0]) {
                     p = p[0];
                     if(p.indexOf(" ") > -1){
@@ -1849,10 +1855,11 @@ background-color: darkgrey;
                     p = answer
                 }
                 if (searchtype.value == "manualoption" && words) {
-                    words.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${answer}`;
+                    words.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${encodeURIComponent(answer)}`;
                 }
                 if (w) {
-                    w.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${answer}${broadcast.checked ? '&broadcast=true' : ''}`;
+                    //console.log(answer)
+                    w.location.href = `https://www.wolframalpha.com/input/?i=${field}+to+${p.trim()}&brg${i}=${encodeURIComponent(answer)}${broadcast.checked ? '&broadcast=true' : ''}`;
                 }
             }
             if(lastans1 && op1.checked) {
@@ -1867,11 +1874,12 @@ background-color: darkgrey;
             if(lastans4 && op4.checked) {
                 dothis(ans4, lastans4, 4)
             }
+            // https://developer.wolframalpha.com/portal/myapps/
             //KVA92J-2YR6GWYV9A
         }
 
 
-        var checkOrder = (db, a, i) => {
+        var checkOrder = (db, a, i, key) => {
             let order = a.split(",");
             //console.log(order)
             let index = 0;
@@ -1891,12 +1899,12 @@ background-color: darkgrey;
                     isOrdered = false;
                 }
             });
-            if(isOrdered) {
+            if(isOrdered && broadcast.checked) {
                 var myEmbed = {
                     color: hexToDecimal("#00FF00"),
                     fields: [
                         {
-                            name: `Correct Answer [${decodeURIComponent(qencoded)}]`,
+                            name: `Correct Answer [${decodeURIComponent(qencoded)}]\n[db = ${key}]`,
                             value: `${i}: ${a}`,
                             inline: false
                         }
@@ -1908,43 +1916,46 @@ background-color: darkgrey;
             return isOrdered;
         }
 
-        var checkPokemon = (forcekey) => {
+        var checkPokemon = (forcekey, innerhtml) => {
             try{
+                //                console.log('forcekey', forcekey)
                 let decodedq = decodeURIComponent(qencoded);
                 var myRegexp = /pokemon\s*(\w*)\s*(\w*\d*)*/gi;
                 var match = myRegexp.exec(decodedq);
                 if((match && match[1]) || forcekey) {
                     let key = forcekey || null;
-                    if(match && match[1]) {
+                    if(!forcekey && match && match[1]) {
                         key = forcekey || match[1].toLowerCase().trim();
+                        //console.log(key);
+                        //console.log(match)
 
                         if((key == "black" || key == "white") && match[2]) {
                             let key2 = match[2].toLowerCase().trim();
                             if(key2 == "two" || key2 == "2") {
                                 key = "black2"
-                                console.log(key);
+                                //console.log(key);
                             }
                         }
                     }
-                    console.log(key);
+                    //console.log('final key', key);
                     //console.log(pokedex[key])
                     let c1, c2, c3, c4;
                     if(pokedex[key]) {
                         if(lastans1) {
-                            c1 = checkOrder(pokedex[key], lastans1, 1);
+                            c1 = checkOrder(pokedex[key], lastans1, 1, innerhtml || key);
                         }
                         if(lastans2) {
-                            c2 = checkOrder(pokedex[key], lastans2, 2);
+                            c2 = checkOrder(pokedex[key], lastans2, 2, innerhtml || key);
                         }
                         if(lastans3) {
-                            c3 = checkOrder(pokedex[key], lastans3, 3);
+                            c3 = checkOrder(pokedex[key], lastans3, 3, innerhtml || key);
                         }
                         if(lastans4) {
-                            c4 = checkOrder(pokedex[key], lastans4, 4);
+                            c4 = checkOrder(pokedex[key], lastans4, 4, innerhtml || key);
                         }
                     }
                     if(qencoded && !c1 && !c2 && !c3 && !c4) {
-                        sendAnswerNotFound();
+                        sendAnswerNotFound(innerhtml || key);
                     }
                 }
             } catch(e){
@@ -2270,22 +2281,22 @@ background-color: darkgrey;
             "Kamala Harris"
         ];
 
-        var checkPresidents = (db) => {
+        var checkPresidents = (db, innerhtml) => {
             let c1, c2, c3, c4;
             if(lastans1) {
-                c1 = checkOrder(db, lastans1, 1);
+                c1 = checkOrder(db, lastans1, 1, innerhtml);
             }
             if(lastans2) {
-                c2 = checkOrder(db, lastans2, 2);
+                c2 = checkOrder(db, lastans2, 2, innerhtml);
             }
             if(lastans3) {
-                c3 = checkOrder(db, lastans3, 3);
+                c3 = checkOrder(db, lastans3, 3, innerhtml);
             }
             if(lastans4) {
-                c4 = checkOrder(db, lastans4, 4);
+                c4 = checkOrder(db, lastans4, 4, innerhtml);
             }
             if(qencoded && !c1 && !c2 && !c3 && !c4) {
-                sendAnswerNotFound();
+                sendAnswerNotFound(innerhtml);
             }
         }
 
