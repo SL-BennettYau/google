@@ -2,7 +2,6 @@ var version = 1.0
 // ==UserScript==
 // @name         Ga4 tag audits
 // @namespace    http://tampermonkey.net/
-// @version      0.1
 // @description  ga4 auditor
 // @author       You
 // @match        https://tagmanager.google.com/*
@@ -42,7 +41,7 @@ transition: transform 0s !important;
         if($('.gtm-container-menu-list').length && $(`.audit`).length == 0) {
             observer.disconnect();
             //console.log(GM_info)
-            $('.gtm-container-menu-list').append(`<a class="audit gtm-container-menu-list-item md-gtm-theme">Audit ${GM_info.script.version || version}</a>`)
+            $('.gtm-container-menu-list').append(`<a class="audit gtm-container-menu-list-item md-gtm-theme">Audit ${version}</a>`)
             observer.observe($("body")[0], {characterData: false, subtree: true, childList: true, attributes: false});
         }
     });
