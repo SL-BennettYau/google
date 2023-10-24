@@ -1,14 +1,20 @@
-var version = 0.4;
+var version = 1.0
 // ==UserScript==
 // @name         Ga4 tag audits
 // @namespace    http://tampermonkey.net/
-// @description  try to take over the world!
+// @version      0.1
+// @description  ga4 auditor
 // @author       You
 // @match        https://tagmanager.google.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=google.com
-
 // @require http://code.jquery.com/jquery-3.4.1.min.js
 // @require https://code.jquery.com/ui/1.12.1/jquery-ui.js
+// @require      https://raw.githubusercontent.com/SL-BennettYau/google/master/bililiteRange.js
+// @require      https://raw.githubusercontent.com/SL-BennettYau/google/master/sendkeys.js
+// @zrequire      https://raw.githubusercontent.com/SL-BennettYau/google/master/tags.js
+// @zrequire      https://raw.githubusercontent.com/SL-BennettYau/google/master/ga4.js
+
+
 // @resource   IMPORTED_CSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css
 // @grant      GM_getResourceText
 // @grant      GM_addStyle
@@ -22,7 +28,7 @@ var version = 0.4;
 // @grant      GM_addElement
 
 // ==/UserScript==
-/* global $ */
+/* global $ tags */
 'use strict';
 $().ready(function() {
     GM_addStyle`
@@ -30,12 +36,13 @@ $().ready(function() {
 transition: transform 0s !important;
 }
     `;
-    let tags, tagIndex, missingparams = {};
+    let clientTags, tagIndex = 0, missingparams = {};
     var observer = new MutationObserver(function() {
         //console.log('mutate')
         if($('.gtm-container-menu-list').length && $(`.audit`).length == 0) {
             observer.disconnect();
-            $('.gtm-container-menu-list').append(`<a class="audit gtm-container-menu-list-item md-gtm-theme">Audit ${version}</a>`)
+            //console.log(GM_info)
+            $('.gtm-container-menu-list').append(`<a class="audit gtm-container-menu-list-item md-gtm-theme">Audit ${GM_info.script.version || version}</a>`)
             observer.observe($("body")[0], {characterData: false, subtree: true, childList: true, attributes: false});
         }
     });
@@ -56,7 +63,8 @@ transition: transform 0s !important;
                 console.log(`Tag #${tagIndex + 1}`, tag)
                 //console.log($(eTable))
                 //console.log($(eTable).find(`div[data-ng-init~='rowFieldPathName']`))
-                echeck(tag, rows);
+                //console.log('echeck')
+                echeck(tag, eTable, rows);
                 $(rows).map((i,p) =>{
                     //console.log(i)
                     let cells = $(p).find(`.read-only-value`);
@@ -66,36 +74,49 @@ transition: transform 0s !important;
         }
     });
     //console.log('$(".gtm-sheet").length', $(".gtm-sheet").length)
-    if($(".gtm-sheet").length) {
+    /*if($(".gtm-sheet").length) {
         paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
-    }
+    }*/
 
     $(document).on('click', '.audit', (e) => {
-        e.preventDefault();
-        //console.log($('.open-tag-button').eq(0))
-        tags = $('.open-tag-button')
         tagIndex = 0;
-        //console.log($(tags).length)
-        paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
-        $('.open-tag-button').eq(tagIndex)[0].click();
+        if($('.open-tag-button').eq(tagIndex) && $('.open-tag-button').eq(tagIndex)[0]) {
+            e.preventDefault();
+            missingparams = {}
+            //console.log($('.open-tag-button').eq(0))
+            clientTags = $('.open-tag-button')
+            //console.log($(clientTags).length)
+            paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
+            //tags = localTags;
+            //console.log(tags)
+
+            $('.open-tag-button').eq(tagIndex)[0].click();
+        }
     })
 
-    let echeck = (tag, rows) => {
+    let echeck = (tag, eTable, rows) => {
         tag = tag.toLowerCase()
-        let params = events[tag]
-        //console.log(params)
-        if(!params) {
-            console.log(`Tag NOT FOUND`, tag)
-            missingparams[tag] = {}
-        } else {
-            Object.keys(params).map((key) =>{
+        let params = null;
+        try {
+            params = tags
+        } catch(e) { params = localTags}
+
+        let action = params[tag]
+        //console.log(action)
+
+        if(!action) {
+            console.log(`Tag NOT FOUND`, tag, `USING BASE`)
+            action = params.base;
+        }
+        if(action) {
+            Object.keys(action).map((key) =>{
                 //console.log(key)
                 let keyfound = false;
                 $(rows).map((i,p) =>{
                     //console.log(i)
                     let cells = $(p).find(`.read-only-value`);
                     //console.log(cells[0])
-                    if(key == $(cells[0]).text().trim() && params[key] == $(cells[1]).text().trim()) {
+                    if(key == $(cells[0]).text().trim() && action[key] == $(cells[1]).text().trim()) {
                         keyfound = true;
                     }
                 })
@@ -103,32 +124,86 @@ transition: transform 0s !important;
                     missingparams[tag] = {
                         ...missingparams[tag]
                     }
-                    missingparams[tag][key] = params[key]
+                    console.log(`Missing Param ${key} = ${action[key]}`)
+                    missingparams[tag][key] = action[key]
                 }
             })
+            if(Object.keys(missingparams[tag]).length > 0) {
+                //console.log($(`.gtm-veditor-section-overlay.wd-veditor-section-overlay`).length)
+                $(`.gtm-veditor-section-overlay.wd-veditor-section-overlay`)[0].click()
+                Object.keys(missingparams[tag]).map((key, i) => {
+                    console.log('i', i)
+                    setTimeout(() => {
+                        let addRow = $(`button.btn--create.vt-st-add`)
+                        if(addRow) {
+                            $(addRow)[0].click();
+                            setTimeout(() => {
+                                let newrow = $(eTable).find(`div[data-ng-repeat~='ctrl.tableHelper.rows']`).last()
+                                let k = $(newrow).find(`input[data-ng-model~="ctrl.value"]`).first().focus()
+                                //$(k).val(key)
+                                $(k).sendkeys(key);
+
+                                let v = $(newrow).find(`input[data-ng-model~="ctrl.value"]`).last().focus();
+                                //$(v).val(missingparams[tag][key])
+                                let val = missingparams[tag][key];
+                                val = val.replace(/\{\{/gi, "{{{").replace(/\}\}/gi, "}}}")
+                                $(v).sendkeys(val);
+                                console.log(key, missingparams[tag][key])
+                                if(i+1 >= Object.keys(missingparams[tag]).length) {
+                                    setTimeout(() => {
+                                        $('.veditor__section--edit').find('button.btn.btn-action.hide-read-only.left-spacer')[0].click()
+                                    }, 500)
+                                }
+                            }, 250)
+                        }
+                    }, (i+1) * 500)
+                })
+                /*setTimeout(() => {
+                    $('.veditor__section--edit').find('button.btn.btn-action.hide-read-only.left-spacer')[0].click()
+                    setTimeout(() => {
+                        $('.veditor__section--edit').find('button.btn.btn-action.hide-read-only.left-spacer')[0].click()
+                        setTimeout(() => {
+                            $('.veditor__section--edit').find('button.btn.btn-action.hide-read-only.left-spacer')[0].click()
+                            setTimeout(() => {
+                                $('.veditor__section--edit').find('button.btn.btn-action.hide-read-only.left-spacer')[0].click()
+                            }, 500)
+                        }, 500)
+                    }, 500)
+                }, 500)*/
+                return;
+            }
+
         }
+
+        return;
 
         setTimeout(() =>{
             $('.gtm-sheet-header__close')[0].click();
             setTimeout(() =>{
                 paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
                 tagIndex += 1;
-                if($('.open-tag-button').eq(tagIndex) && $('.open-tag-button').eq(tagIndex)[0]) {
+                if(false && $('.open-tag-button').eq(tagIndex) && $('.open-tag-button').eq(tagIndex)[0]) {
                     $('.open-tag-button').eq(tagIndex)[0].click();
                 } else {
                     console.log("ALL DONE")
                     console.log('MISSING PARAMS')
                     console.log(missingparams)
+                    createFile(missingparams)
+                    paramObs.disconnect();
+                    new Audio('https://raw.githubusercontent.com/SL-BennettYau/google/master/click.mp3').play()
                 }
-            }, 500);
-        }, 500)
+            }, 100);
+        }, 100)
     }
 
 
 
 
-    let events = {
+    let localTags = {
         "add_to_cart": {
+            "ABC": "{{ABC}}",
+            "DEF": "{{DEF}}",
+            "GHI": "{{GHI}}",
             "storeID": "{{storeID}}",
             "listingID": "{{listingID}}",
             "viewName": "{{viewName}}",
@@ -143,17 +218,87 @@ transition: transform 0s !important;
             "navMethod": "{{navMethod}}",
             "viewMode": "{{viewMode}}",
             "viewTitle": "{{viewTitle}}",
-            "sendIf": "{{sendIf}}",
             "content_group1": "{{content_group1}}",
             "page_path": "{{page_path}}",
             "event_label": "{{event_label}}",
-            "children": "{{children}}",
             "event_action": "{{event_action}}",
             "event_category": "{{event_category}}",
-        }
+        },
+
+        "base": {
+            "storeID": "{{storeID}}",
+            "listingID": "{{listingID}}",
+            "viewName": "{{viewName}}",
+            "language": "{{language}}",
+            "storeDMA": "{{storeDMA}}",
+            "storePostalCode": "{{storePostalCode}}",
+            "storeName": "{{storeName}}",
+            "retailerID": "{{retailerID}}",
+            "retailerName": "{{retailerName}}",
+            "siteName": "{{siteName}}",
+            "navOrigin": "{{navOrigin}}",
+            "navMethod": "{{navMethod}}",
+            "viewMode": "{{viewMode}}",
+            "viewTitle": "{{viewTitle}}",
+            "content_group1": "{{content_group1}}",
+            "page_path": "{{page_path}}",
+            "event_label": "{{event_label}}",
+            "event_action": "{{event_action}}",
+            "event_category": "{{event_category}}",
+        },
     }
 
 
+    let textFile = null;
+    let makeTextFile = function (text) {
+        let data = new Blob([text], {type: 'text/plain'});
+        if (textFile !== null) {
+            window.URL.revokeObjectURL(textFile);
+        }
+        textFile = window.URL.createObjectURL(data);
+        return textFile;
+    };
 
 
-    });
+    let createFile = function(db, cb) {
+        let filename=$(`.suite-up-text-name`).text();
+        let link = document.createElement('a');
+        link.setAttribute('download', `${filename}.txt`);
+        let x;
+        if(Object.keys(db).length == 0) {
+            x = "ALL GOOD"
+        } else {
+            db = Object.keys(db).sort().reduce(
+                (obj, key) => {
+                    obj[key] = db[key];
+                    return obj;
+                },
+                {}
+            );
+            x = JSON.stringify(db, null, 4);
+            x = x.replace(/\"/gim,"").replace(/\s\},/gim, ` }\n`).replace(/,/gim,"").replace(/^\{/im,"")
+            //x = x.replace(/\"/gim,"").replace(/\s\},/gim, ` }\n`).replace(/\{\},/gim, ` {}\n`).replace(/,/gim,"").replace(/^\{/im,"")
+            let temp = x.split('')
+            temp.pop()
+            x = temp.join('')
+        }
+
+        link.href = makeTextFile(x);
+        document.body.appendChild(link);
+        window.requestAnimationFrame(function () {
+            let event = new MouseEvent('click');
+            link.dispatchEvent(event);
+            document.body.removeChild(link);
+            paramObs.disconnect();
+            if(cb) {
+                cb()
+            }
+        });
+    };
+
+
+
+});
+
+
+
