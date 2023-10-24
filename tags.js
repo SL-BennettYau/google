@@ -20,7 +20,7 @@
         "event_category": "{{event_category}}",
     }
 
-    let localTags = {
+    let tags = {
         "add_to_cart": {
             "storeID": "{{storeID}}",
             "listingID": "{{listingID}}",
