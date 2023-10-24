@@ -1,4 +1,4 @@
-var version = 1.0
+var version = 0.2
 // ==UserScript==
 // @name         Ga4 tag audits
 // @namespace    http://tampermonkey.net/
@@ -12,7 +12,6 @@ var version = 1.0
 // @require      https://raw.githubusercontent.com/SL-BennettYau/google/master/sendkeys.js
 // @zrequire      https://raw.githubusercontent.com/SL-BennettYau/google/master/tags.js
 // @zrequire      https://raw.githubusercontent.com/SL-BennettYau/google/master/ga4.js
-
 
 // @resource   IMPORTED_CSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css
 // @grant      GM_getResourceText
