@@ -1,32 +1,4 @@
 var version = 0.2
-// ==UserScript==
-// @name         Ga4 tag audits
-// @namespace    http://tampermonkey.net/
-// @description  ga4 auditor
-// @author       You
-// @match        https://tagmanager.google.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=google.com
-// @require http://code.jquery.com/jquery-3.4.1.min.js
-// @require https://code.jquery.com/ui/1.12.1/jquery-ui.js
-// @require      https://raw.githubusercontent.com/SL-BennettYau/google/master/bililiteRange.js
-// @require      https://raw.githubusercontent.com/SL-BennettYau/google/master/sendkeys.js
-// @zrequire      https://raw.githubusercontent.com/SL-BennettYau/google/master/tags.js
-// @zrequire      https://raw.githubusercontent.com/SL-BennettYau/google/master/ga4.js
-
-// @resource   IMPORTED_CSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css
-// @grant      GM_getResourceText
-// @grant      GM_addStyle
-// @grant      GM_setValue
-// @grant      GM_getValue
-// @grant      GM_listValues
-// @grant      GM_deleteValue
-// @grant      GM_removeValueChangeListener
-// @grant      GM_addValueChangeListener
-// @grant      GM_openInTab
-// @grant      GM_addElement
-
-// ==/UserScript==
-/* global $ tags */
 'use strict';
 $().ready(function() {
     GM_addStyle`
