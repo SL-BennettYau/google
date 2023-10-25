@@ -22,7 +22,13 @@
 
     let tags = {
         "add_to_cart": {
+            "ABC": "{{ABC}}",
+            "DEF": "{{DEF}}",
+            "XYX": "{{XYX}}",
         },
         "browse_category": {
+            "NBC": "{{NBC}}",
+            "TKO": "{{TKO}}",
+            "ASDF": "{{ASDF}}",
         },
     }
