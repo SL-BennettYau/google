@@ -1,4 +1,4 @@
-var version = 0.3
+var version = 0.4
 'use strict';
 
 $().ready(function() {
@@ -24,20 +24,36 @@ position: relative;
 top: -1px;
 }
 .sloverlay {
-position: absolute;
+position: fixed;
 top:0;
 left:0;
 height:100%;
 width: 100%;
 z-index: 99999;
-background-color: rgba(0,0,0,0.25);
-display:none;
+background-color: rgba(0,0,0,0.45);
+display: none;
+user-select: none;
+}
+.sloverlay div {
+display: flex;
+width: 100%;
+height: 100%;
+justify-content: center;
+align-items: center;
+font-size: 40px;
+color: white;
+font-weight: bold;
+user-select: none;
+cursor: pointer;
+}
+.taghi {
+background: rgba(73, 255, 66, 0.18);
 }
     `;
 
-    $("body").append(`<div class="sloverlay"></div>`)
+    $("body").append(`<div class="sloverlay"><div>doubleclick to stop</div></div>`)
 
-    let clientTags, tagIndex = 0, missingparams = {}, autofill = false, clientIndexArray = [], clientIndex = 0, auditall = false;
+    let clientTags, tagIndex = 0, missingparams = {}, autofill = false, clientIndexArray = [], clientIndex = 0, auditall = false, fullstop = false;
     let getchecked = () =>{
         $(`.checkaudit`).map((i,p) => {
             if($(p).prop("checked")) {
@@ -133,47 +149,47 @@ display:none;
             loopTO = null;
         }
         //paramObsTO = setTimeout(() => {
-            let eTable = $(`gtm-inherited-params-table`);
-            if(eTable && $(eTable).length) {
-                //console.log('TABLE FOUND')
-                let rows = $(eTable).find(`div[data-ng-repeat~='ctrl.tableHelper.rows']`);
-                let tag = $(`div[data-ng-model="ctrl.tag.data.name"]`).text();
-                let filename=$(`.suite-up-text-name`).text();
-                console.log(`[${filename}] TAG: #${tagIndex + 1}`, tag)
-                //console.log('rows', rows)
-                if(rows && rows.length) {
-                    //console.log('rows found', rows)
-                    paramObs.disconnect();
-                    //console.log($(eTable))
-                    //console.log($(eTable).find(`div[data-ng-init~='rowFieldPathName']`))
-                    //console.log('echeck')
-                    echeck(tag, eTable, rows);
-                } else {
-                    console.log(`no rows [${filename}]`);
-                    loopTO = setTimeout(() =>{
-                        $(`label`).map((i,p) => {
-                            if($(p).text().match(/Event Name/gi)) {
-                                //console.log($(p).text())
-                                paramObs.disconnect();
-                                echeck(tag, eTable, []);
-                            }
-                        });
-                    }, 3000)
-                }
+        let eTable = $(`gtm-inherited-params-table`);
+        if(eTable && $(eTable).length) {
+            //console.log('TABLE FOUND')
+            let rows = $(eTable).find(`div[data-ng-repeat~='ctrl.tableHelper.rows']`);
+            let tag = $(`div[data-ng-model="ctrl.tag.data.name"]`).text();
+            let filename=$(`.suite-up-text-name`).text();
+            console.log(`[${filename}] TAG: #${tagIndex + 1}`, tag)
+            //console.log('rows', rows)
+            if(rows && rows.length) {
+                //console.log('rows found', rows)
+                paramObs.disconnect();
+                //console.log($(eTable))
+                //console.log($(eTable).find(`div[data-ng-init~='rowFieldPathName']`))
+                //console.log('echeck')
+                echeck(tag, eTable, rows);
             } else {
-                let client = $(`.suite-up-text-name`).text();
-                let tag = $(`div[data-ng-model="ctrl.tag.data.name"]`).text();
-                //paramObs.disconnect();
+                console.log(`no rows [${filename}]`);
                 loopTO = setTimeout(() =>{
-                    console.log(`NO TABLE [${client}] TAG: #${tagIndex + 1} ${tag}`)
-                    missingparams[tag] = "Possible Errors"
-                    loop()
-
-                    /*let tag = $(`div[data-ng-model="ctrl.tag.data.name"]`).text();
-                    paramObs.disconnect();
-                    echeck(tag, eTable, []);*/
+                    $(`label`).map((i,p) => {
+                        if($(p).text().match(/Event Name/gi)) {
+                            //console.log($(p).text())
+                            paramObs.disconnect();
+                            echeck(tag, eTable, []);
+                        }
+                    });
                 }, 3000)
             }
+        } else {
+            let client = $(`.suite-up-text-name`).text();
+            let tag = $(`div[data-ng-model="ctrl.tag.data.name"]`).text();
+            //paramObs.disconnect();
+            loopTO = setTimeout(() =>{
+                console.log(`NO TABLE [${client}] TAG: #${tagIndex + 1} ${tag}`)
+                missingparams[tag] = "Possible Errors"
+                loop()
+
+                /*let tag = $(`div[data-ng-model="ctrl.tag.data.name"]`).text();
+                    paramObs.disconnect();
+                    echeck(tag, eTable, []);*/
+            }, 3000)
+        }
         //}, 250)
     });
 
@@ -182,15 +198,20 @@ display:none;
         $(`.sloverlay`).fadeIn()
         tagIndex = 0;
         let doAudit = () =>{
-            if($('.open-tag-button').eq(tagIndex) && $('.open-tag-button').eq(tagIndex)[0]) {
-                e.preventDefault();
-                missingparams = {}
-                //console.log($('.open-tag-button').eq(0))
-                clientTags = $('.open-tag-button')
-                //console.log($(clientTags).length)
-                paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
-                $('.open-tag-button').eq(tagIndex)[0].click();
-            }
+            //if($('.open-tag-button').eq(tagIndex) && $('.open-tag-button').eq(tagIndex)[0]) {
+            e.preventDefault();
+            missingparams = {}
+            //console.log($('.open-tag-button').eq(0))
+            clientTags = Array.from($('.open-tag-button'))
+            //console.log($(clientTags))
+            let thistag = getNextTag()
+            //console.log($(clientTags))
+            //console.log(thistag)
+            paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
+
+            $(thistag)[0].click();
+            //$('.open-tag-button').eq(tagIndex)[0].click();
+            //}
         }
         if($('.open-tag-button').length) {
             doAudit()
@@ -270,6 +291,13 @@ display:none;
         }
     }
 
+    // FULL STOP
+    $(document).on('dblclick', '.sloverlay', (e) => {
+        fullstop = true;
+        $(`.gtm-sheet-holder--animated .gtm-sheet`).removeClass('notrans');
+        $(`.sloverlay`).fadeOut()
+    })
+
     // Checkboxes
     $(document).on('change', '.checkall', (e) => {
         let clientsChecked = localStorage.getItem('clientsChecked') || "{}"
@@ -324,53 +352,77 @@ display:none;
 
     // Audit / Autofill
     $(document).on('dblclick', '.audit', (e) => {
+        $(`.taghi`).removeClass(`taghi`)
         $('.open-tag-list-button')[0].click()
         autofill = false;
         auditor(e);
     })
     $(document).on('dblclick', '.autofill', (e) => {
+        $(`.taghi`).removeClass(`taghi`)
         $('.open-tag-list-button')[0].click()
         autofill = true;
         auditor(e);
     })
 
+    let getNextTag = () =>{
+        let thistag = clientTags.shift()
+        $(thistag).addClass(`taghi`)
+        return thistag;
+    }
+
     let loop = () => {
-        let closeSheet = () =>{
-            $('.gtm-sheet-header__close')[0].click();
-            setTimeout(() =>{
-                paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
-                tagIndex += 1;
-                let doNext = () =>{
-                    if($('.open-tag-button').eq(tagIndex) && $('.open-tag-button').eq(tagIndex)[0]) {
-                        $('.open-tag-button').eq(tagIndex)[0].click();
-                    } else {
-                        let client = $(`.suite-up-text-name`).text();
-                        console.log(`[${client}] ALL DONE`)
-                        console.log(`[${client}] MISSING PARAMS`)
-                        console.log(missingparams)
-                        createFile(missingparams)
-                        paramObs.disconnect();
-                        if(!auditall) {
-                            new Audio('https://raw.githubusercontent.com/SL-BennettYau/google/master/click.mp3').play()
-                        }
-                        $(`.gtm-sheet-holder--animated .gtm-sheet`).removeClass('notrans');
-                        $(`.sloverlay`).fadeOut()
-                    }
-                }
-                if($('.open-tag-button').length) {
-                    doNext();
-                } else {
-                    var looptagObs = new MutationObserver(function() {
-                        //console.log('mutate')
-                        if($('.open-tag-button').length) {
-                            looptagObs.disconnect()
-                            doNext();
-                        }
-                    });
-                    looptagObs.observe($("body")[0], {characterData: false, subtree: true, childList: true, attributes: false});
-                }
-            }, 100);
+        if(fullstop) {
+            fullstop = false;
+            return;
         }
+        let closeSheet = () =>{
+            setTimeout(() =>{
+                if($('.gtm-sheet-header__close') && $('.gtm-sheet-header__close')[0]) {
+                    $('.gtm-sheet-header__close')[0].click();
+                }
+                paramObs.observe($(".gtm-sheet")[0], {characterData: false, subtree: true, childList: true, attributes: false});
+                setTimeout(() =>{
+                    tagIndex += 1;
+                    let doNext = () =>{
+                        let thistag = getNextTag()
+                        if($(thistag) && $(thistag)[0]) {
+                            //$('.open-tag-button').eq(tagIndex)[0].click();
+                            if(fullstop) {
+                                fullstop = false;
+                                return;
+                            } else {
+                                $(thistag)[0].click();
+                            }
+                        } else {
+                            let client = $(`.suite-up-text-name`).text();
+                            console.log(`[${client}] ALL DONE`)
+                            console.log(`[${client}] MISSING PARAMS`)
+                            console.log(missingparams)
+                            createFile(missingparams)
+                            paramObs.disconnect();
+                            if(!auditall) {
+                                new Audio('https://raw.githubusercontent.com/SL-BennettYau/google/master/click.mp3').play()
+                            }
+                            $(`.gtm-sheet-holder--animated .gtm-sheet`).removeClass('notrans');
+                            $(`.sloverlay`).fadeOut()
+                        }
+                    }
+                    if($('.open-tag-button').length) {
+                        doNext();
+                    } else {
+                        var looptagObs = new MutationObserver(function() {
+                            //console.log('mutate')
+                            if($('.open-tag-button').length) {
+                                looptagObs.disconnect()
+                                doNext();
+                            }
+                        });
+                        looptagObs.observe($("body")[0], {characterData: false, subtree: true, childList: true, attributes: false});
+                    }
+                }, 250);
+            }, 250);
+        }
+
         if($('.gtm-sheet-header__close').length) {
             closeSheet()
         } else {
@@ -411,7 +463,7 @@ display:none;
                     missingparams[tag] = {
                         ...missingparams[tag]
                     }
-                    console.log(`Missing Param ${key} = ${action[key]}`)
+                    console.log(`    Missing Param ${key} = ${action[key]}`)
                     missingparams[tag][key] = action[key]
                 }
             })
@@ -501,7 +553,12 @@ display:none;
                 cb()
             }
             if(auditall) {
-                backtoclients();
+                if(fullstop) {
+                    fullstop = false;
+                    return;
+                } else {
+                    backtoclients();
+                }
             }
         });
     };
