@@ -1,5 +1,5 @@
 <script>
-    
+    alert(1)
 let base = {
     "storeID": "{{storeID}}",
     "listingID": "{{listingID}}",
