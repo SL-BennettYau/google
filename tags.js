@@ -1,3 +1,4 @@
+<script>
 let base = {
     "storeID": "{{storeID}}",
     "listingID": "{{listingID}}",
@@ -34,3 +35,5 @@ let tags = {
 
     },
 }
+
+</script>
