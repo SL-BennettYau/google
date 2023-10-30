@@ -1,4 +1,5 @@
 <script>
+    
 let base = {
     "storeID": "{{storeID}}",
     "listingID": "{{listingID}}",
@@ -23,7 +24,7 @@ let base = {
 
 let tags = {
     "aardvark": {
-        "ABC":"{{ABC}}",
+        "ABCD":"{{ABCD}}",
         "ABCDEF":"{{ABCDEF}}",
         "ABCGHI":"{{ABCGHI}}",
         "storeID": "{{NEWstoreID}}",
