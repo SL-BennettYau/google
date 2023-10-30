@@ -1,0 +1,818 @@
+<html>
+<script src="http://code.jquery.com/jquery-3.4.1.min.js"></script>
+<!-- <script src="https://raw.githubusercontent.com/SL-BennettYau/google/master/tags.js"></script> -->
+<style>
+body{
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    }
+    pre {
+    margin: 0;
+    font-family: consolas;
+    }
+    c {
+    color: red;
+    }
+    .clients {
+    width:30%;
+    float:left;
+    overflow: hidden;
+    max-height: calc(100% - 30px);
+    overflow: auto;
+    }
+    .rightside {
+    margin-left: 3%;
+    width: 30%;
+    float:left;
+    background-color: rgba(229, 255, 254, 0.8);
+    max-height: calc(100% - 30px);
+    overflow: auto;
+    }
+    .client, .res {
+        padding: 5px;
+    }
+    .rightside div:empty {
+        padding: 0px;
+    }
+    .clientlabel {
+    display:flex;
+    justify-content: space-between;
+    }
+    .issues {
+    margin-left: 3%;
+    width: 30%;
+    float:left;
+    background-color: rgba(206, 206, 206, 0.18);
+    padding: 0 5px;
+    max-height: calc(100% - 30px);
+    overflow: auto;
+    }
+    *:empty {
+    padding: 0px;
+    }
+
+    .issues div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-family: consolas;
+    line-height: 24px;
+    }
+    .issues div { background: transparent; }
+    .issues div:nth-child(odd) { background: rgba(0, 0, 255, 0.05); }
+
+    .client {
+    margin-bottom:0px;
+    }
+    .client:empty {
+    margin-bottom:0px;
+    }
+
+    .clientrow {
+    padding: 5px;
+    border:1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    }
+    .clientrow:hover{
+    background-color: rgba(73, 255, 66, 0.18);
+    }
+    .clientrow div:first-child {
+    width: 200px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    zborder:1px solid #cc0000;
+
+    }
+    .gtm {
+    margin: 0 20px 0 auto;
+    }
+    nav {
+    margin-bottom:10px;
+    }
+    .login {
+    width: min-content;
+    }
+    .login, .gettags, .autofill, .getlive, .publish {
+    border-radius: 8px;
+    border:1px solid;
+    padding: 0px 10px;
+    cursor: pointer;
+    user-select: none;
+    }
+    .gettags {
+    margin-left: auto;
+    }
+    .autofill, .getlive, .publish {
+    margin-left: 20px;
+    }
+    .json-container {
+    font-family: consolas !important;
+    }
+    .sloverlay {
+position: fixed;
+top:0;
+left:0;
+height:100%;
+width: 100%;
+z-index: 99999;
+background-color: rgba(0,0,0,0.45);
+display: none;
+user-select: none;
+}
+    .sloverlay div {
+display: flex;
+width: 100%;
+height: 100%;
+justify-content: center;
+align-items: center;
+font-size: 40px;
+color: white;
+font-weight: bold;
+user-select: none;
+cursor: pointer;
+}
+</style>
+
+<script>
+$().ready(function() {
+
+	let githubtags = null;
+
+	$.getJSON( "https://raw.githubusercontent.com/SL-BennettYau/google/master/tags.json", function(e) {
+		console.log(e)
+		githubtags = e;
+	})
+
+
+    $("body").prepend(`<div class="sloverlay"><div>wait</div></div>`)
+    let log = (t) => {
+        $(`.issues`).append(`<div>${t}</div>`)
+    }
+    let overlay = (show) => {
+        if(show) {
+            $(`.sloverlay`).show()
+        } else {
+            $(`.sloverlay`).hide()
+        }
+    }
+
+    let token = window.location.hash.match(/access_token=.*&token_type/gi)
+    if(token) {
+        token = token[0];
+        token = token.replace(/access_token=/gi, "").replace(/&token_type/gi, "")
+        //console.log(token)
+    }
+
+    let accountid = null, clientsList = {}, curparams = {}, missingparams = {};
+    let autofill = false, wid = null;
+
+    let oauthSignIn = () => {
+        // Google's OAuth 2.0 endpoint for requesting an access token
+        var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
+        let url = oauth2Endpoint + '?';
+
+        // Create <form> element to submit parameters to OAuth 2.0 endpoint.
+        var form = document.createElement('form');
+        form.setAttribute('method', 'GET'); // Send as a GET request.
+        form.setAttribute('action', oauth2Endpoint);
+
+        // Parameters to pass to OAuth 2.0 endpoint.
+        var params = {'client_id': '920840650292-3ufc9oo6mqhqcbe1qa42ri0n0i285fa1.apps.googleusercontent.com',
+                      'redirect_uri': 'http://localhost/wwwroot/ga4.html',
+                      'response_type': 'token',
+                      'scope': 'https://www.googleapis.com/auth/tagmanager.edit.containers https://www.googleapis.com/auth/tagmanager.readonly',
+                      'include_granted_scopes': 'true',
+                     };
+
+        // Add form parameters as hidden input values.
+        for (var p in params) {
+            var input = document.createElement('input');
+            input.setAttribute('type', 'hidden');
+            input.setAttribute('name', p);
+            input.setAttribute('value', params[p]);
+            form.appendChild(input);
+
+            url += `&${p}=${encodeURIComponent(params[p])}`
+        }
+        //console.log(url)
+        //window.open(url, "_blank", "name")
+
+        // Add form to page and submit it to open the OAuth 2.0 endpoint.
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    let getAccount = () => {
+        return new Promise((resolve, reject) => {
+            overlay(1)
+            $.ajax({
+                url: `https://www.googleapis.com/tagmanager/v2/accounts`,
+                type: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+                error: function(err) {
+                    overlay(0)
+                    switch (err.status) {
+                        case "400":
+                            // bad request
+                            break;
+                        case "401":
+                            // unauthorized
+                            break;
+                        case "403":
+                            // forbidden
+                            break;
+                        case "429":
+                            // forbidden
+                            log(`${err.status}`)
+                            break;
+                        default:
+                            //Something bad happened
+                            break;
+                    }
+                },
+                success: function(data) {
+                    overlay(0)
+                    //console.log(data)
+                    let f92 = data.account.find((p,i) =>{
+                        return p.name.match(/fusion92 shopper platform/gi)
+                    })
+                    //console.log(f92)
+                    resolve(f92.accountId)
+                    //$('.res').html("<pre>"+JSON.stringify(f92,null, 2) +"</pre>")
+                }
+            });
+        })
+    }
+
+    let getClients = async () => {
+        accountid = await getAccount()
+        //console.log('accountid', accountid)
+        overlay(1)
+        let path = `accounts/${accountid}`
+        $.ajax({
+            url: `https://www.googleapis.com/tagmanager/v2/${path}/containers`,
+            type: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+            error: function(err) {
+                overlay(0)
+                switch (err.status) {
+                    case "400":
+                        // bad request
+                        break;
+                    case "401":
+                        // unauthorized
+                        break;
+                    case "403":
+                        // forbidden
+                        break;
+                    case "429":
+                        // forbidden
+                        log(`${err.status}`)
+                        break;
+                    default:
+                        //Something bad happened
+                        break;
+                }
+            },
+            success: (data) => {
+                //console.log("Success!");
+                //console.log(data)
+                overlay(0)
+                data.container.map((p,i) =>{
+                    //console.log(p.name, p.publicId, p.containerId)
+                    //if(p.name.match(/shopluxe/gi)) {
+                    clientsList[p.name] = {
+                        gtm: p.publicId,
+                        containerId: p.containerId
+                    }
+                    //}
+                })
+                clientsList = Object.keys(clientsList).sort().reduce(
+                    (obj, key) => {
+                        obj[key] = clientsList[key];
+                        return obj;
+                    },
+                    {}
+                );
+                Object.keys(clientsList).map((p,i) =>{
+                    //console.log(p)
+                    $('.clients').append(`<div class='clientrow'>
+                    <div>${p}</div>
+                    <div class='gtm'>${clientsList[p].gtm}</div>
+                    <div class='gettags' client="${p}" container='${clientsList[p].containerId}'>audit</div>
+                    </div>`)
+                })
+            }
+        });
+    }
+    getClients();
+
+    let getWorkspace = (container, cb) => {
+        overlay(1)
+        return new Promise((resolve, reject) => {
+            let path = `accounts/${accountid}/containers/${container}`
+            try {
+                $.ajax({
+                    url: `https://www.googleapis.com/tagmanager/v2/${path}/workspaces`,
+                    type: "GET",
+                    headers: { Authorization: `Bearer ${token}` },
+                    error: function(err) {
+                        overlay(0)
+                        switch (err.status) {
+                            case "400":
+                                // bad request
+                                break;
+                            case "401":
+                                // unauthorized
+                                break;
+                            case "403":
+                                // forbidden
+                                break;
+                            case "429":
+                                // forbidden
+                                log(`${err.status}`)
+                                break;
+                            default:
+                                //Something bad happened
+                                break;
+                        }
+                    },
+                    success: function(data) {
+                        //console.log(data.workspace[0].workspaceId)
+                        //console.log(data)
+                        resolve(data.workspace[0].workspaceId)
+                    }
+                });
+            } catch(e) {
+                console.log(e)
+                log(`${e}`)
+                overlay(0)
+            }
+        });
+    }
+
+    let getAllTags = async (target) => {
+        overlay(1)
+        $(`.res`).html(``)
+
+
+        curparams = {};
+        missingparams = {};
+        let client = $(target).attr("client")
+        let containerid = $(target).attr("container")
+        wid = $(target).attr("wid") || await getWorkspace(containerid)
+
+        $(`.client`).html(`
+        <div class="clientlabel">
+        <span>${client} ${!autofill ? 'Audit':'Autofill'}</span>
+        <div class='gettags' client="${client}" container='${containerid}' wid=${wid}>audit</div>
+        <div class='autofill' client="${client}" container='${containerid}' wid=${wid}>autofill</div>
+        <div class='getlive' client="${client}" container='${containerid}' wid=${wid}>getlive</div>
+        <div class='publish' client="${client}" container='${containerid}' wid=${wid}>publish</div>
+        </div>`)
+        if($(`.issues`).text().length != 0) {
+            log(`&nbsp;`)
+        }
+        log(`[${client}]`)
+
+        let path = `accounts/${accountid}/containers/${containerid}/workspaces/${wid}/tags/`
+        try {
+            $.ajax({
+                url: `https://tagmanager.googleapis.com/tagmanager/v2/${path}`,
+                type: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+                error: function(err) {
+                    overlay(0)
+                    switch (err.status) {
+                        case "400":
+                            // bad request
+                            break;
+                        case "401":
+                            // unauthorized
+                            break;
+                        case "403":
+                            // forbidden
+                            break;
+                        case "429":
+                            // forbidden
+                            log(`${err.status}`)
+                            break;
+                        default:
+                            //Something bad happened
+                            break;
+                    }
+                },
+                success: function(data) {
+                    //console.log("Success!");
+                    //console.log(data)
+                    //$('.res').html("<pre>"+JSON.stringify(data,null, 2) +"</pre>")
+                    data.tag.map((p,i) =>{
+                        let tag = p.name.trim().toLowerCase();
+                        let tagparams = {};
+                        let pars = p.parameter.find((t,j) =>{
+                            return t.key.match(/configSettingsTable|eventSettingsTable/gi)
+                        })
+                        //console.log('tag', tag)
+                        //console.log('pars', pars)
+                        curparams[tag] = {
+                            ...curparams[tag],
+                            params: {}
+                        }
+                        curparams[tag].id = p.tagId
+                        //console.log(pars)
+                        if(pars && pars.list) {
+                            pars.list.map((x,y) =>{
+                                //console.log(x.map[0].value)
+                                //console.log(x.map[1].value)
+                                if(curparams[tag].params[x.map[0].value]) {
+                                    log(`<span>&nbsp;&nbsp;<b>Dupe</b>: [<c>${tag}</c>]</span> <span>${x.map[0].value}: ${curparams[tag].params[x.map[0].value]}</span>`)
+                                    //console.log('Dupe parameter found:', `[${tag}]`, x.map[0].value)
+                                }
+                                curparams[tag].params[x.map[0].value] = x.map[1].value
+                            })
+                        }
+
+                    })
+                    //render(curparams)
+                    //console.log(curparams)
+                    Object.keys(curparams).map((key) =>{
+                        echeck(key, curparams[key].params);
+                    })
+
+                    //console.log('missingparams', missingparams)
+                    render(missingparams)
+
+                    if(autofill) {
+                        if( Object.keys(missingparams).length > 0) {
+                            Object.keys(missingparams).map((key) =>{
+                                //console.log(key, curparams[key].id)
+                                getSingleTag(curparams[key].id, key, containerid, wid)
+                            })
+                        } else {
+                            autofill = false;
+                            overlay(0)
+                        }
+                    } else {
+                        overlay(0)
+                    }
+
+                    //createFile(client, missingparams)
+
+                }
+            });
+        } catch(e) {
+            overlay(0)
+            console.log(e)
+            log(`${e}`)
+        }
+
+    }
+
+    let getSingleTag = async (tagid, key, container, wid) => {
+        let path = `accounts/${accountid}/containers/${container}/workspaces/${wid}/tags/${tagid}`
+        $.ajax({
+            url: `https://tagmanager.googleapis.com/tagmanager/v2/${path}`,
+            type: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+            error: function(err) {
+                switch (err.status) {
+                    case "400":
+                        // bad request
+                        break;
+                    case "401":
+                        // unauthorized
+                        break;
+                    case "403":
+                        // forbidden
+                        break;
+                    case "429":
+                        // forbidden
+                        log(`${err.status}`)
+                        break;
+                    default:
+                        //Something bad happened
+                        break;
+                }
+            },
+            success: function(data) {
+                //console.log(data)
+                if(autofill) {
+                    updateTag(key, data, path)
+                }
+            }
+        });
+    }
+    let updateTag = (key, data, path) => {
+        let payload = {
+            ...data
+        }
+
+        let paramTable = payload.parameter.find((p,i) =>{
+            return p && p.key && p.key.match(/configSettingsTable|eventSettingsTable/gi);
+        })
+        //console.log(paramTable)
+        if(paramTable && paramTable.list) {
+            Object.keys(missingparams[key]).map((p) =>{
+                //console.log(p)
+                let newparam = {
+                    "type": "map",
+                    "map": [
+                        {
+                            "type": "template",
+                            "key": "parameter",
+                            "value": `${p}`
+                        },
+                        {
+                            "type": "template",
+                            "key": "parameterValue",
+                            "value": `${missingparams[key][p]}`
+                        }
+                    ]
+                }
+                log(`<span>&nbsp;&nbsp;<b>Insert</b>: [<c>${key}</c>]</span> <span>${p}: ${missingparams[key][p]}</span>`)
+                paramTable.list.push(newparam)
+            })
+        }
+        //console.log(payload)
+        overlay(1)
+        $.ajax({
+            url: `https://tagmanager.googleapis.com/tagmanager/v2/${path}`,
+            type: "PUT",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` },
+            data: JSON.stringify(payload),
+            error: function(err) {
+                overlay(0)
+                switch (err.status) {
+                    case "400":
+                        // bad request
+                        break;
+                    case "401":
+                        // unauthorized
+                        break;
+                    case "403":
+                        // forbidden
+                        break;
+                    case "429":
+                        // forbidden
+                        log(`${err.status}`)
+                        break;
+                    default:
+                        //Something bad happened
+                        break;
+                }
+            },
+            success: function(data) {
+                //console.clear();
+                //console.log("Success!");
+                //console.log(data)
+                //render(data)
+                //autofill = false;
+                overlay(0)
+            }
+        });
+    }
+
+    let getLiveVersion = async (target) =>{
+        let container = $(target).attr("container")
+        let path = `accounts/${accountid}/containers/${container}`
+        overlay(1)
+        $.ajax({
+            //url: `https://www.googleapis.com/tagmanager/v2/${path}/versions:live`,
+            url: `https://www.googleapis.com/tagmanager/v2/${path}/version_headers`,
+            type: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+            error: function(err) {
+                overlay(0)
+                switch (err.status) {
+                    case "400":
+                        // bad request
+                        break;
+                    case "401":
+                        // unauthorized
+                        break;
+                    case "403":
+                        // forbidden
+                        break;
+                    case "429":
+                        // forbidden
+                        log(`${err.status}`)
+                        break;
+                    default:
+                        //Something bad happened
+                        break;
+                }
+            },
+            success: function(data) {
+                console.table(data.containerVersionHeader)
+                overlay(0)
+
+            }
+        });
+    }
+
+    let publish = async (target) =>{
+        let containerid = $(target).attr("container")
+        wid = $(target).attr("wid") || await getWorkspace(containerid)
+        let path = `accounts/${accountid}/containers/${containerid}/versions/${wid}`
+        overlay(1)
+        $.ajax({
+            url: `https://www.googleapis.com/tagmanager/v2/${path}:publish`,
+            type: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+            error: function(err) {
+                overlay(0)
+                switch (err.status) {
+                    case "400":
+                        // bad request
+                        break;
+                    case "401":
+                        // unauthorized
+                        break;
+                    case "403":
+                        // forbidden
+                        break;
+                    case "429":
+                        // forbidden
+                        log(`${err.status}`)
+                        break;
+                    default:
+                        //Something bad happened
+                        break;
+                }
+            },
+            success: function(data) {
+                console.log(data)
+                overlay(0)
+            }
+        });
+    }
+
+    let echeck = (tag, tagparams) => {
+        tag = tag.toLowerCase()
+        let params = null;
+		//console.log(tags);
+		
+        try {
+            params = githubtags
+        } catch(e) { params = localTags}
+		
+		console.log('params')
+		console.log(params)
+		
+        let action = {
+            //...params.base,
+            ...params[tag]
+        }
+
+        if(action) {
+            //console.log(`${tag}`)
+            Object.keys(action).map((key) =>{
+                //console.log(key)
+                let keyfound = false;
+                if(tagparams[key]) {
+                    if(tagparams[key] == action[key]) {
+                        keyfound = true;
+                    }
+                }
+                if(!keyfound) {
+                    missingparams[tag] = {
+                        ...missingparams[tag]
+                    }
+
+                    console.log(`    Missing Param ${key} = ${action[key]}`)
+                    missingparams[tag][key] = action[key]
+                }
+            })
+        }
+    }
+
+    let tree = null;
+    let render = (json) =>{
+        if(Object.keys(json).length == 0) {
+            $('.res').html(`&nbsp;&nbsp;&nbsp;&nbsp;All params present`)
+        } else {
+            //tree = jsonview.create(json);
+            //jsonview.render(tree, document.querySelector('.res'));
+            //jsonview.expand(tree);
+
+            $('.res').html("<pre>"+JSON.stringify(json,null, 4) +"</pre>")
+            //document.querySelector(".res").appendChild(renderjson(json));
+            //$('#json-viewer').json_viewer($('.res').text());
+
+        }
+    }
+
+
+    $("body").append(`<nav class='nav'></nav>`)
+    $("body").append(`<div class='clients'></div>`)
+    $("body").append(`<div class='rightside'>
+    <div class='client'></div>
+    <pre id="json-viwer"></pre>
+    <div class='res'></div>
+    </div>
+    `)
+    $("body").append(`<div class='issues'></div>`)
+    $("nav").append(`<div class='login'>login</div>`)
+    $('.login').on('click', (e) =>{
+        oauthSignIn();
+    })
+    $(document).on('click', '.gettags', (e) =>{
+        //alert($(e.target).attr("container"))
+        autofill = false;
+        getAllTags(e.target)
+    });
+
+    $(document).on('click', '.autofill', (e) =>{
+        //alert($(e.target).attr("container"))
+        autofill = true;
+        getAllTags(e.target)
+    });
+
+    $(document).on('click', '.getlive', (e) =>{
+        autofill = false;
+        getLiveVersion(e.target)
+    });
+
+    $(document).on('click', '.publish', (e) =>{
+        autofill = false;
+        publish(e.target)
+    });
+
+
+    var observer = new MutationObserver(function() {
+        //console.log('mutate')
+        var objDiv = $(".issues");
+        var h = objDiv.get(0).scrollHeight;
+        objDiv.animate({scrollTop: h});
+    });
+    if($(".issues").length) {
+        observer.observe($(".issues")[0], {characterData: false, subtree: true, childList: true, attributes: false});
+    }
+
+
+    let textFile = null;
+    let makeTextFile = function (text) {
+        let data = new Blob([text], {type: 'text/plain'});
+        if (textFile !== null) {
+            window.URL.revokeObjectURL(textFile);
+        }
+        textFile = window.URL.createObjectURL(data);
+        return textFile;
+    };
+
+    let createFile = function(filename, db, cb) {
+        //let filename=$(`.suite-up-text-name`).text();
+        let link = document.createElement('a');
+        let x;
+        if(Object.keys(db).length == 0) {
+            filename = `${filename}-${!autofill ? 'Audit':'Autofill'}-ALLPASSED.txt`
+            link.setAttribute('download', filename);
+            x = "ALL TAGS PASSED"
+        } else {
+            filename = `${filename}-${!autofill ? 'Audit':'Autofill'}-[${Object.keys(db).length}].txt`
+            link.setAttribute('download', filename);
+            db = Object.keys(db).sort().reduce(
+                (obj, key) => {
+                    obj[key] = db[key];
+                    return obj;
+                },
+                {}
+            );
+            x = JSON.stringify(db, null, 2);
+
+            x = x.replace(/\"/gim,"").replace(/\s\},/gim, ` }\n`).replace(/,/gim,"").replace(/^\{/im, `${filename} ${!autofill ? 'Audit:\n':'Autofill:\n'}`).replace(/\{\}/gi,`{}\n`).replace(/Possible Errors/gi,`{\n        Possible Errors\n    }\n`)
+            //x = x.replace(/\"/gim,"").replace(/\s\},/gim, ` }\n`).replace(/\{\},/gim, ` {}\n`).replace(/,/gim,"").replace(/^\{/im,"")
+            let temp = x.split('')
+            temp.pop()
+            x = temp.join('')
+        }
+
+        link.href = makeTextFile(x);
+        document.body.appendChild(link);
+        window.requestAnimationFrame(function () {
+            let event = new MouseEvent('click');
+            link.dispatchEvent(event);
+            document.body.removeChild(link);
+            log(`Saved log: ${filename}`)
+            if(cb) {
+                cb()
+            }
+            /*if(auditall) {
+                if(fullstop) {
+                    return;
+                } else {
+                    backtoclients();
+                }
+            }*/
+        });
+    };
+
+
+});
+</script>
+</html>
