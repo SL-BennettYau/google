@@ -1,7 +1,4 @@
 let base = {
-}
-
-let base2 = {
     "storeID": "{{storeID}}",
     "listingID": "{{listingID}}",
     "viewName": "{{viewName}}",
@@ -24,14 +21,16 @@ let base2 = {
 }
 
 let tags = {
+    "aardvark": {
+        "ABC":"{{ABC}}",
+        "ABCDEF":"{{ABCDEF}}",
+        "ABCGHI":"{{ABCGHI}}",
+        "storeID": "{{NEWstoreID}}",
+    },
     "add_to_cart": {
-        "ABC": "{{ABC}}",
-        "DEF": "{{DEF}}",
-        "XYX": "{{XYX}}",
+
     },
     "browse_category": {
-        "NBC": "{{NBC}}",
-        "TKO": "{{TKO}}",
-        "ASDF": "{{ASDF}}",
+
     },
 }
