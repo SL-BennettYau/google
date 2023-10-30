@@ -1,5 +1,5 @@
 {
-  "base" {
+  "base": {
     "storeID": "{{storeID}}",
     "listingID": "{{listingID}}",
     "viewName": "{{viewName}}",
