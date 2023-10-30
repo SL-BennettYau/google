@@ -18,14 +18,14 @@
     "page_path": "{{page_path}}",
     "event_label": "{{event_label}}",
     "event_action": "{{event_action}}",
-    "event_category": "{{event_category}}",
+    "event_category": "{{event_category}}"
   },
   
   "aardvark": {
     "ABCD":"{{ABCD}}",
     "ABCDEF":"{{ABCDEF}}",
     "ABCGHI":"{{ABCGHI}}",
-    "storeID": "{{NEWstoreID}}",
+    "storeID": "{{NEWstoreID}}"
   },
   
   "add_to_cart": {
